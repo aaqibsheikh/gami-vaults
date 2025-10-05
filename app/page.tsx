@@ -3,18 +3,25 @@ import { headers } from 'next/headers';
 import { getSupportedNetworks } from '@/lib/sdk';
 
 async function getStats() {
-  const hdrs = await headers();
-  const host = hdrs.get('host') || 'localhost:3000';
-  const proto = hdrs.get('x-forwarded-proto') || 'http';
-  const base = `${proto}://${host}`;
-  const res = await fetch(`${base}/api/stats`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  return res.json() as Promise<{
-    totalTvlUsd: number;
-    averageApy: number;
-    activeVaults: number;
-    networks: number;
-  }>;
+  try {
+    const hdrs = await headers();
+    const hostFromHeaders = hdrs.get('host');
+    const vercelUrl = process.env.VERCEL_URL; // e.g. gami-vaults.vercel.app
+    const host = hostFromHeaders || vercelUrl || 'localhost:3000';
+    const proto = hdrs.get('x-forwarded-proto') || (vercelUrl ? 'https' : 'http');
+    const base = `${proto}://${host}`;
+
+    const res = await fetch(`${base}/api/stats`, { cache: 'no-store', next: { revalidate: 0 } });
+    if (!res.ok) return null;
+    return (await res.json()) as {
+      totalTvlUsd: number;
+      averageApy: number;
+      activeVaults: number;
+      networks: number;
+    };
+  } catch {
+    return null;
+  }
 }
 
 export default async function HomePage() {
