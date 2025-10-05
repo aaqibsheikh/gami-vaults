@@ -54,12 +54,12 @@ export function Header() {
             <a href="/portfolio" className="text-white hover:text-gray-300 transition-colors">
               Portfolio
             </a>
-            <a href="#" className="text-white hover:text-gray-300 transition-colors">
+            {/* <a href="#" className="text-white hover:text-gray-300 transition-colors">
               About
             </a>
             <a href="#" className="text-white hover:text-gray-300 transition-colors">
               Contact
-            </a>
+            </a> */}
           </nav>
 
           {/* Right side controls */}
