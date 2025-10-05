@@ -134,17 +134,7 @@ export default function VaultsPage() {
           <div className="mb-6">
             <div className="text-sm text-gray-400">
             {isLoading ? (
-              mounted ? (
-                <span className="inline-flex items-center">
-                  <svg className="w-4 h-4 mr-2 animate-spin text-green-500" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                  </svg>
-                  Loading vaults...
-                </span>
-              ) : (
-                'Loading vaults...'
-              )
+              ''
             ) : error ? (
                 'Error loading vaults'
               ) : (
@@ -175,9 +165,9 @@ export default function VaultsPage() {
           {/* Vaults Display */}
           {isLoading ? (
             mounted ? (
-              <Loader label="Fetching vaults" />
+              <Loader label="Loading vaults..." />
             ) : (
-              <div className="dark-card p-12 text-center text-gray-400">Loading...</div>
+              <div className="dark-card p-12 text-center text-gray-400">Loading vaults...</div>
             )
           ) : (!error && filteredVaults.length > 0 && (
             <>
