@@ -1,0 +1,119 @@
+/**
+ * GET /api/vaults/[chainId]/[vault]
+ * Returns detailed information for a specific vault
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getVaultSchema } from '@/lib/zodSchemas';
+import { createSdkClient, isSupportedNetwork } from '@/lib/sdk';
+import { VaultDTO } from '@/lib/dto';
+import { cache, CacheKeys, CacheTTL } from '@/lib/cache';
+import { normalizeToString } from '@/lib/normalize';
+import { getUsdValue } from '@/lib/oracles';
+import { transformAugustVault, getVaultTVL } from '@/lib/august-transform';
+
+interface RouteParams {
+  params: Promise<{
+    chainId: string;
+    vault: string;
+  }>;
+}
+
+export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { chainId: chainIdParam, vault: vaultParam } = await params;
+  try {
+    // Validate parameters
+    const validatedParams = getVaultSchema.parse({
+      chainId: parseInt(chainIdParam),
+      vault: vaultParam
+    });
+
+    let { chainId, vault } = validatedParams;
+
+    // Check if chain is supported
+    if (!isSupportedNetwork(chainId)) {
+      return NextResponse.json(
+        { error: `Unsupported chain ID: ${chainId}` },
+        { status: 400 }
+      );
+    }
+
+    // Check cache first
+    const cacheKey = CacheKeys.vault(chainId, vault);
+    const cached = cache.get<VaultDTO>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
+    // Create SDK client and fetch vault details from August Digital
+    const sdk = createSdkClient(chainId);
+
+    // Accept either on-chain address (preferred) or legacy UUID; if UUID, resolve to address
+    const isHexAddress = /^0x[a-fA-F0-9]{40}$/.test(vault);
+    let augustVault;
+    if (isHexAddress) {
+      augustVault = await sdk.getVault(vault);
+    } else {
+      // Fallback: find by UUID from the vaults list and use its address
+      const list = await sdk.getVaults('active');
+      const match = list.find((v) => v.id === vault);
+      if (!match) {
+        return NextResponse.json(
+          { error: 'Vault not found' },
+          { status: 404 }
+        );
+      }
+      augustVault = await sdk.getVault(match.address);
+      vault = match.address;
+    }
+
+    if (!augustVault) {
+      return NextResponse.json(
+        { error: 'Vault not found' },
+        { status: 404 }
+      );
+    }
+
+    // Try to get vault summary for TVL data
+    let vaultSummary;
+    try {
+      vaultSummary = await sdk.getVaultSummary(vault);
+    } catch (error) {
+      console.warn(`Could not fetch summary for vault ${vault}:`, error);
+    }
+
+    // Transform August Digital response to our DTO format
+    const vaultDTO = transformAugustVault(augustVault);
+    
+    // Get TVL from summary data
+    const tvlUsd = getVaultTVL(augustVault, vaultSummary);
+    vaultDTO.tvlUsd = tvlUsd;
+
+    // Add additional metadata
+    vaultDTO.metadata = {
+      ...vaultDTO.metadata,
+      website: `https://vaults.augustdigital.io/${chainId}/${vault}`,
+      logo: augustVault.vault_logo_url
+    };
+
+    // Cache the result
+    cache.set(cacheKey, vaultDTO, CacheTTL.VAULT_DETAIL);
+
+    return NextResponse.json(vaultDTO);
+
+  } catch (error) {
+    console.error('Error in /api/vaults/[chainId]/[vault]:', error);
+    
+    if (error instanceof Error && error.name === 'ZodError') {
+      return NextResponse.json(
+        { error: 'Invalid parameters', details: error.message },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to fetch vault details' },
+      { status: 500 }
+    );
+  }
+}
