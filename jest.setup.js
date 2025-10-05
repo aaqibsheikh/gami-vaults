@@ -47,12 +47,3 @@ jest.mock('next/navigation', () => ({
     return '/';
   },
 }));
-
-// Mock environment variables
-process.env.NODE_ENV = 'test';
-process.env.RPC_1 = 'https://mainnet.infura.io/v3/test';
-process.env.RPC_42161 = 'https://arb-mainnet.g.alchemy.com/v2/test';
-process.env.RPC_10 = 'https://optimism-mainnet.g.alchemy.com/v2/test';
-process.env.RPC_8453 = 'https://base-mainnet.g.alchemy.com/v2/test';
-process.env.NETWORKS = '1,42161,10,8453';
-process.env.AUGUST_API_KEY = 'test-api-key';
