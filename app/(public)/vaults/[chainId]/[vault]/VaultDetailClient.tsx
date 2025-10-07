@@ -160,7 +160,7 @@ export default function VaultDetailClient({ chainId: chainIdParam, vault: vaultP
                     <span>•</span>
                     <span>{network?.name || `Chain ${chainId}`}</span>
                     <span>•</span>
-                    <span className="text-green-400">by Gami Capital</span>
+                    <span className="text-green-400">by {vault.strategist?.name || 'Unknown'}</span>
                   </div>
                 </div>
                 <div className="text-right">

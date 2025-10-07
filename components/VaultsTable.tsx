@@ -120,7 +120,7 @@ export function VaultsTable({ vaults, isLoading }: VaultsTableProps) {
                   {/* Strategist */}
                   <td className="py-4 px-6">
                     <span className="text-green-400 font-medium">
-                      Gami Capital
+                      {vault.strategist?.name || 'Unknown'}
                     </span>
                   </td>
 

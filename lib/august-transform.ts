@@ -142,6 +142,10 @@ export function transformAugustVault(augustVault: AugustVaultResponse): VaultDTO
   console.log(`🔄 [Transform] Reported APY:`, augustVault.reported_apy);
   console.log(`🔄 [Transform] Receipt token integrations:`, augustVault.receipt_token_integrations);
   
+  // Get strategist information
+  const strategists = getStrategists(augustVault);
+  const primaryStrategist = strategists.length > 0 ? strategists[0] : undefined;
+  
   return {
     // Use the on-chain vault contract address as the ID throughout the app
     id: augustVault.address,
@@ -171,6 +175,7 @@ export function transformAugustVault(augustVault: AugustVaultResponse): VaultDTO
       description: augustVault.description,
       riskLevel: mapRiskLevel(augustVault.risk)
     },
+    strategist: primaryStrategist,
     metadata: {
       description: augustVault.description,
       logo: augustVault.vault_logo_url,

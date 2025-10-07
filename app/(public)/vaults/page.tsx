@@ -7,6 +7,7 @@ import { VaultCard } from '@/components/VaultCard';
 import { VaultsTable } from '@/components/VaultsTable';
 import { Header } from '@/components/Header';
 import { getSupportedNetworks } from '@/lib/sdk';
+import { NetworkSelector, NetworkChips } from '@/components/NetworkSelector';
 import { VaultDTO } from '@/lib/dto';
 
 export default function VaultsPage() {
@@ -113,20 +114,19 @@ export default function VaultsPage() {
             </div>
 
             {/* Filters */}
-            <div className="flex space-x-4">
-              <select className="dark-input px-3 py-2 rounded-lg">
-                <option>All chains</option>
-                <option>Ethereum</option>
-                <option>Arbitrum</option>
-                <option>Optimism</option>
-                <option>Base</option>
-              </select>
-              <select className="dark-input px-3 py-2 rounded-lg">
-                <option>All tokens</option>
-                <option>USDC</option>
-                <option>ETH</option>
-                <option>USDT</option>
-              </select>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 gap-3 lg:gap-0">
+              <div className="w-64">
+                <NetworkSelector
+                  selectedChains={selectedChains}
+                  onChainsChange={setSelectedChains}
+                />
+              </div>
+              <div className="hidden lg:block">
+                <NetworkChips
+                  selectedChains={selectedChains}
+                  onChainRemove={(id) => setSelectedChains(selectedChains.filter((c) => c !== id))}
+                />
+              </div>
             </div>
           </div>
 

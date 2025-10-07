@@ -27,7 +27,7 @@ export function VaultCard({ vault }: VaultCardProps) {
             <Link href={`/vaults/${vault.chainId}/${vault.id}`} className="text-lg font-semibold text-white hover:underline">
               {vault.name}
             </Link>
-            <p className="text-sm text-gray-400">by Gami Capital</p>
+            <p className="text-sm text-gray-400">by {vault.strategist?.name || 'Unknown'}</p>
           </div>
         </div>
       </div>

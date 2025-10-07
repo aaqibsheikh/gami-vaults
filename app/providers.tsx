@@ -2,7 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider, createConfig, http } from 'wagmi';
-import { mainnet, arbitrum, optimism, base } from 'wagmi/chains';
+import { mainnet, arbitrum, optimism, base, avalanche } from 'wagmi/chains';
+import { defineChain } from 'viem';
 import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors';
 import { useState } from 'react';
 
@@ -20,14 +21,30 @@ const connectors = [
     : []),
 ];
 
+// Custom chain for Hyperliquid EVM
+const hyperEvm = defineChain({
+  id: 999,
+  name: 'Hyperliquid EVM',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: [process.env.NEXT_PUBLIC_RPC_999 || 'https://rpc.hyperliquid.xyz/evm'] },
+    public: { http: [process.env.NEXT_PUBLIC_RPC_999 || 'https://rpc.hyperliquid.xyz/evm'] },
+  },
+  blockExplorers: {
+    default: { name: 'Hyperliquid Explorer', url: 'https://explorer.hyperliquid.xyz' },
+  },
+});
+
 const config = createConfig({
-  chains: [mainnet, arbitrum, optimism, base],
+  chains: [mainnet, arbitrum, optimism, base, avalanche, hyperEvm],
   connectors,
   transports: {
     [mainnet.id]: http(process.env.NEXT_PUBLIC_RPC_1),
     [arbitrum.id]: http(process.env.NEXT_PUBLIC_RPC_42161),
     [optimism.id]: http(process.env.NEXT_PUBLIC_RPC_10),
     [base.id]: http(process.env.NEXT_PUBLIC_RPC_8453),
+    [avalanche.id]: http(process.env.NEXT_PUBLIC_RPC_43114),
+    [hyperEvm.id]: http(process.env.NEXT_PUBLIC_RPC_999),
   },
 });
 

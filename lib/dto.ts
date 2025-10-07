@@ -152,6 +152,11 @@ export interface VaultDTO {
     description: string;
     riskLevel: 'low' | 'medium' | 'high';
   };
+  strategist?: {
+    name: string;
+    logo: string;
+    id: string;
+  };
   metadata?: {
     website?: string;
     description?: string;

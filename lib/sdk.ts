@@ -3,8 +3,8 @@
  * Server-only file - never import in client components
  */
 
-import { createPublicClient, createWalletClient, http, PublicClient, WalletClient } from 'viem';
-import { mainnet, arbitrum, optimism, base } from 'viem/chains';
+import { createPublicClient, createWalletClient, http, PublicClient, WalletClient, defineChain } from 'viem';
+import { mainnet, arbitrum, optimism, base, avalanche } from 'viem/chains';
 import { NetworkConfig, AugustVaultResponse, AugustVaultSummary, AugustAPYResponse, AugustWithdrawalSummary } from './dto';
 
 /**
@@ -71,6 +71,17 @@ export const NETWORKS: Record<number, NetworkConfig> = {
       decimals: 18
     }
   },
+  43114: {
+    chainId: 43114,
+    name: 'Avalanche',
+    rpcUrl: process.env.RPC_43114 || 'https://api.avax.network/ext/bc/C/rpc',
+    explorerUrl: 'https://snowtrace.io',
+    nativeCurrency: {
+      name: 'Avalanche',
+      symbol: 'AVAX',
+      decimals: 18
+    }
+  },
   8453: {
     chainId: 8453,
     name: 'Base',
@@ -81,15 +92,42 @@ export const NETWORKS: Record<number, NetworkConfig> = {
       symbol: 'ETH',
       decimals: 18
     }
+  },
+  999: {
+    chainId: 999,
+    name: 'Hyperliquid EVM',
+    rpcUrl: process.env.RPC_999 || 'https://rpc.hyperliquid.xyz/evm',
+    explorerUrl: 'https://explorer.hyperliquid.xyz',
+    nativeCurrency: {
+      name: 'Ether',
+      symbol: 'ETH',
+      decimals: 18
+    }
   }
 };
 
 // Viem chain configurations
+// Custom chain definition for Hyperliquid EVM (not available in viem/chains)
+const hyperEvm = defineChain({
+  id: 999,
+  name: 'Hyperliquid EVM',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: [process.env.RPC_999 || 'https://rpc.hyperliquid.xyz/evm'] },
+    public: { http: [process.env.RPC_999 || 'https://rpc.hyperliquid.xyz/evm'] }
+  },
+  blockExplorers: {
+    default: { name: 'Hyperliquid Explorer', url: 'https://explorer.hyperliquid.xyz' }
+  }
+});
+
 const VIEM_CHAINS = {
   1: mainnet,
   42161: arbitrum,
   10: optimism,
-  8453: base
+  8453: base,
+  43114: avalanche,
+  999: hyperEvm
 };
 
 /**
@@ -369,9 +407,19 @@ export function createSdkClient(chainId: number): SdkClient {
  * Get supported network IDs from environment
  */
 export function getSupportedNetworks(): number[] {
-  // For client-side, return the supported networks directly
-  // Start with just Ethereum to improve performance, users can add more networks
-  return [1]; // Ethereum mainnet - most vaults are here
+  // Read supported networks from env (client/server safe)
+  // Prefer NEXT_PUBLIC_NETWORKS on client; fallback to NETWORKS; default to common set
+  const envValue = typeof process !== 'undefined'
+    ? (process.env.NEXT_PUBLIC_NETWORKS || process.env.NETWORKS)
+    : undefined;
+  if (envValue) {
+    const parsed = envValue
+      .split(',')
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !Number.isNaN(n));
+    if (parsed.length > 0) return parsed;
+  }
+  return [1, 8453, 43114, 999];
 }
 
 /**
