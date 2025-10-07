@@ -207,15 +207,83 @@ function mapRiskLevel(augustRisk: string | null): 'low' | 'medium' | 'high' {
  * Get TVL from August Digital vault summary or calculate from assets
  */
 export function getVaultTVL(augustVault: AugustVaultResponse, summary?: AugustVaultSummary): string {
-  // If we have summary data with total_assets and underlying_price, calculate TVL
-  if (summary && 'total_assets' in summary && 'underlying_price' in summary) {
-    const totalAssets = (summary as any).total_assets || 0;
-    const underlyingPrice = (summary as any).underlying_price || 0;
-    const tvl = totalAssets * underlyingPrice;
-    return normalizeToString(tvl);
+  if (!summary) {
+    return '0';
+  }
+
+  // Strategy 1: Check if TVL is provided directly
+  if (summary.tvl !== undefined && summary.tvl !== null) {
+    const tvl = typeof summary.tvl === 'string' ? parseFloat(summary.tvl) : summary.tvl;
+    if (!isNaN(tvl) && tvl > 0) {
+      return normalizeToString(tvl);
+    }
+  }
+
+  // Strategy 2: Check for total_value_locked
+  if (summary.total_value_locked !== undefined && summary.total_value_locked !== null) {
+    const tvl = typeof summary.total_value_locked === 'string' 
+      ? parseFloat(summary.total_value_locked) 
+      : summary.total_value_locked;
+    if (!isNaN(tvl) && tvl > 0) {
+      return normalizeToString(tvl);
+    }
+  }
+
+  // Strategy 3: Calculate from total_assets * underlying_price
+  if (summary.total_assets !== undefined && summary.underlying_price !== undefined) {
+    const totalAssets = typeof summary.total_assets === 'string' 
+      ? parseFloat(summary.total_assets) 
+      : summary.total_assets;
+    const underlyingPrice = typeof summary.underlying_price === 'string' 
+      ? parseFloat(summary.underlying_price) 
+      : summary.underlying_price;
+    
+    if (!isNaN(totalAssets) && !isNaN(underlyingPrice) && totalAssets > 0 && underlyingPrice > 0) {
+      const tvl = totalAssets * underlyingPrice;
+      return normalizeToString(tvl);
+    }
+  }
+
+  // Strategy 4: Check if data is in latest_snapshot
+  if (summary.latest_snapshot) {
+    const snapshot = summary.latest_snapshot;
+    
+    // Check for direct TVL in snapshot
+    if (snapshot.tvl !== undefined && snapshot.tvl !== null) {
+      const tvl = typeof snapshot.tvl === 'string' ? parseFloat(snapshot.tvl) : snapshot.tvl;
+      if (!isNaN(tvl) && tvl > 0) {
+        return normalizeToString(tvl);
+      }
+    }
+
+    // Check for total_value in snapshot
+    if (snapshot.total_value !== undefined && snapshot.total_value !== null) {
+      const tvl = typeof snapshot.total_value === 'string' ? parseFloat(snapshot.total_value) : snapshot.total_value;
+      if (!isNaN(tvl) && tvl > 0) {
+        return normalizeToString(tvl);
+      }
+    }
+
+    // Calculate from snapshot data
+    if (snapshot.total_assets !== undefined && snapshot.underlying_price !== undefined) {
+      const totalAssets = typeof snapshot.total_assets === 'string' 
+        ? parseFloat(snapshot.total_assets) 
+        : snapshot.total_assets;
+      const underlyingPrice = typeof snapshot.underlying_price === 'string' 
+        ? parseFloat(snapshot.underlying_price) 
+        : snapshot.underlying_price;
+      
+      if (!isNaN(totalAssets) && !isNaN(underlyingPrice) && totalAssets > 0 && underlyingPrice > 0) {
+        const tvl = totalAssets * underlyingPrice;
+        return normalizeToString(tvl);
+      }
+    }
   }
   
-  // Otherwise, we'd need to fetch from on-chain data
+  console.warn(`⚠️ Could not calculate TVL for vault ${augustVault.address}. Summary structure:`, 
+    JSON.stringify(summary, null, 2));
+  
+  // Return '0' if no TVL data is available
   return '0';
 }
 

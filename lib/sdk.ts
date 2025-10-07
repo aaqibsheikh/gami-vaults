@@ -254,7 +254,15 @@ export function createSdkClient(chainId: number): SdkClient {
         }
 
         const data = await response.json() as AugustVaultSummary;
-        console.log(`📊 [August API] Vault summary for ${address}:`, JSON.stringify(data, null, 2));
+        console.log(`📊 [August API] Vault summary for ${address}:`);
+        console.log(`  - Keys available:`, Object.keys(data));
+        console.log(`  - tvl:`, data.tvl);
+        console.log(`  - total_value_locked:`, data.total_value_locked);
+        console.log(`  - total_assets:`, data.total_assets);
+        console.log(`  - underlying_price:`, data.underlying_price);
+        if (data.latest_snapshot) {
+          console.log(`  - latest_snapshot keys:`, Object.keys(data.latest_snapshot));
+        }
         
         return data;
       });

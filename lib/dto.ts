@@ -97,6 +97,11 @@ export interface AugustVaultSummary {
   returns_7d: number;
   returns_30d: number;
   strategy_allocation: any;
+  // TVL calculation fields (may be at root level or in latest_snapshot)
+  total_assets?: number | string;
+  underlying_price?: number | string;
+  tvl?: number | string;
+  total_value_locked?: number | string;
 }
 
 export interface AugustAPYResponse {
