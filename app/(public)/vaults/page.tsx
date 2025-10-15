@@ -12,7 +12,7 @@ import { VaultDTO } from '@/lib/dto';
 
 export default function VaultsPage() {
   const [selectedChains, setSelectedChains] = useState<number[]>(getSupportedNetworks());
-  const [activeTab, setActiveTab] = useState<'all' | 'lending' | 'defi-yield' | 'pre-deposit'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'upshift' | 'ipor'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
   const [mounted, setMounted] = useState(false);
 
@@ -25,18 +25,28 @@ export default function VaultsPage() {
     enabled: selectedChains.length > 0
   });
 
-  // Filter vaults by type
+  // Filter vaults by provider
   const filteredVaults = useMemo(() => {
     if (!vaults) return [];
 
     return vaults.filter(vault => {
       if (activeTab === 'all') return true;
-      if (activeTab === 'lending') return vault.strategy?.name === 'Lending';
-      if (activeTab === 'defi-yield') return vault.strategy?.name === 'DeFi Yield';
-      if (activeTab === 'pre-deposit') return vault.name.includes('Pre-deposit') || vault.name.includes('TAC');
+      if (activeTab === 'upshift') return vault.provider === 'upshift';
+      if (activeTab === 'ipor') return vault.provider === 'ipor';
       return true;
     });
   }, [vaults, activeTab]);
+
+  // Count vaults by provider
+  const vaultCounts = useMemo(() => {
+    if (!vaults) return { all: 0, upshift: 0, ipor: 0 };
+    
+    return {
+      all: vaults.length,
+      upshift: vaults.filter(v => v.provider === 'upshift').length,
+      ipor: vaults.filter(v => v.provider === 'ipor').length
+    };
+  }, [vaults]);
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -91,24 +101,32 @@ export default function VaultsPage() {
 
           {/* Tabs and Filters */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-            {/* Tabs */}
+            {/* Provider Tabs */}
             <div className="flex space-x-8 mb-4 lg:mb-0">
               {[
-                { id: 'all', label: 'All vaults' },
-                { id: 'lending', label: 'Lending' },
-                { id: 'defi-yield', label: 'DeFi Yield' },
-                { id: 'pre-deposit', label: 'Pre-deposit' }
+                { id: 'all', label: 'All Vaults', count: vaultCounts.all },
+                { id: 'upshift', label: 'Upshift', count: vaultCounts.upshift },
+                { id: 'ipor', label: 'IPOR Fusion', count: vaultCounts.ipor }
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`pb-2 border-b-2 transition-colors ${
+                  className={`pb-2 border-b-2 transition-colors flex items-center space-x-2 ${
                     activeTab === tab.id
                       ? 'border-green-500 text-white'
                       : 'border-transparent text-gray-400 hover:text-white'
                   }`}
                 >
-                  {tab.label}
+                  <span>{tab.label}</span>
+                  {mounted && !isLoading && tab.count > 0 && (
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      activeTab === tab.id 
+                        ? 'bg-green-600 text-white' 
+                        : 'bg-gray-700 text-gray-300'
+                    }`}>
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -121,12 +139,14 @@ export default function VaultsPage() {
                   onChainsChange={setSelectedChains}
                 />
               </div>
-              <div className="hidden lg:block">
-                <NetworkChips
-                  selectedChains={selectedChains}
-                  onChainRemove={(id) => setSelectedChains(selectedChains.filter((c) => c !== id))}
-                />
-              </div>
+              {mounted && (
+                <div className="hidden lg:block">
+                  <NetworkChips
+                    selectedChains={selectedChains}
+                    onChainRemove={(id) => setSelectedChains(selectedChains.filter((c) => c !== id))}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

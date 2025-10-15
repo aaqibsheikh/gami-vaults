@@ -147,6 +147,7 @@ export interface VaultDTO {
     decimals: number;
   };
   status: 'active' | 'paused' | 'deprecated';
+  provider?: 'upshift' | 'ipor'; // vault data source
   rewards?: {
     token: string;
     apy: string;

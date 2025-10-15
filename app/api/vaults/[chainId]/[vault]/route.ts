@@ -11,6 +11,7 @@ import { cache, CacheKeys, CacheTTL } from '@/lib/cache';
 import { normalizeToString } from '@/lib/normalize';
 import { getUsdValue } from '@/lib/oracles';
 import { transformAugustVault, getVaultTVL } from '@/lib/august-transform';
+import { getIporVaults, isIporEnabled } from '@/lib/ipor-sdk';
 
 interface RouteParams {
   params: Promise<{
@@ -45,56 +46,89 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(cached);
     }
 
-    // Create SDK client and fetch vault details from August Digital
-    const sdk = createSdkClient(chainId);
+    let vaultDTO: VaultDTO | null = null;
 
-    // Accept either on-chain address (preferred) or legacy UUID; if UUID, resolve to address
-    const isHexAddress = /^0x[a-fA-F0-9]{40}$/.test(vault);
-    let augustVault;
-    if (isHexAddress) {
-      augustVault = await sdk.getVault(vault);
-    } else {
-      // Fallback: find by UUID from the vaults list and use its address
-      const list = await sdk.getVaults('active');
-      const match = list.find((v) => v.id === vault);
-      if (!match) {
-        return NextResponse.json(
-          { error: 'Vault not found' },
-          { status: 404 }
+    // First, try to find the vault in IPOR (if enabled)
+    if (isIporEnabled()) {
+      try {
+        console.log(`🔍 [Vault Detail] Checking IPOR for vault: ${vault} on chain ${chainId}`);
+        const iporVaults = await getIporVaults([chainId]);
+        const iporVault = iporVaults.find(
+          v => v.id.toLowerCase() === vault.toLowerCase()
         );
+        
+        if (iporVault) {
+          console.log(`✅ [Vault Detail] Found IPOR vault: ${iporVault.name}`);
+          vaultDTO = iporVault;
+        }
+      } catch (error) {
+        console.warn(`Could not fetch from IPOR:`, error);
       }
-      augustVault = await sdk.getVault(match.address);
-      vault = match.address;
     }
 
-    if (!augustVault) {
+    // If not found in IPOR, try Upshift/August Digital
+    if (!vaultDTO) {
+      try {
+        console.log(`🔍 [Vault Detail] Checking Upshift for vault: ${vault} on chain ${chainId}`);
+        const sdk = createSdkClient(chainId);
+
+        // Accept either on-chain address (preferred) or legacy UUID; if UUID, resolve to address
+        const isHexAddress = /^0x[a-fA-F0-9]{40}$/.test(vault);
+        let augustVault;
+        if (isHexAddress) {
+          augustVault = await sdk.getVault(vault);
+        } else {
+          // Fallback: find by UUID from the vaults list and use its address
+          const list = await sdk.getVaults('active');
+          const match = list.find((v) => v.id === vault);
+          if (!match) {
+            return NextResponse.json(
+              { error: 'Vault not found' },
+              { status: 404 }
+            );
+          }
+          augustVault = await sdk.getVault(match.address);
+          vault = match.address;
+        }
+
+        if (augustVault) {
+          console.log(`✅ [Vault Detail] Found Upshift vault: ${augustVault.vault_name}`);
+          
+          // Try to get vault summary for TVL data
+          let vaultSummary;
+          try {
+            vaultSummary = await sdk.getVaultSummary(vault);
+          } catch (error) {
+            console.warn(`Could not fetch summary for vault ${vault}:`, error);
+          }
+
+          // Transform August Digital response to our DTO format
+          vaultDTO = transformAugustVault(augustVault);
+          vaultDTO.provider = 'upshift';
+          
+          // Get TVL from summary data
+          const tvlUsd = getVaultTVL(augustVault, vaultSummary);
+          vaultDTO.tvlUsd = tvlUsd;
+
+          // Add additional metadata
+          vaultDTO.metadata = {
+            ...vaultDTO.metadata,
+            website: `https://vaults.augustdigital.io/${chainId}/${vault}`,
+            logo: augustVault.vault_logo_url
+          };
+        }
+      } catch (error) {
+        console.warn(`Could not fetch from Upshift:`, error);
+      }
+    }
+
+    // If vault not found in either provider
+    if (!vaultDTO) {
       return NextResponse.json(
-        { error: 'Vault not found' },
+        { error: 'Vault not found in any provider' },
         { status: 404 }
       );
     }
-
-    // Try to get vault summary for TVL data
-    let vaultSummary;
-    try {
-      vaultSummary = await sdk.getVaultSummary(vault);
-    } catch (error) {
-      console.warn(`Could not fetch summary for vault ${vault}:`, error);
-    }
-
-    // Transform August Digital response to our DTO format
-    const vaultDTO = transformAugustVault(augustVault);
-    
-    // Get TVL from summary data
-    const tvlUsd = getVaultTVL(augustVault, vaultSummary);
-    vaultDTO.tvlUsd = tvlUsd;
-
-    // Add additional metadata
-    vaultDTO.metadata = {
-      ...vaultDTO.metadata,
-      website: `https://vaults.augustdigital.io/${chainId}/${vault}`,
-      logo: augustVault.vault_logo_url
-    };
 
     // Cache the result
     cache.set(cacheKey, vaultDTO, CacheTTL.VAULT_DETAIL);

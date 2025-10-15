@@ -23,10 +23,17 @@ export function VaultCard({ vault }: VaultCardProps) {
           <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
             <span className="text-lg font-bold text-green-400">$</span>
           </div>
-          <div>
-            <Link href={`/vaults/${vault.chainId}/${vault.id}`} className="text-lg font-semibold text-white hover:underline">
-              {vault.name}
-            </Link>
+          <div className="flex-1">
+            <div className="flex items-center space-x-2">
+              <Link href={`/vaults/${vault.chainId}/${vault.id}`} className="text-lg font-semibold text-white hover:underline">
+                {vault.name}
+              </Link>
+              {vault.provider === 'ipor' && (
+                <span className="px-2 py-0.5 text-xs font-semibold bg-purple-600 text-white rounded-full">
+                  IPOR
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-400">by {vault.strategist?.name || 'Unknown'}</p>
           </div>
         </div>
