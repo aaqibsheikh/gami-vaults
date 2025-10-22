@@ -5,7 +5,7 @@ import { useVaults } from '@/hooks/useVaults';
 import { Loader } from '@/components/Loader';
 import { VaultCard } from '@/components/VaultCard';
 import { VaultsTable } from '@/components/VaultsTable';
-import { Header } from '@/components/Header';
+import Header from '@/components/Header';
 import { getSupportedNetworks } from '@/lib/sdk';
 import { NetworkSelector, NetworkChips } from '@/components/NetworkSelector';
 import { VaultDTO } from '@/lib/dto';

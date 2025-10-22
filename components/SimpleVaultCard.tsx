@@ -1,37 +1,33 @@
-import Link from 'next/link';
-import { VaultDTO } from '@/lib/dto';
-import { formatUsd, formatPercentage } from '@/lib/normalize';
-
-interface VaultCardProps {
-  vault: VaultDTO;
+interface SimpleVaultCardProps {
+  title: string;
+  badge: string;
+  badgeColor?: string;
+  apy: string;
+  tvl: string;
+  tokens: string[];
 }
 
-export function VaultCard({ vault }: VaultCardProps) {
-  const apyValue = parseFloat(vault.apyNet);
-  const hasApy = apyValue > 0;
-  const badgeColor = vault.provider === 'ipor' ? '#C4511F' : '#2C2929';
-  const badgeText = vault.provider === 'ipor' ? 'Advanced' : 'Flagship';
-
+export default function SimpleVaultCard({ title, badge, badgeColor = '#2C2929', apy, tvl, tokens }: SimpleVaultCardProps) {
   return (
     <div className="p-3 rounded-[29px] glass-border bg-white/6">
       <div className="p-6 rounded-[22px] bg-gradient-purple-fade bg-gami-dark flex flex-col gap-7">
         <div className="flex items-start justify-between">
           <h3 className="font-dm-sans text-[18px] font-bold leading-[128%] tracking-[-0.358px] text-white">
-            {vault.name}
+            {title}
           </h3>
           <span
             className="px-2 py-1 rounded-[7px] text-white font-dm-sans text-[11px] font-medium leading-[128%] tracking-[-0.212px]"
             style={{ backgroundColor: badgeColor }}
           >
-            {badgeText}
+            {badge}
           </span>
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-start justify-between px-5 py-8 rounded-[27px]">
+          <div className="flex items-start justify-between px-5 py-8 rounded-[27px] glass-bg">
             <div className="flex flex-col items-center gap-1.5">
               <h4 className="font-modernist text-[24px] font-bold leading-[110%] tracking-[-0.482px] text-white">
-                {hasApy ? formatPercentage(vault.apyNet) : 'N/A'}
+                {apy}
               </h4>
               <p className="font-dm-sans text-[11px] font-normal leading-[110%] tracking-[-0.224px] text-white">
                 TARGET APY
@@ -49,7 +45,7 @@ export function VaultCard({ vault }: VaultCardProps) {
                   />
                 </svg>
                 <h4 className="font-modernist text-[24px] font-bold leading-[110%] tracking-[-0.482px] text-white">
-                  {formatUsd(vault.tvlUsd).replace('$', '')}
+                  {tvl}
                 </h4>
               </div>
               <p className="font-dm-sans text-[11px] font-normal leading-[110%] tracking-[-0.224px] text-white">
@@ -59,32 +55,27 @@ export function VaultCard({ vault }: VaultCardProps) {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="px-2 py-1.5 rounded-[9px] bg-gami-dark-card text-white font-dm-sans text-[13px] font-medium leading-[128%] tracking-[-0.268px]">
-              {vault.underlying.symbol}
-            </span>
-            {vault.rewards && vault.rewards.length > 0 && (
-              <span className="px-2 py-1.5 rounded-[9px] bg-gami-dark-card text-white font-dm-sans text-[13px] font-medium leading-[128%] tracking-[-0.268px]">
-                Rewards
+            {tokens.map((token, index) => (
+              <span
+                key={index}
+                className="px-2 py-1.5 rounded-[9px] bg-gami-dark-card text-white font-dm-sans text-[13px] font-medium leading-[128%] tracking-[-0.268px]"
+              >
+                {token}
               </span>
-            )}
+            ))}
           </div>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <Link
-            href={`/vaults/${vault.chainId}/${vault.id}?tab=deposit`}
-            className="flex-1 py-4 px-3 rounded-[40px] bg-gradient-purple text-white font-dm-sans text-[16px] font-bold leading-[150%] hover:opacity-90 transition-opacity text-center"
-          >
+          <button className="flex-1 py-4 px-3 rounded-[40px] bg-gradient-purple text-white font-dm-sans text-[16px] font-bold leading-[150%] hover:opacity-90 transition-opacity">
             Deposit
-          </Link>
-          <Link
-            href={`/vaults/${vault.chainId}/${vault.id}`}
-            className="flex-1 py-4 px-3 rounded-[40px] border glass-border bg-white/5 text-white font-dm-sans text-[16px] font-normal leading-[150%] hover:bg-white/10 transition-colors text-center"
-          >
+          </button>
+          <button className="flex-1 py-4 px-3 rounded-[40px] border glass-border bg-white/5 text-white font-dm-sans text-[16px] font-normal leading-[150%] hover:bg-white/10 transition-colors">
             Details
-          </Link>
+          </button>
         </div>
       </div>
     </div>
   );
 }
+
