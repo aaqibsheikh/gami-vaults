@@ -1,15 +1,8 @@
 export default function Footer() {
   return (
-    <footer className="relative bg-black min-h-[400px] overflow-hidden">
-      <div className="absolute inset-0">
-        <img
-          src="/assets/images/footer-bg.svg"
-          alt=""
-          className="w-full h-full object-cover mix-blend-plus-lighter opacity-30"
-        />
-      </div>
-
-      {/* Sticky Logo - Outside Max Width */}
+    <footer className="relative bg-black min-h-[500px] overflow-hidden">
+      {/* Purple gradient background */}
+      {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-purple-800/10 to-purple-900/20"></div> */}
       <div className="absolute bottom-0 left-0 flex items-center">
         <h2 className="font-modernist font-bold text-[269px] leading-[110%] tracking-[-5.385px] text-white">
           Gami
@@ -28,59 +21,82 @@ export default function Footer() {
           />
         </svg>
       </div>
+      {/* Main content */}
+      <div className="relative max-w-[1280px] mx-auto px-[84px] py-16">
+        {/* Top section with description, navigation, and social icons */}
+        <div className="flex justify-between items-start mb-20">
+          {/* Left - Description */}
+          <div className="max-w-md">
+            <p className="text-white font-dm-sans text-[16px] font-normal leading-[140%]">
+              Gami provides on-chain asset management <br/> infrastructure with active curation & dynamic risk <br/> management
+            </p>
+          </div>
 
-      <div className="relative max-w-[1280px] mx-auto px-[84px] py-12 flex items-end justify-end gap-20">
-        <div className="flex flex-col items-start gap-0 mb-12">
-          <a href="#vaults" className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity">
-            Vaults
-          </a>
-          <a href="#portfolio" className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity">
-            Portfolio
-          </a>
-          <a href="#docs" className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity">
-            Docs
-          </a>
+          {/* Center - Navigation */}
+          <div className="flex flex-col gap-4">
+            <a href="#vaults" className="text-white font-dm-sans text-[16px] font-normal hover:opacity-80 transition-opacity">
+              Vaults
+            </a>
+            <a href="#portfolio" className="text-white font-dm-sans text-[16px] font-normal hover:opacity-80 transition-opacity">
+              Portfolio
+            </a>
+            <a href="#docs" className="text-white font-dm-sans text-[16px] font-normal hover:opacity-80 transition-opacity">
+              Docs
+            </a>
+          </div>
+
+          {/* Right - Social Icons */}
+          <div className="flex items-center gap-3">
+            <a
+              href="#"
+              className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+              aria-label="Instagram"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 7.5C8.62 7.5 7.5 8.62 7.5 10C7.5 11.38 8.62 12.5 10 12.5C11.38 12.5 12.5 11.38 12.5 10C12.5 8.62 11.38 7.5 10 7.5ZM10 11.5C9.17 11.5 8.5 10.83 8.5 10C8.5 9.17 9.17 8.5 10 8.5C10.83 8.5 11.5 9.17 11.5 10C11.5 10.83 10.83 11.5 10 11.5ZM13.5 6.5C13.22 6.5 13 6.72 13 7C13 7.28 13.22 7.5 13.5 7.5C13.78 7.5 14 7.28 14 7C14 6.72 13.78 6.5 13.5 6.5ZM10 2C6.69 2 4 4.69 4 8V12C4 15.31 6.69 18 10 18H12C15.31 18 18 15.31 18 12V8C18 4.69 15.31 2 12 2H10ZM10 3H12C14.76 3 17 5.24 17 8V12C17 14.76 14.76 17 12 17H10C7.24 17 5 14.76 5 12V8C5 5.24 7.24 3 10 3Z" fill="white"/>
+              </svg>
+            </a>
+            <a
+              href="#"
+              className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+              aria-label="Instagram"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 7.5C8.62 7.5 7.5 8.62 7.5 10C7.5 11.38 8.62 12.5 10 12.5C11.38 12.5 12.5 11.38 12.5 10C12.5 8.62 11.38 7.5 10 7.5ZM10 11.5C9.17 11.5 8.5 10.83 8.5 10C8.5 9.17 9.17 8.5 10 8.5C10.83 8.5 11.5 9.17 11.5 10C11.5 10.83 10.83 11.5 10 11.5ZM13.5 6.5C13.22 6.5 13 6.72 13 7C13 7.28 13.22 7.5 13.5 7.5C13.78 7.5 14 7.28 14 7C14 6.72 13.78 6.5 13.5 6.5ZM10 2C6.69 2 4 4.69 4 8V12C4 15.31 6.69 18 10 18H12C15.31 18 18 15.31 18 12V8C18 4.69 15.31 2 12 2H10ZM10 3H12C14.76 3 17 5.24 17 8V12C17 14.76 14.76 17 12 17H10C7.24 17 5 14.76 5 12V8C5 5.24 7.24 3 10 3Z" fill="white"/>
+              </svg>
+            </a>
+            <a
+              href="#"
+              className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+              aria-label="YouTube"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.21 6.38C18.96 5.49 18.35 4.86 17.5 4.60C15.11 4 11 4 11 4C11 4 6.77 4 4.18 4.60C3.32 4.86 2.71 5.49 2.47 6.38C2.22 8.03 2.22 10 2.22 10C2.22 10 2.22 11.97 2.59 13.62C2.83 14.51 3.44 15.14 4.30 15.40C6.77 16 11 16 11 16C11 16 15.11 16 17.70 15.40C18.56 15.14 19.17 14.51 19.41 13.62C19.78 11.97 19.78 10 19.78 10C19.78 10 19.78 8.03 19.21 6.38ZM8.04 12.38V7.62L13.18 10L8.04 12.38Z" fill="white"/>
+              </svg>
+            </a>
+            <a
+              href="#"
+              className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+              aria-label="Telegram"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.44 9.48C6.26 7.85 8.80 6.77 10.08 6.25C13.71 4.77 14.47 4.51 14.96 4.51C15.07 4.50 15.31 4.53 15.47 4.66C15.60 4.76 15.64 4.90 15.66 5.00C15.67 5.10 15.69 5.33 15.68 5.51C15.48 7.54 14.63 12.47 14.19 14.74C14.01 15.70 13.65 16.02 13.30 16.06C12.54 16.12 11.96 15.56 11.22 15.09C10.07 14.35 9.42 13.89 8.30 13.16C7.01 12.33 7.85 11.87 8.58 11.12C8.78 10.92 12.13 7.94 12.19 7.66C12.20 7.63 12.21 7.50 12.13 7.44C12.05 7.37 11.94 7.39 11.86 7.41C11.74 7.44 9.90 8.63 6.34 10.99C5.81 11.34 5.34 11.51 4.92 11.51C4.45 11.50 3.55 11.25 2.88 11.03C2.06 10.77 1.41 10.63 1.47 10.19C1.49 9.96 1.82 9.72 2.44 9.48Z" fill="white"/>
+              </svg>
+            </a>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start mb-12">
-          <a
-            href="#"
-            className="w-11 h-11 rounded-full border glass-border flex items-center justify-center hover:bg-white/10 transition-colors"
-            aria-label="X (Twitter)"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10.7454 8.8365L17.2223 1H15.9484L9.94844 7.82984L5.22234 1H0L6.77889 9.99332L0 18H1.27388L7.57612 10.8367L12.5554 18H17.7777L10.7454 8.8365ZM8.35457 9.87084L7.62234 8.73916L1.83456 2.30332H4.48901L9.14678 7.46916L9.879 8.60084L15.949 16.7367H13.2946L8.35457 9.87084Z" fill="#7D7D85"/>
-            </svg>
-          </a>
-          <a
-            href="#"
-            className="w-11 h-11 rounded-full border glass-border flex items-center justify-center hover:bg-white/10 transition-colors"
-            aria-label="Instagram"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 6.5C7.61 6.5 6.5 7.61 6.5 9C6.5 10.39 7.61 11.5 9 11.5C10.39 11.5 11.5 10.39 11.5 9C11.5 7.61 10.39 6.5 9 6.5ZM9 10.5C8.17 10.5 7.5 9.83 7.5 9C7.5 8.17 8.17 7.5 9 7.5C9.83 7.5 10.5 8.17 10.5 9C10.5 9.83 9.83 10.5 9 10.5ZM12 5.5C11.45 5.5 11 5.95 11 6.5C11 7.05 11.45 7.5 12 7.5C12.55 7.5 13 7.05 13 6.5C13 5.95 12.55 5.5 12 5.5ZM9 2C5.69 2 3 4.69 3 8V10C3 13.31 5.69 16 9 16H11C14.31 16 17 13.31 17 10V8C17 4.69 14.31 2 11 2H9ZM9 3H11C13.76 3 16 5.24 16 8V10C16 12.76 13.76 15 11 15H9C6.24 15 4 12.76 4 10V8C4 5.24 6.24 3 9 3Z" fill="white"/>
-            </svg>
-          </a>
-          <a
-            href="#"
-            className="w-11 h-11 rounded-full border glass-border flex items-center justify-center hover:bg-white/10 transition-colors"
-            aria-label="YouTube"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M17.29 5.38C17.04 4.49 16.43 3.86 15.58 3.60C13.11 3 9 3 9 3C9 3 4.77 3 2.18 3.60C1.32 3.86 0.71 4.49 0.47 5.38C0.22 7.03 0.22 9 0.22 9C0.22 9 0.22 10.97 0.59 12.62C0.83 13.51 1.44 14.14 2.30 14.40C4.77 15 9 15 9 15C9 15 13.11 15 15.70 14.40C16.56 14.14 17.17 13.51 17.41 12.62C17.78 10.97 17.78 9 17.78 9C17.78 9 17.78 7.03 17.29 5.38ZM7.04 11.38V6.62L12.18 9L7.04 11.38Z" fill="white"/>
-            </svg>
-          </a>
-          <a
-            href="#"
-            className="w-11 h-11 rounded-full border glass-border flex items-center justify-center hover:bg-white/10 transition-colors"
-            aria-label="Telegram"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.20 8.53C6.02 6.90 8.56 5.82 9.84 5.30C13.47 3.82 14.23 3.56 14.72 3.56C14.83 3.55 15.07 3.58 15.23 3.71C15.36 3.81 15.40 3.95 15.42 4.05C15.43 4.15 15.45 4.38 15.44 4.56C15.24 6.59 14.39 11.52 13.95 13.79C13.77 14.75 13.41 15.07 13.06 15.11C12.30 15.17 11.72 14.61 10.98 14.14C9.83 13.40 9.18 12.94 8.06 12.21C6.77 11.38 7.61 10.92 8.34 10.17C8.54 9.97 11.89 6.99 11.95 6.71C11.96 6.68 11.97 6.55 11.89 6.49C11.81 6.42 11.70 6.44 11.62 6.46C11.50 6.49 9.66 7.68 6.10 10.04C5.57 10.39 5.10 10.56 4.68 10.56C4.21 10.55 3.31 10.30 2.64 10.08C1.82 9.82 1.17 9.68 1.23 9.24C1.25 9.01 1.58 8.77 2.20 8.53Z" fill="white"/>
-            </svg>
-          </a>
-        </div>
       </div>
+        {/* Bottom section with logo and copyright */}
+        <div className="absolute bottom-4 right-32 flex justify-end items-end">
+          {/* Copyright */}
+          <div className="text-white font-dm-sans text-[14px] font-normal">
+            ©2025 Gami Labs. All rights reserved.
+          </div>
+        </div>
+
+      {/* Bottom gradient line */}
+      {/* <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-purple-400 via-purple-600 to-purple-800"></div> */}
     </footer>
   );
 }

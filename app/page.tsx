@@ -1,8 +1,10 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Stats from '@/components/Stats';
-import ExploreVaults from '@/components/ExploreVaults';
-import Portfolio from '@/components/Portfolio';
+import DeFiProtocols from '@/components/DeFiProtocols';
+import InstitutionalFeatures from '@/components/InstitutionalFeatures';
+// import ExploreVaults from '@/components/ExploreVaults';
+// import Portfolio from '@/components/Portfolio';
 import Footer from '@/components/Footer';
 
 export default function Index() {
@@ -12,8 +14,10 @@ export default function Index() {
       <main>
         <Hero />
         <Stats />
-        <ExploreVaults />
-        <Portfolio />
+        <DeFiProtocols />
+        <InstitutionalFeatures />
+        {/* <ExploreVaults /> */}
+        {/* <Portfolio /> */}
       </main>
       <Footer />
     </div>

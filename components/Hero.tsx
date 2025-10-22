@@ -15,14 +15,14 @@ export default function Hero() {
             <div className="space-y-0">
               <h1 className="font-modernist text-[57px] font-normal leading-[100%] tracking-[-1.15px] text-white">
                 Discover and deposit into
-              <h1 className="font-modernist ml-2 text-[57px] font-normal leading-[100%] tracking-[-1.15px] text-gami-dark text-shadow-glow relative inline-block">
-                <span className="absolute inset-0 bg-gradient-to-r from-gami-purple to-gami-blue bg-clip-text text-transparent">
-                   Gami Vaults
+                <span className="font-modernist ml-2 text-[57px] font-normal leading-[100%] tracking-[-1.15px] text-gami-dark text-shadow-glow relative inline-block">
+                  <span className="absolute inset-0 bg-gradient-to-r from-gami-purple to-gami-blue bg-clip-text text-transparent">
+                     Gami Vaults
+                  </span>
+                  <span className="relative bg-gradient-to-r from-gami-purple to-gami-blue bg-clip-text text-transparent">
+                    Gami Vaults
+                  </span>
                 </span>
-                <span className="relative bg-gradient-to-r from-gami-purple to-gami-blue bg-clip-text text-transparent">
-                  Gami Vaults
-                </span>
-              </h1>
               </h1>
             </div>
 
