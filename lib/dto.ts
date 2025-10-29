@@ -147,7 +147,7 @@ export interface VaultDTO {
     decimals: number;
   };
   status: 'active' | 'paused' | 'deprecated';
-  provider?: 'upshift' | 'ipor'; // vault data source
+  provider?: 'upshift' | 'ipor' | 'lagoon'; // vault data source
   rewards?: {
     token: string;
     apy: string;
@@ -167,6 +167,8 @@ export interface VaultDTO {
     website?: string;
     description?: string;
     logo?: string;
+    vaultAge?: string;
+    realizedApy?: string;
   };
 }
 

@@ -29,20 +29,39 @@ export function useVault(options: UseVaultOptions): VaultResponse {
   } = useQuery({
     queryKey: ['vault', chainId, vaultId],
     queryFn: async (): Promise<VaultDTO> => {
-      const response = await fetch(`/api/vaults/${chainId}/${vaultId}`);
+      // Add timeout to the fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch vault details');
-      }
+      try {
+        const response = await fetch(`/api/vaults/${chainId}/${vaultId}`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch vault details');
+        }
 
-      return response.json();
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          throw new Error('Request timeout - please try again');
+        }
+        throw error;
+      }
     },
     enabled: enabled && !!chainId && !!vaultId,
-    staleTime: 10000, // 10 seconds
+    staleTime: Infinity, // Never consider data stale - only fetch on manual refresh
     gcTime: 300000, // 5 minutes
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+    retry: false, // Disable automatic retries
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    refetchOnMount: false, // Don't refetch on component mount if data exists
+    refetchOnReconnect: false // Don't refetch when network reconnects
   });
 
   return {

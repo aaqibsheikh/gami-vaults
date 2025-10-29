@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import Link from 'next/link';
 
 export default function Header() {
   const [isWalletMenuOpen, setIsWalletMenuOpen] = useState(false);
@@ -33,28 +34,30 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
       <div className="max-w-[1280px] mx-auto py-5 px-[84px] flex items-center justify-between">
         <div className="flex items-center">
-          <img src="/assets/images/gami-logo.svg" alt="Gami Labs" className="" />
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <img src="/assets/images/gami-logo.svg" alt="Gami Labs" className="" />
+          </Link>
         </div>
 
         <nav className="flex items-center gap-5">
-          <a
-            href="#vaults"
+          <Link
+            href="/vaults"
             className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
           >
             Vaults
-          </a>
-          <a
-            href="#portfolio"
+          </Link>
+          <Link
+            href="/portfolio"
             className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
           >
             Portfolio
-          </a>
-          <a
+          </Link>
+          <Link
             href="#about"
             className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
           >
             About
-          </a>
+          </Link>
         </nav>
 
         <div className="flex items-center gap-[14px]">
@@ -65,6 +68,20 @@ export default function Header() {
               className="bg-transparent text-white text-[14px] font-light font-dm-sans outline-none placeholder:text-white/70 w-60"
             />
           </div>
+          
+          {/* Network Selector */}
+          {/* <div className="flex items-center gap-2 px-3 py-2 rounded-[32px] glass-border bg-white/6">
+            <span className="text-white text-[14px] font-medium">Ethereum</span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M3 4.5L6 7.5L9 4.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div> */}
+
+          {/* Wallet Balance */}
+          {/* <div className="flex items-center gap-2 px-3 py-2 rounded-[32px] glass-border bg-white/6">
+            <span className="text-white text-[14px] font-medium">$15,700</span>
+          </div> */}
+
           <div className="relative">
             {mounted && isConnected ? (
               <>

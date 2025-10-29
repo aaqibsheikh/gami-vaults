@@ -58,10 +58,12 @@ export function useVaults(options: UseVaultsOptions = {}): VaultsResponse {
       }
     },
     enabled: enabled && chainIds.length > 0,
-    staleTime: 15000, // 15 seconds
+    staleTime: Infinity, // Never consider data stale - only fetch on manual refresh
     gcTime: 300000, // 5 minutes
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+    retry: false, // Disable automatic retries
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    refetchOnMount: false, // Don't refetch on component mount if data exists
+    refetchOnReconnect: false // Don't refetch when network reconnects
   });
 
   return {

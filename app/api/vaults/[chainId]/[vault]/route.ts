@@ -10,8 +10,10 @@ import { VaultDTO } from '@/lib/dto';
 import { cache, CacheKeys, CacheTTL } from '@/lib/cache';
 import { normalizeToString } from '@/lib/normalize';
 import { getUsdValue } from '@/lib/oracles';
-import { transformAugustVault, getVaultTVL } from '@/lib/august-transform';
+import { transformAugustVault, getVaultTVL, calculateVaultAge, calculateRealizedAPY } from '@/lib/august-transform';
 import { getIporVaults, isIporEnabled } from '@/lib/ipor-sdk';
+import { getLagoonVault } from '@/lib/lagoon-sdk';
+import { getCuratedVault } from '@/lib/curated-vaults';
 
 interface RouteParams {
   params: Promise<{
@@ -94,12 +96,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         if (augustVault) {
           console.log(`✅ [Vault Detail] Found Upshift vault: ${augustVault.vault_name}`);
           
-          // Try to get vault summary for TVL data
-          let vaultSummary;
+          // Try to get vault summary and APY data
+          let vaultSummary, apyData;
           try {
-            vaultSummary = await sdk.getVaultSummary(vault);
+            [vaultSummary, apyData] = await Promise.all([
+              sdk.getVaultSummary(vault).catch(() => null),
+              sdk.getVaultAPY(vault).catch(() => null)
+            ]);
           } catch (error) {
-            console.warn(`Could not fetch summary for vault ${vault}:`, error);
+            console.warn(`Could not fetch summary/APY for vault ${vault}:`, error);
           }
 
           // Transform August Digital response to our DTO format
@@ -107,14 +112,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           vaultDTO.provider = 'upshift';
           
           // Get TVL from summary data
-          const tvlUsd = getVaultTVL(augustVault, vaultSummary);
+          const tvlUsd = getVaultTVL(augustVault, vaultSummary || undefined);
           vaultDTO.tvlUsd = tvlUsd;
+
+          // Calculate additional metadata
+          const vaultAge = calculateVaultAge(augustVault.start_datetime);
+          const realizedApy = apyData ? calculateRealizedAPY(apyData) : '--';
 
           // Add additional metadata
           vaultDTO.metadata = {
             ...vaultDTO.metadata,
             website: `https://vaults.augustdigital.io/${chainId}/${vault}`,
-            logo: augustVault.vault_logo_url
+            logo: augustVault.vault_logo_url,
+            vaultAge,
+            realizedApy
           };
         }
       } catch (error) {
@@ -122,7 +133,30 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // If vault not found in either provider
+    // If not found in IPOR or Upshift, try Lagoon
+    if (!vaultDTO) {
+      try {
+        console.log(`🔍 [Vault Detail] Checking Lagoon for vault: ${vault} on chain ${chainId}`);
+        
+        // Check if this is a curated Lagoon vault
+        const curatedVault = getCuratedVault(vault, chainId);
+        if (curatedVault && curatedVault.provider === 'lagoon') {
+          console.log(`✅ [Vault Detail] Found curated Lagoon vault: ${curatedVault.name}`);
+          
+          // Fetch Lagoon vault data
+          vaultDTO = await getLagoonVault(
+            vault,
+            chainId,
+            curatedVault.underlyingSymbol,
+            6 // USDC has 6 decimals
+          );
+        }
+      } catch (error) {
+        console.warn(`Could not fetch from Lagoon:`, error);
+      }
+    }
+
+    // If vault not found in any provider
     if (!vaultDTO) {
       return NextResponse.json(
         { error: 'Vault not found in any provider' },

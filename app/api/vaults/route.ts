@@ -1,6 +1,6 @@
 /**
  * GET /api/vaults
- * Returns list of vaults across multiple chains
+ * Returns list of curated vaults only
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -8,11 +8,11 @@ import { getVaultsSchema } from '@/lib/zodSchemas';
 import { createSdkClient, getSupportedNetworks } from '@/lib/sdk';
 import { VaultDTO } from '@/lib/dto';
 import { cache, CacheKeys, CacheTTL } from '@/lib/cache';
-import { normalizeToString, formatUsd, formatPercentage } from '@/lib/normalize';
-import { getVaultUnderlying } from '@/lib/underlying';
-import { getUsdValue } from '@/lib/oracles';
 import { transformAugustVault, getVaultTVL } from '@/lib/august-transform';
-import { getIporVaults, isIporEnabled } from '@/lib/ipor-sdk';
+import { 
+  CURATED_VAULTS
+} from '@/lib/curated-vaults';
+import { getLagoonVault } from '@/lib/lagoon-sdk';
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
     const validatedQuery = getVaultsSchema.parse(query);
     const chainIds = validatedQuery.chains.length > 0 ? validatedQuery.chains : getSupportedNetworks();
     
-    // Get provider filter (optional: 'upshift', 'ipor', or undefined for all)
-    const provider = searchParams.get('provider') as 'upshift' | 'ipor' | null;
+    // Get provider filter (optional: 'upshift', 'ipor', 'lagoon', or undefined for all)
+    const provider = searchParams.get('provider') as 'upshift' | 'ipor' | 'lagoon' | null;
     
     // Check cache first
     const cacheKey = provider 
@@ -37,73 +37,86 @@ export async function GET(request: NextRequest) {
 
     const vaults: VaultDTO[] = [];
 
-    // Fetch Upshift vaults (if not filtering for IPOR only)
-    if (provider !== 'ipor') {
-      for (const chainId of chainIds) {
-        try {
-          const sdk = createSdkClient(chainId);
-          const augustVaults = await sdk.getVaults('active'); // Only get active vaults
+    // Only process curated vaults
+    const curatedVaultsForChains = CURATED_VAULTS.filter(v => 
+      chainIds.includes(v.chainId) &&
+      (!provider || v.provider === provider)
+    );
 
-          // Process vaults in parallel with limited concurrency to avoid overwhelming the API
-          const vaultPromises = augustVaults
-            .filter(augustVault => augustVault.chain === chainId)
-            .map(async (augustVault) => {
-              console.log(`🔄 [Upshift API] Processing vault: ${augustVault.vault_name} (${augustVault.address})`);
-              
-              // Transform August Digital response to our DTO format first
-              const vaultDTO = transformAugustVault(augustVault);
-              
-              // Mark as Upshift vault
-              vaultDTO.provider = 'upshift';
-              
-              // Try to get vault summary for TVL data (with timeout)
-              let tvlUsd = '0';
-              try {
-                const vaultSummary = await Promise.race([
-                  sdk.getVaultSummary(augustVault.address),
-                  new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000)) // 3 second timeout
-                ]);
-                tvlUsd = getVaultTVL(augustVault, vaultSummary as any);
-                console.log(`💰 [Upshift API] TVL for ${augustVault.vault_name}: $${tvlUsd}`);
-              } catch (error) {
-                // Use default TVL if summary fetch fails
-                console.warn(`Could not fetch summary for vault ${augustVault.address}:`, error);
-              }
-
-              vaultDTO.tvlUsd = tvlUsd;
-              console.log(`✅ [Upshift API] Final vault DTO for ${augustVault.vault_name}:`, JSON.stringify({
-                name: vaultDTO.name,
-                underlying: vaultDTO.underlying.symbol,
-                tvlUsd: vaultDTO.tvlUsd,
-                apyNet: vaultDTO.apyNet
-              }, null, 2));
-
-              return vaultDTO;
-            });
-
-          // Wait for all vault processing to complete
-          const processedVaults = await Promise.all(vaultPromises);
-          vaults.push(...processedVaults);
-        } catch (error) {
-          console.error(`Error fetching Upshift vaults for chain ${chainId}:`, error);
-          // Continue with other chains even if one fails
-        }
-      }
-    }
-
-    // Fetch IPOR vaults (if not filtering for Upshift only and IPOR is enabled)
-    if (provider !== 'upshift' && isIporEnabled()) {
+    // Process each curated vault
+    for (const curatedVault of curatedVaultsForChains) {
       try {
-        console.log(`🔄 [IPOR API] Fetching IPOR vaults for chains: ${chainIds.join(', ')}`);
-        const iporVaults = await getIporVaults(chainIds);
-        console.log(`✅ [IPOR API] Fetched ${iporVaults.length} IPOR vaults`);
-        vaults.push(...iporVaults);
+        if (curatedVault.provider === 'upshift') {
+          // Fetch Upshift vault data from August Digital API
+          const sdk = createSdkClient(curatedVault.chainId);
+          
+          // Fetch specific vault data
+          const augustVault = await sdk.getVault(curatedVault.address);
+          console.log('augustVaultaugustVault', augustVault);
+          // Transform to our DTO format
+          const vaultDTO = transformAugustVault(augustVault);
+          vaultDTO.provider = 'upshift';
+          
+          // Fetch TVL data
+          let tvlUsd = '0';
+          try {
+            const vaultSummary = await Promise.race([
+              sdk.getVaultSummary(curatedVault.address),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
+            ]);
+            tvlUsd = getVaultTVL(augustVault, vaultSummary as any);
+          } catch (error) {
+            // Failed to fetch TVL, will use default value
+          }
+
+          vaultDTO.tvlUsd = tvlUsd;
+          vaults.push(vaultDTO);
+          
+        } else if (curatedVault.provider === 'lagoon') {
+          // Fetch Lagoon vault data from on-chain contract
+          try {
+            const vaultDTO = await getLagoonVault(
+              curatedVault.address,
+              curatedVault.chainId,
+              curatedVault.underlyingSymbol,
+              getTokenDecimals(curatedVault.underlyingSymbol)
+            );
+            vaults.push(vaultDTO);
+          } catch (error) {
+            // Fallback to placeholder data if on-chain fetch fails
+            console.warn(`Failed to fetch Lagoon vault ${curatedVault.address}, using placeholder:`, error);
+            vaults.push({
+              id: curatedVault.address,
+              chainId: curatedVault.chainId,
+              name: curatedVault.name,
+              symbol: `lag${curatedVault.underlyingSymbol}`,
+              tvlUsd: '0',
+              apyNet: '0',
+              fees: {
+                mgmtBps: '0',
+                perfBps: '0'
+              },
+              underlying: {
+                symbol: curatedVault.underlyingSymbol,
+                address: getTokenAddress(curatedVault.underlyingSymbol),
+                decimals: getTokenDecimals(curatedVault.underlyingSymbol)
+              },
+              status: 'active',
+              provider: 'lagoon',
+              metadata: {
+                website: curatedVault.externalUrl,
+                description: `${curatedVault.name} - On-chain data unavailable`,
+                logo: undefined
+              }
+            });
+          }
+        }
       } catch (error) {
-        console.error('Error fetching IPOR vaults:', error);
-        // Continue even if IPOR fails
+        console.error(`Error processing vault ${curatedVault.address}:`, error);
+        // Continue with other vaults even if one fails
       }
     }
-
+    
     // Cache the results
     cache.set(cacheKey, vaults, CacheTTL.VAULTS_LIST);
 
@@ -124,4 +137,36 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Helper function to get token address by symbol
+ */
+function getTokenAddress(symbol: string): string {
+  const addresses: Record<string, string> = {
+    'USDC': '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    'BTC': '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+    'WBTC': '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+    'ETH': '0x0000000000000000000000000000000000000000',
+    'WETH': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    'USDT': '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    'DAI': '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+  };
+  return addresses[symbol] || '0x0000000000000000000000000000000000000000';
+}
+
+/**
+ * Helper function to get token decimals by symbol
+ */
+function getTokenDecimals(symbol: string): number {
+  const decimals: Record<string, number> = {
+    'USDC': 6,
+    'USDT': 6,
+    'BTC': 8,
+    'WBTC': 8,
+    'ETH': 18,
+    'WETH': 18,
+    'DAI': 18
+  };
+  return decimals[symbol] || 18;
 }

@@ -36,15 +36,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached);
     }
 
-    // Create SDK client and fetch positions (graceful fallback to empty on error)
+    // Create SDK client and fetch positions
     const sdk = createSdkClient(chain);
-    let positions: any[] = [];
-    try {
-      positions = await sdk.getPositions(address);
-    } catch (e) {
-      console.warn('Positions API failed, returning empty portfolio:', e);
-      positions = [];
-    }
+    const positions = await sdk.getPositions(address);
 
     if (!positions || positions.length === 0) {
       const emptyPortfolio: PortfolioDTO = {

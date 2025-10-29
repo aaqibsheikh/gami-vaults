@@ -31,9 +31,9 @@ export default function Hero() {
             </p>
 
             <div className="flex items-center gap-7 pt-2">
-              <button className="px-6 py-3 rounded-[36px] bg-gradient-purple text-white text-[14px] font-medium font-dm-sans hover:opacity-90 transition-opacity">
+              <a href="/vaults" className="px-6 py-3 rounded-[36px] bg-gradient-purple text-white text-[14px] font-medium font-dm-sans hover:opacity-90 transition-opacity inline-block">
                 Explore Vaults →
-              </button>
+              </a>
               <button className="px-6 py-3 rounded-[32px] glass-border bg-white/6 text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors">
                 About
               </button>

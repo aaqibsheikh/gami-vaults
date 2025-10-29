@@ -1,6 +1,23 @@
 /**
- * Transform August Digital API responses to our normalized DTO format
+ * Calculate vault age from start date
  */
+export function calculateVaultAge(startDate: string): string {
+  const start = new Date(startDate);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  return `${diffDays} days`;
+}
+
+/**
+ * Calculate realized APY from historical data
+ */
+export function calculateRealizedAPY(apyData: AugustAPYResponse): string {
+  // Use 30-day APY as realized APY, fallback to 7-day, then current APY
+  const realizedAPY = apyData.liquidAPY30Day || apyData.liquidAPY7Day || 0;
+  return normalizeToString(realizedAPY);
+}
 
 import { AugustVaultResponse, AugustVaultSummary, AugustAPYResponse, VaultDTO } from './dto';
 import { normalizeToString } from './normalize';
@@ -12,7 +29,7 @@ import { normalizeToString } from './normalize';
 const COMMON_TOKENS: Record<string, { address: string; decimals: number }> = {
   'ETH': { address: '0x0000000000000000000000000000000000000000', decimals: 18 },
   'WETH': { address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', decimals: 18 },
-  'USDC': { address: '0xA0b86a33E6441b8c4C8C0C4C8C0C4C8C0C4C8C0C', decimals: 6 },
+  'USDC': { address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', decimals: 6 },
   'USDT': { address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6 },
   'DAI': { address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 },
   'BTC': { address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', decimals: 8 },
@@ -45,10 +62,8 @@ function getVaultUnderlyingToken(
   
   // Strategy 0: Use receipt_token_integrations if available (most accurate)
   if (receiptTokenIntegrations && receiptTokenIntegrations.length > 0) {
-    console.log(`🎯 [Token Detection] Using receipt_token_integrations for ${vaultAddress}`);
     const integration = receiptTokenIntegrations[0];
     if (integration.symbol && integration.address) {
-      console.log(`✅ [Token Detection] Found token: ${integration.symbol} at ${integration.address}`);
       // Use the token information directly from the API
       return {
         symbol: integration.symbol,
@@ -60,7 +75,6 @@ function getVaultUnderlyingToken(
   
   // Strategy 1: Use receipt_token_symbol to infer underlying token
   if (receiptTokenSymbol) {
-    console.log(`🎯 [Token Detection] Using receipt_token_symbol pattern matching for ${receiptTokenSymbol}`);
     const symbolLower = receiptTokenSymbol.toLowerCase();
     
     // Common patterns in receipt token symbols that indicate underlying tokens
@@ -87,7 +101,6 @@ function getVaultUnderlyingToken(
 
     for (const { pattern, token } of tokenPatterns) {
       if (pattern.test(symbolLower)) {
-        console.log(`✅ [Token Detection] Pattern ${pattern} matched for ${receiptTokenSymbol} → ${token}`);
         const tokenConfig = COMMON_TOKENS[token];
         if (tokenConfig) {
           return { symbol: token, ...tokenConfig };
@@ -129,7 +142,6 @@ function getVaultUnderlyingToken(
   }
 
   // Strategy 3: Default fallback
-  console.warn(`Could not determine underlying token for vault ${vaultAddress} (${vaultName})`);
   return { symbol: 'UNKNOWN', address: vaultAddress, decimals: 18 };
 }
 
@@ -137,11 +149,6 @@ function getVaultUnderlyingToken(
  * Transform August Digital vault response to our VaultDTO format
  */
 export function transformAugustVault(augustVault: AugustVaultResponse): VaultDTO {
-  console.log(`🔄 [Transform] Processing vault: ${augustVault.vault_name} (${augustVault.address})`);
-  console.log(`🔄 [Transform] Receipt token symbol: ${augustVault.receipt_token_symbol}`);
-  console.log(`🔄 [Transform] Reported APY:`, augustVault.reported_apy);
-  console.log(`🔄 [Transform] Receipt token integrations:`, augustVault.receipt_token_integrations);
-  
   // Get strategist information
   const strategists = getStrategists(augustVault);
   const primaryStrategist = strategists.length > 0 ? strategists[0] : undefined;
@@ -279,9 +286,6 @@ export function getVaultTVL(augustVault: AugustVaultResponse, summary?: AugustVa
       }
     }
   }
-  
-  console.warn(`⚠️ Could not calculate TVL for vault ${augustVault.address}. Summary structure:`, 
-    JSON.stringify(summary, null, 2));
   
   // Return '0' if no TVL data is available
   return '0';

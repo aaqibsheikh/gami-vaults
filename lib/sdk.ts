@@ -3,7 +3,7 @@
  * Server-only file - never import in client components
  */
 
-import { createPublicClient, createWalletClient, http, PublicClient, WalletClient, defineChain } from 'viem';
+import { createPublicClient, createWalletClient, http, PublicClient, WalletClient, defineChain, encodeFunctionData } from 'viem';
 import { mainnet, arbitrum, optimism, base, avalanche } from 'viem/chains';
 import { NetworkConfig, AugustVaultResponse, AugustVaultSummary, AugustAPYResponse, AugustWithdrawalSummary } from './dto';
 
@@ -195,22 +195,29 @@ export function createSdkClient(chainId: number): SdkClient {
 
         console.log(`🔍 [August API] Fetching vaults from: ${url.toString()}`);
         
-        const response = await fetch(url.toString(), {
-          headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'Upshift-App/1.0'
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+        
+        try {
+          const response = await fetch(url.toString(), {
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'Upshift-App/1.0'
+            },
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            throw new Error(`August API error: ${response.status} ${response.statusText}`);
           }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`August API error: ${response.status} ${response.statusText}`);
-        }
 
-        const data = await response.json() as AugustVaultResponse[];
-        console.log(`📊 [August API] Received ${data.length} vaults`);
-        console.log(`📋 [August API] First vault sample:`, JSON.stringify(data[0], null, 2));
-        
-        return data;
+          const data = await response.json() as AugustVaultResponse[];
+          return data;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          throw error;
+        }
       });
     },
     
@@ -219,52 +226,62 @@ export function createSdkClient(chainId: number): SdkClient {
         const url = `${AUGUST_API_BASE}/tokenized_vault/${address}`;
         console.log(`🔍 [August API] Fetching vault details from: ${url}`);
         
-        const response = await fetch(url, {
-          headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'Upshift-App/1.0'
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+        
+        try {
+          const response = await fetch(url, {
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'Upshift-App/1.0'
+            },
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            throw new Error(`August API error: ${response.status} ${response.statusText}`);
           }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`August API error: ${response.status} ${response.statusText}`);
-        }
 
-        const data = await response.json() as AugustVaultResponse;
-        console.log(`📊 [August API] Vault details for ${address}:`, JSON.stringify(data, null, 2));
-        
-        return data;
+          const data = await response.json() as AugustVaultResponse;
+          console.log(`📊 [August API] Vault details for ${address}:`, JSON.stringify(data, null, 2));
+          
+          return data;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          throw error;
+        }
       });
     },
     
     async getVaultSummary(address: string) {
       return retryApiCall(async () => {
         const url = `${AUGUST_API_BASE}/tokenized_vault/vault_summary/${address}`;
-        console.log(`🔍 [August API] Fetching vault summary from: ${url}`);
         
-        const response = await fetch(url, {
-          headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'Upshift-App/1.0'
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+        
+        try {
+          const response = await fetch(url, {
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'Upshift-App/1.0'
+            },
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            throw new Error(`August API error: ${response.status} ${response.statusText}`);
           }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`August API error: ${response.status} ${response.statusText}`);
-        }
 
-        const data = await response.json() as AugustVaultSummary;
-        console.log(`📊 [August API] Vault summary for ${address}:`);
-        console.log(`  - Keys available:`, Object.keys(data));
-        console.log(`  - tvl:`, data.tvl);
-        console.log(`  - total_value_locked:`, data.total_value_locked);
-        console.log(`  - total_assets:`, data.total_assets);
-        console.log(`  - underlying_price:`, data.underlying_price);
-        if (data.latest_snapshot) {
-          console.log(`  - latest_snapshot keys:`, Object.keys(data.latest_snapshot));
+          const data = await response.json() as AugustVaultSummary;
+          
+          return data;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          throw error;
         }
-        
-        return data;
       });
     },
     
@@ -300,29 +317,17 @@ export function createSdkClient(chainId: number): SdkClient {
     },
     
     async getPositions(userAddress: string) {
-      try {
-        const response = await fetch(`${AUGUST_API_BASE}/positions/${chainId}/${userAddress}`);
-        if (!response.ok) {
-          throw new Error(`August API error: ${response.status} ${response.statusText}`);
-        }
-        return await response.json();
-      } catch (error) {
-        console.error('Error fetching positions from August API:', error);
-        throw new Error(`Failed to fetch positions: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
+      // August Digital API doesn't have a positions endpoint
+      // Return empty array to indicate no positions
+      console.log(`⚠️ [August API] Positions endpoint not available, returning empty array for ${userAddress}`);
+      return [];
     },
     
     async getPosition(vaultAddress: string, userAddress: string) {
-      try {
-        const response = await fetch(`${AUGUST_API_BASE}/positions/${chainId}/${userAddress}/${vaultAddress}`);
-        if (!response.ok) {
-          throw new Error(`August API error: ${response.status} ${response.statusText}`);
-        }
-        return await response.json();
-      } catch (error) {
-        console.error('Error fetching position from August API:', error);
-        throw new Error(`Failed to fetch position: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
+      // August Digital API doesn't have individual position endpoint
+      // Return null to indicate no position found
+      console.log(`⚠️ [August API] Individual position endpoint not available for vault ${vaultAddress}`);
+      return null;
     },
     
     async getRedemptions(userAddress: string, vaultAddress?: string) {
@@ -343,69 +348,154 @@ export function createSdkClient(chainId: number): SdkClient {
     },
     
     async buildDepositTx(vaultAddress: string, amount: string, userAddress: string) {
-      try {
-        const response = await fetch(`${AUGUST_API_BASE}/transactions/deposit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chain_id: chainId,
-            vault_address: vaultAddress,
-            amount,
-            user_address: userAddress
-          })
-        });
-        if (!response.ok) {
-          throw new Error(`August API error: ${response.status} ${response.statusText}`);
+      // On-chain builder using ERC4626 deposit(assets, receiver)
+      // 1) read vault.asset() to get underlying token
+      // 2) read token.decimals() to scale decimal string to base units
+      // 3) encode deposit calldata
+      const ERC4626_ABI = [
+        {
+          inputs: [],
+          name: 'asset',
+          outputs: [{ internalType: 'address', name: '', type: 'address' }],
+          stateMutability: 'view',
+          type: 'function',
+        },
+        {
+          inputs: [
+            { internalType: 'uint256', name: 'assets', type: 'uint256' },
+            { internalType: 'address', name: 'receiver', type: 'address' }
+          ],
+          name: 'deposit',
+          outputs: [{ internalType: 'uint256', name: 'shares', type: 'uint256' }],
+          stateMutability: 'nonpayable',
+          type: 'function',
         }
-        return await response.json();
-      } catch (error) {
-        console.error('Error building deposit transaction from August API:', error);
-        throw new Error(`Failed to build deposit transaction: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
+      ] as const;
+
+      const ERC20_ABI = [
+        {
+          inputs: [],
+          name: 'decimals',
+          outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+          stateMutability: 'view',
+          type: 'function',
+        }
+      ] as const;
+
+      // Read underlying token
+      const assetAddress = await publicClient.readContract({
+        address: vaultAddress as `0x${string}`,
+        abi: ERC4626_ABI,
+        functionName: 'asset',
+      });
+
+      // Read decimals
+      const decimals = await publicClient.readContract({
+        address: assetAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'decimals',
+      }) as number;
+
+      // Convert decimal string to base units
+      const [whole, frac = ''] = amount.split('.');
+      const fracPadded = (frac + '0'.repeat(decimals)).slice(0, decimals);
+      const assetsStr = `${whole}${fracPadded}`.replace(/^0+(?=\d)/, '');
+      const assets = BigInt(assetsStr || '0');
+
+      const data = encodeFunctionData({
+        abi: ERC4626_ABI,
+        functionName: 'deposit',
+        args: [assets, userAddress as `0x${string}`]
+      });
+
+      return {
+        to: vaultAddress,
+        data,
+        value: '0x0'
+      };
     },
     
     async buildWithdrawTx(vaultAddress: string, shares: string, userAddress: string) {
-      try {
-        const response = await fetch(`${AUGUST_API_BASE}/transactions/withdraw`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chain_id: chainId,
-            vault_address: vaultAddress,
-            shares,
-            user_address: userAddress
-          })
-        });
-        if (!response.ok) {
-          throw new Error(`August API error: ${response.status} ${response.statusText}`);
+      // On-chain builder using ERC4626 redeem(shares, receiver, owner)
+      const ERC4626_ABI = [
+        {
+          inputs: [
+            { internalType: 'uint256', name: 'shares', type: 'uint256' },
+            { internalType: 'address', name: 'receiver', type: 'address' },
+            { internalType: 'address', name: 'owner', type: 'address' }
+          ],
+          name: 'redeem',
+          outputs: [{ internalType: 'uint256', name: 'assets', type: 'uint256' }],
+          stateMutability: 'nonpayable',
+          type: 'function',
         }
-        return await response.json();
-      } catch (error) {
-        console.error('Error building withdraw transaction from August API:', error);
-        throw new Error(`Failed to build withdraw transaction: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
+      ] as const;
+
+      // Convert decimal shares to base units assuming vault token decimals are 18 by default.
+      // If different, front-end should provide correct base-unit shares or extend to read decimals().
+      const DEFAULT_DECIMALS = 18;
+      const [whole, frac = ''] = shares.split('.');
+      const fracPadded = (frac + '0'.repeat(DEFAULT_DECIMALS)).slice(0, DEFAULT_DECIMALS);
+      const sharesStr = `${whole}${fracPadded}`.replace(/^0+(?=\d)/, '');
+      const sharesUnits = BigInt(sharesStr || '0');
+
+      const data = encodeFunctionData({
+        abi: ERC4626_ABI,
+        functionName: 'redeem',
+        args: [sharesUnits, userAddress as `0x${string}`, userAddress as `0x${string}`]
+      });
+
+      return {
+        to: vaultAddress,
+        data,
+        value: '0x0'
+      };
     },
     
     async buildApprovalTx(tokenAddress: string, spender: string, amount: string) {
-      try {
-        const response = await fetch(`${AUGUST_API_BASE}/transactions/approval`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chain_id: chainId,
-            token_address: tokenAddress,
-            spender,
-            amount
-          })
-        });
-        if (!response.ok) {
-          throw new Error(`August API error: ${response.status} ${response.statusText}`);
+      // On-chain builder using ERC20 approve(spender, amount)
+      const ERC20_ABI = [
+        {
+          inputs: [],
+          name: 'decimals',
+          outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+          stateMutability: 'view',
+          type: 'function',
+        },
+        {
+          inputs: [
+            { internalType: 'address', name: 'spender', type: 'address' },
+            { internalType: 'uint256', name: 'amount', type: 'uint256' }
+          ],
+          name: 'approve',
+          outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+          stateMutability: 'nonpayable',
+          type: 'function',
         }
-        return await response.json();
-      } catch (error) {
-        console.error('Error building approval transaction from August API:', error);
-        throw new Error(`Failed to build approval transaction: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
+      ] as const;
+
+      const decimals = await publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'decimals',
+      }) as number;
+
+      const [whole, frac = ''] = amount.split('.');
+      const fracPadded = (frac + '0'.repeat(decimals)).slice(0, decimals);
+      const amtStr = `${whole}${fracPadded}`.replace(/^0+(?=\d)/, '');
+      const amt = BigInt(amtStr || '0');
+
+      const data = encodeFunctionData({
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [spender as `0x${string}`, amt]
+      });
+
+      return {
+        to: tokenAddress,
+        data,
+        value: '0x0'
+      };
     },
 
   };

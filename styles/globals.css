@@ -3,16 +3,24 @@
 
 @font-face {
   font-family: 'Sk-Modernist';
-  src: url('https://fonts.cdnfonts.com/s/86116/Sk-Modernist-Regular.woff') format('woff');
+  src: url('/assets/fonts/Sk-Modernist-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Sk-Modernist';
-  src: url('https://fonts.cdnfonts.com/s/86116/Sk-Modernist-Bold.woff') format('woff');
+  src: url('/assets/fonts/Sk-Modernist-Bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sk-Modernist';
+  src: url('/assets/fonts/Sk-Modernist-Mono.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
 }
 
 @tailwind base;
@@ -114,5 +122,15 @@
   
   .text-shadow-glow {
     text-shadow: 0 0 20px rgba(207, 124, 255, 0.5);
+  }
+  .rounded-blue {
+    border-radius: 10px;
+background: radial-gradient(122.51% 108.33% at 50% -30.83%, #CF7CFF 27.73%, #2315B5 100%), #090909;
+  }
+
+  .rounded-gray {
+border-radius: 10px;
+border: 0.206px solid #FFF;
+background: rgba(255, 255, 255, 0.05);
   }
 }
