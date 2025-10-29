@@ -3,16 +3,29 @@
 import { useEffect, useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Header() {
   const [isWalletMenuOpen, setIsWalletMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
 
   useEffect(() => {
     setMounted(true);
+
+    const handleScroll = () => {
+      if (window.scrollY > 40) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleConnect = () => {
@@ -31,44 +44,48 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
-      <div className="max-w-[1280px] mx-auto py-5 px-[84px] flex items-center justify-between">
-        <div className="flex items-center">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
-            <img src="/assets/images/gami-logo.svg" alt="Gami Labs" className="" />
+    <header
+      className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 border-b ${isScrolled ? 'backdrop-blur-sm bg-black/80 border-white/10' : 'bg-transparent border-transparent'}`}
+    >
+      <div className='max-w-[1280px] mx-auto py-5 px-[84px] flex items-center justify-between'>
+        <div>
+          <Link href='/' className='transition-opacity hover:opacity-80'>
+            <Image src='/assets/svgs/gami-logo.svg' alt='Gami Logo' width={153} height={24} />
           </Link>
         </div>
 
-        <nav className="flex items-center gap-5">
+        <nav className='flex gap-5 items-center font-modernist'>
           <Link
-            href="/vaults"
-            className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
+            href='/vaults'
+            className='text-white text-[14px] leading-[21px] px-2 py-2.5 hover:opacity-80 transition-opacity'
           >
             Vaults
           </Link>
+
           <Link
-            href="/portfolio"
-            className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
+            href='/portfolio'
+            className='text-white text-[14px] leading-[21px] px-2 py-2.5 hover:opacity-80 transition-opacity'
           >
             Portfolio
           </Link>
+
           <Link
-            href="#about"
-            className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
+            href='#about'
+            className='text-white text-[14px] leading-[21px] px-2 py-2.5 hover:opacity-80 transition-opacity'
           >
             About
           </Link>
         </nav>
 
-        <div className="flex items-center gap-[14px]">
-          <div className="flex items-center gap-3 px-4 py-2 rounded-[32px] glass-border bg-white/6">
+        <div className='flex items-center gap-[14px]'>
+          <div>
             <input
-              type="text"
-              placeholder="Search vaults..."
-              className="bg-transparent text-white text-[14px] font-light font-dm-sans outline-none placeholder:text-white/70 w-60"
+              type='text'
+              placeholder='Search vaults...'
+              className='bg-[#FFFFFF0F] text-white placeholder:text-white text-[14px] font-light font-dm-sans outline-none h-[41px] w-[268px] rounded-[10px] px-6 shadow-[0_0_0_0.4px_#ffffff47] backdrop-blur-lg'
             />
           </div>
-          
+
           {/* Network Selector */}
           {/* <div className="flex items-center gap-2 px-3 py-2 rounded-[32px] glass-border bg-white/6">
             <span className="text-white text-[14px] font-medium">Ethereum</span>
@@ -82,21 +99,22 @@ export default function Header() {
             <span className="text-white text-[14px] font-medium">$15,700</span>
           </div> */}
 
-          <div className="relative">
+          <div className='relative'>
             {mounted && isConnected ? (
               <>
-                <button 
+                <button
                   onClick={() => setIsWalletMenuOpen(!isWalletMenuOpen)}
-                  className="px-6 py-2 rounded-[36px] bg-gradient-purple text-white text-[14px] font-medium font-dm-sans hover:opacity-90 transition-opacity"
+                  className='px-[20.67px] h-[40.89px] rounded-[10px] bg-gradient-purple text-white text-[14.22px] font-medium font-dm-sans hover:opacity-90 transition-opacity'
                 >
                   {truncateAddress(address || '')}
                 </button>
+
                 {isWalletMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
-                    <div className="py-1">
+                  <div className='absolute right-0 z-50 mt-2 w-48 bg-gray-800 rounded-lg border border-gray-700 shadow-lg'>
+                    <div className='py-1'>
                       <button
                         onClick={handleDisconnect}
-                        className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
+                        className='block px-4 py-2 w-full text-left text-white hover:bg-gray-700'
                       >
                         Disconnect
                       </button>
@@ -105,9 +123,9 @@ export default function Header() {
                 )}
               </>
             ) : (
-              <button 
+              <button
                 onClick={handleConnect}
-                className="px-6 py-2 rounded-[36px] bg-gradient-purple text-white text-[14px] font-medium font-dm-sans hover:opacity-90 transition-opacity"
+                className='px-[28.44px] h-[40.89px] rounded-[10px] bg-gradient-purple text-white text-[14.22px] font-medium font-dm-sans hover:opacity-90 transition-opacity'
               >
                 Connect Wallet
               </button>

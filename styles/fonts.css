@@ -1,0 +1,141 @@
+/* DM-Sans Font Family */
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-ExtraLightItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM-Sans';
+  src: url('/assets/fonts/DMSans/DMSans-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* Sk-Modernist Font Family */
+@font-face {
+  font-family: 'Sk-Modernist';
+  src: url('/assets/fonts/Sk-Modernist-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sk-Modernist';
+  src: url('/assets/fonts/Sk-Modernist-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
