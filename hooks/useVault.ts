@@ -49,7 +49,7 @@ export function useVault(options: UseVaultOptions): VaultResponse {
         return result;
       } catch (error) {
         clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
+        if (error instanceof Error && error.name === 'AbortError') {
           throw new Error('Request timeout - please try again');
         }
         throw error;
