@@ -1,27 +1,4 @@
-/** @import must precede all other statements */
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap");
-
-@font-face {
-  font-family: 'Sk-Modernist';
-  src: url('/assets/fonts/Sk-Modernist-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Sk-Modernist';
-  src: url('/assets/fonts/Sk-Modernist-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Sk-Modernist';
-  src: url('/assets/fonts/Sk-Modernist-Mono.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-variant-numeric: tabular-nums;
-}
+@import './fonts.css';
 
 @tailwind base;
 @tailwind components;
@@ -81,8 +58,8 @@
   }
 
   body {
-    @apply bg-black text-white;
-    font-family: 'DM Sans', -apple-system, Roboto, Helvetica, sans-serif;
+    @apply text-white bg-black;
+    font-family: 'DM-Sans', -apple-system, Roboto, Helvetica, sans-serif;
   }
 
   /* :where(p, span, li, label, td, th) {
@@ -103,7 +80,7 @@
   }
   
   .font-dm-sans {
-    font-family: 'DM Sans', -apple-system, Roboto, Helvetica, sans-serif;
+    font-family: 'DM-Sans', -apple-system, Roboto, Helvetica, sans-serif;
   }
   
   .gradient-purple {
@@ -132,5 +109,12 @@ background: radial-gradient(122.51% 108.33% at 50% -30.83%, #CF7CFF 27.73%, #231
 border-radius: 10px;
 border: 0.206px solid #FFF;
 background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(to top, #2315B4, #CF7CFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

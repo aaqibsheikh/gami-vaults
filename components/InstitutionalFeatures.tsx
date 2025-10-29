@@ -79,7 +79,7 @@ const GovernanceIcon = () => (
 export default function InstitutionalFeatures() {
   const features: Feature[] = [
     {
-      title: 'Curated Vaults',
+      title: 'Curated<br />Vaults',
       description:
         'Dynamically rebalanced and curated vaults across protocols to maximize APR while minimizing risks',
       icon: <CuratedVaultsIcon />,
@@ -87,7 +87,7 @@ export default function InstitutionalFeatures() {
     {
       title: 'Institutional Infrastructure',
       description:
-        "Upshift Protocol's audited vault architecture with multi-signature and hardware security modules",
+        "Vault Infrastructures Protocol's audited vault architecture with multi-signature and hardware security modules",
       icon: <InstitutionalIcon />,
     },
     {
@@ -98,32 +98,32 @@ export default function InstitutionalFeatures() {
     },
     {
       title: 'Strategic Governance',
-      description: 'Leveraging governance exposure to redirect protocol emissions toward our strategies',
+      description:
+        'Leveraging governance exposure to redirect protocol emissions toward our strategies',
       icon: <GovernanceIcon />,
     },
   ];
 
   return (
-    <section className="max-w-[1280px] mx-auto px-[84px] py-16">
-      <div className="flex items-start gap-[194px]">
-        {/* Left Title Section */}
-        <div className="flex-shrink-0">
-          <h2 className="font-modernist text-[57px] font-normal leading-[100%] tracking-[-1.15px] text-gami-purple whitespace-nowrap">
+    <section className='max-w-[1280px] mx-auto px-[84px] pt-[35px] pb-[80px]'>
+      <div className='flex justify-between items-start gap-[180px]'>
+        <div className='flex-shrink-0 min-w-[329px]'>
+          <h2 className='font-modernist text-[57px] font-normal leading-[100%] tracking-[-1.15px] gradient-text whitespace-nowrap'>
             Institutional <br /> DeFI, <br /> Simplified
           </h2>
         </div>
 
-        {/* Right Feature Grid */}
-        <div className="flex-1 grid grid-cols-2 gap-x-20 gap-y-24">
+        <div className='grid flex-1 grid-cols-2 gap-x-[70px] gap-y-24'>
           {features.map((feature, index) => (
-            <div key={index} className="space-y-4">
-              <div className="w-14 h-14">
-                {feature.icon}
-              </div>
-              <h3 className="font-modernist text-[33px] font-bold leading-[110%] tracking-[-0.656px] text-white">
-                {feature.title}
-              </h3>
-              <p className="font-dm-sans text-[19px] font-medium leading-[128%] tracking-[-0.38px] text-gray-300">
+            <div key={index} className='space-y-[30px]'>
+              <div className='w-14 h-14'>{feature.icon}</div>
+
+              <h3
+                className='font-modernist text-[33px] font-bold leading-[110%] tracking-[-0.656px] text-white'
+                dangerouslySetInnerHTML={{ __html: feature.title }}
+              />
+
+              <p className='font-dm-sans text-[19px] font-medium leading-[128%] tracking-[-0.38px] text-gray-300'>
                 {feature.description}
               </p>
             </div>

@@ -7,14 +7,16 @@ import Footer from '@/components/Footer';
 
 export default function Index() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className='min-h-screen bg-black'>
       <Header />
+
       <main>
         <Hero />
         <Stats />
         <DeFiProtocols />
         <InstitutionalFeatures />
       </main>
+
       <Footer />
     </div>
   );
