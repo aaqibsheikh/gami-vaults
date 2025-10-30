@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import Image from 'next/image';
+
 export default function Hero() {
   return (
     <section className='relative pt-[106px] pb-[50px]'>
@@ -25,12 +28,12 @@ export default function Hero() {
           </p>
 
           <div className='flex gap-7 items-center pt-2'>
-            <a
+            <Link
               href='/vaults'
               className='px-[28.44px] h-[40.89px] rounded-[10px] bg-gradient-purple text-white text-[14.22px] font-medium font-dm-sans hover:opacity-90 transition-opacity flex items-center justify-center'
             >
               Explore Vaults →
-            </a>
+            </Link>
 
             <button className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors'>
               About
@@ -39,10 +42,12 @@ export default function Hero() {
         </div>
 
         <div className='flex absolute top-0 right-[136px] justify-center lg:justify-end'>
-          <img
+          <Image
             src='/assets/images/gradient-glass.png'
             alt='Gradient glass vault visualization'
-            className='w-[469px] animate-float'
+            width={469}
+            height={432}
+            className='animate-float'
           />
         </div>
       </div>
@@ -59,4 +64,3 @@ export default function Hero() {
     </section>
   );
 }
-

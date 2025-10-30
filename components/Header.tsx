@@ -86,19 +86,6 @@ export default function Header() {
             />
           </div>
 
-          {/* Network Selector */}
-          {/* <div className="flex items-center gap-2 px-3 py-2 rounded-[32px] glass-border bg-white/6">
-            <span className="text-white text-[14px] font-medium">Ethereum</span>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div> */}
-
-          {/* Wallet Balance */}
-          {/* <div className="flex items-center gap-2 px-3 py-2 rounded-[32px] glass-border bg-white/6">
-            <span className="text-white text-[14px] font-medium">$15,700</span>
-          </div> */}
-
           <div className='relative'>
             {mounted && isConnected ? (
               <>
