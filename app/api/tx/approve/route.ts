@@ -19,8 +19,13 @@ const approveSchema = {
 };
 
 export async function POST(request: NextRequest) {
+  console.log('[APPROVE ROUTE] POST handler called at', new Date().toISOString());
+  console.log('[APPROVE ROUTE] Request method:', request.method);
+  console.log('[APPROVE ROUTE] Request URL:', request.url);
+  
   try {
     const body = await request.json();
+    console.log('[APPROVE ROUTE] Request body:', body);
     const { chain, token, spender, amount } = approveSchema.parse(body);
 
     if (!isSupportedNetwork(chain)) {
@@ -32,6 +37,7 @@ export async function POST(request: NextRequest) {
 
     const sdk = createSdkClient(chain);
     const txData = await sdk.buildApprovalTx(token, spender, amount);
+    console.log('[APPROVE ROUTE] Built transaction:', { to: txData.to, dataLength: txData.data?.length });
 
     const response: TransactionResponse = {
       to: txData.to,
@@ -40,14 +46,23 @@ export async function POST(request: NextRequest) {
       gasLimit: txData.gasLimit
     };
 
+    console.log('[APPROVE ROUTE] Returning response');
     return NextResponse.json(response);
-  } catch (error) {
-    console.error('Error in /api/tx/approve:', error);
+  } catch (error: any) {
+    console.error('[APPROVE ROUTE] Error:', error);
+    
+    // Handle validation errors
+    if (error?.name === 'ZodError') {
+      return NextResponse.json(
+        { error: 'Invalid request body', details: error.message },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: 'Failed to build approval transaction' },
+      { error: error?.message || 'Failed to build approval transaction' },
       { status: 500 }
     );
   }
 }
-
 

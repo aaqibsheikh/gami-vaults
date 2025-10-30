@@ -104,7 +104,7 @@ export function useTokenBalance(options: UseTokenBalanceOptions): TokenBalanceRe
       }) as bigint;
 
       // Format balance
-      const balanceFormatted = (Number(balance) / Math.pow(10, decimals)).toFixed(6);
+      const balanceFormatted = (Number(balance) / Math.pow(10, decimals)).toFixed(2);
 
       return {
         balance: balance.toString(),
