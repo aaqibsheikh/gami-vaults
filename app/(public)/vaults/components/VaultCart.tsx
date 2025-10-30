@@ -5,9 +5,11 @@ interface VaultCartProps {
   apy: string;
   tvl: string;
   assets: string[];
+  chainId: number;
+  vaultId: string;
 }
 
-const VaultCart = ({ name, apy, tvl, assets }: VaultCartProps) => {
+const VaultCart = ({ name, apy, tvl, assets, chainId, vaultId }: VaultCartProps) => {
   return (
     <div className='w-[337px] h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
       <div className='w-full h-full bg-black rounded-[22.37px] p-[22.37px] relative overflow-hidden'>
@@ -23,7 +25,10 @@ const VaultCart = ({ name, apy, tvl, assets }: VaultCartProps) => {
           <div>
             <div className='font-bold text-[17.9px] leading-none tracking-[-0.358px]'>{name}</div>
 
-            <Link href='#' className='text-white text-[10px] underline'>
+            <Link
+              href={`/vaults/${chainId}/${vaultId}`}
+              className='text-white text-[10px] underline hover:text-[#A100FF] transition-colors'
+            >
               View Vault
             </Link>
           </div>
@@ -63,13 +68,19 @@ const VaultCart = ({ name, apy, tvl, assets }: VaultCartProps) => {
         </div>
 
         <div className='flex items-center gap-[17px] relative mt-5'>
-          <button className='px-[28.44px] h-[40.89px] rounded-[10px] bg-gradient-purple text-white text-[14.22px] font-medium font-dm-sans hover:opacity-90 transition-opacity flex items-center justify-center w-full'>
+          <Link
+            href={`/vaults/${chainId}/${vaultId}?tab=deposit`}
+            className='px-[28.44px] h-[40.89px] rounded-[10px] bg-gradient-purple text-white text-[14.22px] font-medium font-dm-sans hover:opacity-90 transition-opacity flex items-center justify-center w-full'
+          >
             Deposit
-          </button>
+          </Link>
 
-          <button className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors w-full max-w-[122px]'>
+          <Link
+            href={`/vaults/${chainId}/${vaultId}`}
+            className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors w-full max-w-[122px] flex items-center justify-center'
+          >
             Details
-          </button>
+          </Link>
         </div>
       </div>
     </div>
