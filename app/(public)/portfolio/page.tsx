@@ -4,19 +4,25 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAccount, useConnect } from 'wagmi';
 import { usePortfolio } from '@/hooks/usePortfolio';
-import { PortfolioTable } from '@/components/PortfolioTable';
-import { formatUsd } from '@/lib/normalize';
 import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import Image from 'next/image';
 
 export default function PortfolioPage() {
   const { address, isConnected } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const [selectedChain, setSelectedChain] = useState(1); // Default to Ethereum
+  const tabs = ['All Chains', 'Ethereum', 'Token'];
 
-  const { data: portfolio, isLoading, error, refetch } = usePortfolio({
+  const {
+    data: portfolio,
+    isLoading,
+    error,
+    refetch,
+  } = usePortfolio({
     chainId: selectedChain,
     address: address || undefined,
-    enabled: isConnected && !!address
+    enabled: isConnected && !!address,
   });
 
   // Mock data for the new design
@@ -26,267 +32,315 @@ export default function PortfolioPage() {
       deposited: '$5,000',
       currentValue: '$5,400',
       earned: '+$246',
-      tag: 'Flagship'
+      tag: 'Flagship',
     },
     {
       name: 'Stable Yield Vault',
       deposited: '$10,000',
       currentValue: '$10,312',
       earned: '+$312',
-      tag: 'Flagship'
-    }
+      tag: 'Flagship',
+    },
   ];
 
   const mockTransactions = [
-    { date: 'Oct 12, 2025', vault: 'Flagship ETH Vault', action: 'Deposit', amount: '$5,240', status: 'Completed' },
-    { date: 'Oct 10, 2025', vault: 'Flagship ETH Vault', action: 'Deposit', amount: '$5,240', status: 'Completed' },
-    { date: 'Oct 8, 2025', vault: 'Flagship ETH Vault', action: 'Deposit', amount: '$5,240', status: 'Completed' },
-    { date: 'Oct 5, 2025', vault: 'Flagship ETH Vault', action: 'Deposit', amount: '$5,240', status: 'Completed' }
+    {
+      date: 'Oct 12, 2025',
+      vault: 'Flagship ETH Vault',
+      action: 'Deposit',
+      amount: '$5,240',
+      status: 'Completed',
+    },
+    {
+      date: 'Oct 10, 2025',
+      vault: 'Flagship ETH Vault',
+      action: 'Deposit',
+      amount: '$5,240',
+      status: 'Completed',
+    },
+    {
+      date: 'Oct 8, 2025',
+      vault: 'Flagship ETH Vault',
+      action: 'Deposit',
+      amount: '$5,240',
+      status: 'Completed',
+    },
+    {
+      date: 'Oct 5, 2025',
+      vault: 'Flagship ETH Vault',
+      action: 'Deposit',
+      amount: '$5,240',
+      status: 'Completed',
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
-        <div className="max-w-[1280px] mx-auto py-5 px-[84px] flex items-center justify-between">
-          <div className="flex items-center">
-            <Link href="/" className="hover:opacity-80 transition-opacity">
-              <img src="/assets/images/gami-logo.svg" alt="Gami Labs" className="" />
-            </Link>
-          </div>
+    <div className='min-h-screen bg-black'>
+      <div className='absolute inset-0 -bottom-[80px]'>
+        <div className='h-full max-w-[1280px] mx-auto px-[84px] relative'>
+          <div className='absolute left-[84px] top-0 bottom-0 w-px bg-[#242424]' />
 
-          <nav className="flex items-center gap-5">
-            <Link
-              href="/vaults"
-              className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
-            >
-              Vaults
-            </Link>
-            <Link
-              href="/portfolio"
-              className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
-            >
-              Portfolio
-            </Link>
-            <Link
-              href="#about"
-              className="text-white font-dm-sans text-[14px] font-normal leading-[21px] px-2 py-3 hover:opacity-80 transition-opacity"
-            >
-              About
-            </Link>
-          </nav>
+          <div className='absolute left-1/2 top-0 bottom-[52px] w-px bg-[#242424] -translate-x-1/2' />
 
-          <div className="flex items-center gap-[14px]">
-            <div className="flex items-center gap-3 px-4 py-2 rounded-[32px] glass-border bg-white/6">
-              <input
-                type="text"
-                placeholder="Search vaults..."
-                className="bg-transparent text-white text-[14px] font-light font-dm-sans outline-none placeholder:text-white/70 w-60"
-              />
-            </div>
-            
-            {/* Network Selector */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-[32px] glass-border bg-white/6">
-              <span className="text-white text-[14px] font-medium">Ethereum</span>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-
-            {/* Wallet Balance */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-[32px] glass-border bg-white/6">
-              <span className="text-white text-[14px] font-medium">$15,700</span>
-            </div>
-
-            <div className="relative">
-              {isConnected && address ? (
-                <button className="px-6 py-2 rounded-[36px] bg-gradient-purple text-white text-[14px] font-medium font-dm-sans hover:opacity-90 transition-opacity">
-                  {address.slice(0, 6)}...{address.slice(-4)}
-                </button>
-              ) : (
-                <button 
-                  onClick={() => connect({ connector: connectors[0] })}
-                  className="px-6 py-2 rounded-[36px] bg-gradient-purple text-white text-[14px] font-medium font-dm-sans hover:opacity-90 transition-opacity"
-                >
-                  Connect Wallet
-                </button>
-              )}
-            </div>
-          </div>
+          <div className='absolute right-[84px] top-0 bottom-0 w-px bg-[#242424]' />
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-[1280px] mx-auto px-[84px] pt-32 pb-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="font-modernist text-[48px] font-bold leading-[100%] tracking-[-0.96px] text-white mb-4">
-            Portfolio
-          </h1>
-          <p className="font-dm-sans text-[20px] font-light leading-[128%] tracking-[-0.4px] text-white/70">
-            Track your positions and performance across all vaults
-          </p>
-        </div>
+      <div className='absolute left-0 right-0 h-px bg-[#242424] bottom-0' />
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <div className="p-6 rounded-[28px] glass-border bg-white/6">
-            <div className="text-center">
-              <div className="text-[32px] font-bold text-white mb-2">2</div>
-              <div className="text-[14px] font-medium text-white/70 uppercase tracking-wider">ACTIVE VAULTS</div>
-            </div>
-          </div>
-          <div className="p-6 rounded-[28px] glass-border bg-white/6">
-            <div className="text-center">
-              <div className="text-[32px] font-bold text-white mb-2">$15,798</div>
-              <div className="text-[14px] font-medium text-white/70 uppercase tracking-wider">TOTAL ASSETS</div>
-            </div>
-          </div>
-          <div className="p-6 rounded-[28px] glass-border bg-white/6">
-            <div className="text-center">
-              <div className="text-[32px] font-bold text-white mb-2">10.6%</div>
-              <div className="text-[14px] font-medium text-white/70 uppercase tracking-wider">AVG APY</div>
-            </div>
-          </div>
-          <div className="p-6 rounded-[28px] glass-border bg-white/6">
-            <div className="text-center">
-              <div className="text-[32px] font-bold text-gami-green mb-2">+$558</div>
-              <div className="text-[14px] font-medium text-white/70 uppercase tracking-wider">TOTAL PNL</div>
-            </div>
-          </div>
-        </div>
+      <Header />
 
-        {/* Active Positions Section */}
-        <div className="mb-12">
-          <h2 className="font-modernist text-[32px] font-bold leading-[100%] tracking-[-0.64px] text-white mb-6">
-            Active Positions
-          </h2>
-          
-          {/* Filter Buttons */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <button className="px-4 py-2 rounded-[32px] bg-gradient-purple text-white text-[14px] font-medium">
-                All Chains
-              </button>
-              <button className="px-4 py-2 rounded-[32px] glass-border bg-white/6 text-white text-[14px] font-medium hover:bg-white/10 transition-colors">
-                Ethereum
-              </button>
-              <button className="px-4 py-2 rounded-[32px] glass-border bg-white/6 text-white text-[14px] font-medium hover:bg-white/10 transition-colors">
-                Token
-              </button>
-            </div>
-            
-            <div className="flex items-center gap-2 px-3 py-2 rounded-[32px] glass-border bg-white/6">
-              <span className="text-white text-[14px] font-medium">Sort by: Position Size</span>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
+      <Image
+        src='/assets/images/vault-detail-glass.svg'
+        alt='Vault detail glass'
+        width={459}
+        height={362}
+        className='absolute top-0 right-0 pointer-events-none'
+      />
+
+      <section className='max-w-[1280px] mx-auto px-[84px] pt-[156.33px] pb-10 relative z-10'>
+        <div className='relative z-10 px-5'>
+          <div className='space-y-1.5 font-bold'>
+            <h1 className='font-modernist text-[57px] font-bold'>Portfolio</h1>
+
+            <p className='font-dm-sans text-xl font-[200] leading-[128%] tracking-[-0.4px] text-white'>
+              Track your positions and performance across all vaults
+            </p>
           </div>
 
-          {/* Vault Cards */}
-          <div className="space-y-6">
-            {mockPositions.map((position, index) => (
-              <div key={index} className="p-6 rounded-[28px] glass-border bg-white/6">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h3 className="font-dm-sans text-[20px] font-bold leading-[128%] tracking-[-0.4px] text-white mb-2">
-                      {position.name}
-                    </h3>
-                    <Link href="#" className="text-gami-purple text-[14px] font-medium hover:opacity-80 transition-opacity">
-                      View Vault
-                    </Link>
-                  </div>
-                  <span className="px-3 py-1 rounded-[8px] glass-border bg-white/6 text-white font-dm-sans text-[12px] font-medium">
-                    {position.tag}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-3 gap-8 mb-6">
-                  <div>
-                    <div className="text-[12px] font-medium text-white/70 uppercase tracking-wider mb-2">DEPOSITED</div>
-                    <div className="text-[20px] font-bold text-white">{position.deposited}</div>
-                  </div>
-                  <div>
-                    <div className="text-[12px] font-medium text-white/70 uppercase tracking-wider mb-2">CURRENT VALUE</div>
-                    <div className="text-[20px] font-bold text-white">{position.currentValue}</div>
-                  </div>
-                  <div>
-                    <div className="text-[12px] font-medium text-white/70 uppercase tracking-wider mb-2">EARNED</div>
-                    <div className="text-[20px] font-bold text-gami-green">{position.earned}</div>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <button className="flex-1 py-3 px-6 rounded-[38px] bg-gradient-purple text-white font-dm-sans text-[15px] font-bold hover:opacity-90 transition-opacity">
-                    Add Funds
-                  </button>
-                  <button className="flex-1 py-3 px-6 rounded-[38px] glass-border bg-white/5 text-white font-dm-sans text-[15px] font-normal hover:bg-white/10 transition-colors">
-                    Withdraw
-                  </button>
-                </div>
+          <div className='flex justify-between items-center w-full bg-[#FFFFFF0F] py-[31px] shadow-[0_0_0_0.4px_#ffffff47] rounded-[33.43px] px-[70px] mt-10 backdrop-blur-lg'>
+            <div className='flex flex-col gap-1.5 justify-center items-center'>
+              <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+                2
               </div>
-            ))}
+
+              <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                ACTIVE VAULTS
+              </div>
+            </div>
+
+            <div className='flex flex-col gap-1.5 justify-center items-center'>
+              <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+                $15,798
+              </div>
+
+              <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                TOTAL ASSETS
+              </div>
+            </div>
+
+            <div className='flex flex-col gap-1.5 justify-center items-center'>
+              <div className='text-[#00F792] font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+                +$558
+              </div>
+
+              <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                TOTAL PNL
+              </div>
+            </div>
+          </div>
+
+          <div className='mt-10'>
+            <h2 className='font-modernist text-[30px] leading-[100%] tracking-[-0.64px] text-white mb-6'>
+              Active Positions
+            </h2>
+
+            <div className='flex justify-between items-center mb-8'>
+              <div className='flex gap-3 items-center'>
+                {tabs.map((tab, index) => (
+                  <button
+                    key={tab}
+                    className={`flex h-10 px-2.5 justify-center items-center rounded-[20.78px] backdrop-blur-lg ${
+                      index === 0
+                        ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
+                        : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
+                    } transition-colors`}
+                  >
+                    <div className='text-white font-dm-sans text-[13.58px] font-light leading-none'>
+                      {tab}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className='flex items-center gap-2 px-3 py-2 rounded-[32px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg'>
+                <span className='text-white text-[13.58px] font-light'>Sort by: Position Size</span>
+
+                <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
+                  <path
+                    d='M3 4.5L6 7.5L9 4.5'
+                    stroke='white'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div className='space-y-6'>
+              {mockPositions.map((position, index) => (
+                <div
+                  key={index}
+                  className='shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[20.34px] p-2'
+                >
+                  <div className='p-[14.36px] rounded-[15.46px] bg-[#141414]'>
+                    <div className='flex relative z-10 justify-between items-start'>
+                      <div>
+                        <div className='font-bold text-xl leading-none tracking-[-0.358px]'>
+                          {position.name}
+                        </div>
+
+                        <Link
+                          href={`#`}
+                          className='text-[#CF7CFF] text-[10px] underline hover:text-[#A100FF] transition-colors'
+                        >
+                          View Vault
+                        </Link>
+                      </div>
+
+                      <div className='text-[14.76px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px]'>
+                        {position.tag}
+                      </div>
+                    </div>
+
+                    <div className='flex justify-evenly items-center mt-3.5 shadow-[0_0_0_0.4px_#ffffff47] rounded-[18.77px] py-[22px]'>
+                      <div className='text-center'>
+                        <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                          DEPOSITED
+                        </div>
+
+                        <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
+                          {position.deposited}
+                        </div>
+                      </div>
+
+                      <div className='w-[1px] h-[9.48px] bg-white'></div>
+
+                      <div className='text-center'>
+                        <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                          CURRENT VALUE
+                        </div>
+
+                        <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
+                          {position.deposited}
+                        </div>
+                      </div>
+
+                      <div className='w-[1px] h-[9.48px] bg-white'></div>
+
+                      <div className='text-center'>
+                        <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                          EARNED
+                        </div>
+
+                        <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
+                          {position.deposited}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex gap-4 mt-3.5'>
+                      <button className='flex-1 h-[31.19px] px-6 rounded-[10px] bg-gradient-purple text-white font-dm-sans text-[10.99px] font-bold hover:opacity-90 transition-opacity'>
+                        Add Funds
+                      </button>
+
+                      <button className='flex-1 h-[31.19px] px-6 rounded-[10px] glass-border bg-[#FFFFFF0D] text-white font-dm-sans text-[10.99px] font-normal hover:bg-white/10 transition-colors'>
+                        Withdraw
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Transaction History Section */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-modernist text-[32px] font-bold leading-[100%] tracking-[-0.64px] text-white">
+        <div className='bg-[#FFFFFF0F] rounded-[20.34px] p-5 mt-10'>
+          <div className='flex justify-between items-center mb-6'>
+            <h2 className='text-[17.54px] font-bold leading-[100%] tracking-[-0.64px] text-white'>
               Transaction History
             </h2>
-            <button className="text-white/70 text-[14px] font-medium hover:text-white transition-colors">
+
+            <button className='text-[10.38px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px]'>
               Export CSV
             </button>
           </div>
 
-          <div className="p-6 rounded-[28px] glass-border bg-white/6">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/20">
-                    <th className="py-4 text-left text-white font-dm-sans text-[14px] font-bold uppercase tracking-wider">DATE</th>
-                    <th className="py-4 text-left text-white font-dm-sans text-[14px] font-bold uppercase tracking-wider">VAULT</th>
-                    <th className="py-4 text-left text-white font-dm-sans text-[14px] font-bold uppercase tracking-wider">ACTION</th>
-                    <th className="py-4 text-left text-white font-dm-sans text-[14px] font-bold uppercase tracking-wider">AMOUNT</th>
-                    <th className="py-4 text-left text-white font-dm-sans text-[14px] font-bold uppercase tracking-wider">STATUS</th>
+          <div className='overflow-x-auto px-[55px]'>
+            <table className='w-full'>
+              <thead>
+                <tr className='border-b border-white/20'>
+                  <th className='py-3 pl-5 text-white font-dm-sans text-[13.24px] font-bold uppercase text-left'>
+                    DATE
+                  </th>
+
+                  <th className='py-3 text-center text-white font-dm-sans text-[13.24px] font-bold uppercase'>
+                    VAULT
+                  </th>
+
+                  <th className='py-3 text-center text-white font-dm-sans text-[13.24px] font-bold uppercase'>
+                    ACTION
+                  </th>
+
+                  <th className='py-3 text-center text-white font-dm-sans text-[13.24px] font-bold uppercase'>
+                    AMOUNT
+                  </th>
+
+                  <th className='py-3 text-right pr-3 text-white font-dm-sans text-[13.24px] font-bold uppercase'>
+                    STATUS
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {mockTransactions.map((tx, index) => (
+                  <tr key={index} className='border-b border-white/10 last:border-0'>
+                    <td className='py-3 text-white font-dm-sans text-[13.24px] font-normal'>
+                      {tx.date}
+                    </td>
+
+                    <td className='py-3 text-white font-dm-sans text-[13.24px] font-normal text-center'>
+                      {tx.vault}
+                    </td>
+
+                    <td className='py-3 text-white font-dm-sans text-[13.24px] font-normal text-center'>
+                      {tx.action}
+                    </td>
+
+                    <td className='py-3 text-white font-dm-sans text-[13.24px] font-bold text-center'>
+                      {tx.amount}
+                    </td>
+
+                    <td className='py-3 text-gami-green font-dm-sans text-[13.24px] font-normal text-right'>
+                      {tx.status}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {mockTransactions.map((tx, index) => (
-                    <tr key={index} className="border-b border-white/10 last:border-0">
-                      <td className="py-4 text-white font-dm-sans text-[14px] font-normal">{tx.date}</td>
-                      <td className="py-4 text-white font-dm-sans text-[14px] font-normal">{tx.vault}</td>
-                      <td className="py-4 text-white font-dm-sans text-[14px] font-normal">{tx.action}</td>
-                      <td className="py-4 text-white font-dm-sans text-[14px] font-bold">{tx.amount}</td>
-                      <td className="py-4 text-gami-green font-dm-sans text-[14px] font-normal">{tx.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-      </main>
+      </section>
 
-      {/* Footer */}
-     <Footer /> 
+      <Footer />
+
       {/* 
       COMMENTED OUT ORIGINAL PORTFOLIO PAGE CODE - PRESERVED FOR REFERENCE
       
       <div className="min-h-screen bg-gray-900">
         <header className="bg-gray-900 border-b border-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
-                <Link href="/" className="text-2xl font-bold text-white mr-8">
+                <Link href="/" className="mr-8 text-2xl font-bold text-white">
                   Gami Capital
                 </Link>
                 <nav className="flex space-x-8">
-                  <Link href="/vaults" className="text-white hover:text-gray-300 transition-colors">
+                  <Link href="/vaults" className="text-white transition-colors hover:text-gray-300">
                     Vaults
                   </Link>
-                  <Link href="/portfolio" className="text-green-400 hover:text-green-300 transition-colors">
+                  <Link href="/portfolio" className="text-green-400 transition-colors hover:text-green-300">
                     Portfolio
                   </Link>
                 </nav>
@@ -307,7 +361,7 @@ export default function PortfolioPage() {
                         key={connector.uid}
                         onClick={() => connect({ connector })}
                         disabled={isPending}
-                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                        className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg transition-colors hover:bg-green-700"
                       >
                         {isPending ? 'Connecting...' : `Connect ${connector.name}`}
                       </button>
@@ -319,23 +373,23 @@ export default function PortfolioPage() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Portfolio</h1>
+            <h1 className="mb-2 text-3xl font-bold text-white">Portfolio</h1>
             <p className="text-gray-300">
               View and manage your vault positions across multiple networks
             </p>
           </div>
 
           {!isConnected && (
-            <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-sm p-12 text-center">
-              <div className="text-gray-400 mb-6">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-12 text-center bg-gray-800 rounded-lg border border-gray-700 shadow-sm">
+              <div className="mb-6 text-gray-400">
+                <svg className="mx-auto w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Connect Your Wallet</h2>
-              <p className="text-gray-300 mb-8 max-w-md mx-auto">
+              <h2 className="mb-4 text-2xl font-bold text-white">Connect Your Wallet</h2>
+              <p className="mx-auto mb-8 max-w-md text-gray-300">
                 Connect your wallet to view your vault positions, track performance, and manage your portfolio.
               </p>
               <div className="flex justify-center space-x-4">
@@ -344,7 +398,7 @@ export default function PortfolioPage() {
                     key={connector.uid}
                     onClick={() => connect({ connector })}
                     disabled={isPending}
-                    className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                    className="px-4 py-2 font-medium text-white bg-green-600 rounded-lg transition-colors hover:bg-green-700"
                   >
                     {isPending ? 'Connecting...' : `Connect ${connector.name}`}
                   </button>
@@ -356,10 +410,10 @@ export default function PortfolioPage() {
           {isConnected && (
             <div className="space-y-8">
               {portfolio && (
-                <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-sm p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 bg-gray-800 rounded-lg border border-gray-700 shadow-sm">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-white mb-1">
+                      <div className="mb-1 text-3xl font-bold text-white">
                         {formatUsd(portfolio.totalValueUsd)}
                       </div>
                       <div className="text-sm text-gray-400">Total Value</div>
@@ -373,7 +427,7 @@ export default function PortfolioPage() {
                       <div className="text-sm text-gray-400">Total P&L</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-white mb-1">
+                      <div className="mb-1 text-3xl font-bold text-white">
                         {portfolio.positions.length}
                       </div>
                       <div className="text-sm text-gray-400">Active Positions</div>
@@ -381,7 +435,7 @@ export default function PortfolioPage() {
                   </div>
                   
                   {portfolio.lastUpdated && (
-                    <div className="mt-4 pt-4 border-t border-gray-700 text-center">
+                    <div className="pt-4 mt-4 text-center border-t border-gray-700">
                       <p className="text-sm text-gray-500">
                         Last updated: {new Date(portfolio.lastUpdated).toLocaleString()}
                       </p>
@@ -390,8 +444,8 @@ export default function PortfolioPage() {
                 </div>
               )}
 
-              <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm">
-                <div className="flex items-center justify-between">
+              <div className="p-4 bg-gray-800 rounded-lg border border-gray-700 shadow-sm">
+                <div className="flex justify-between items-center">
                   <label htmlFor="chain-select" className="block text-sm font-medium text-gray-300">
                     Select Network
                   </label>
@@ -399,7 +453,7 @@ export default function PortfolioPage() {
                     id="chain-select"
                     value={selectedChain}
                     onChange={(e) => setSelectedChain(parseInt(e.target.value))}
-                    className="bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded-lg focus:border-green-500 focus:ring-green-500 w-auto"
+                    className="px-3 py-2 w-auto text-white bg-gray-700 rounded-lg border border-gray-600 focus:border-green-500 focus:ring-green-500"
                   >
                     <option value={1}>Ethereum</option>
                     <option value={42161}>Arbitrum</option>
@@ -410,30 +464,30 @@ export default function PortfolioPage() {
               </div>
 
               {isLoading && (
-                <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-sm p-8">
-                  <div className="animate-pulse space-y-4">
-                    <div className="h-4 bg-gray-700 rounded w-1/4"></div>
+                <div className="p-8 bg-gray-800 rounded-lg border border-gray-700 shadow-sm">
+                  <div className="space-y-4 animate-pulse">
+                    <div className="w-1/4 h-4 bg-gray-700 rounded"></div>
                     <div className="space-y-2">
                       <div className="h-4 bg-gray-700 rounded"></div>
-                      <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                      <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                      <div className="w-3/4 h-4 bg-gray-700 rounded"></div>
+                      <div className="w-1/2 h-4 bg-gray-700 rounded"></div>
                     </div>
                   </div>
                 </div>
               )}
 
               {error && !isLoading && (
-                <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-sm p-8 text-center">
-                  <div className="text-red-500 mb-4">
-                    <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-8 text-center bg-gray-800 rounded-lg border border-gray-700 shadow-sm">
+                  <div className="mb-4 text-red-500">
+                    <svg className="mx-auto w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-white mb-2">Failed to Load Portfolio</h3>
-                  <p className="text-gray-300 mb-4">{error.message}</p>
+                  <h3 className="mb-2 text-lg font-medium text-white">Failed to Load Portfolio</h3>
+                  <p className="mb-4 text-gray-300">{error.message}</p>
                   <button
                     onClick={() => refetch()}
-                    className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                    className="px-4 py-2 font-medium text-white bg-green-600 rounded-lg transition-colors hover:bg-green-700"
                   >
                     Try Again
                   </button>
