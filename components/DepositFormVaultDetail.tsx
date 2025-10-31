@@ -8,6 +8,7 @@ import { useTokenBalance } from '@/hooks/useTokenBalance';
 import { useVaultPosition } from '@/hooks/useVaultPosition';
 import { useVaultSharePrice } from '@/hooks/useVaultSharePrice';
 import { getNetworkConfig } from '@/lib/sdk';
+import toast from 'react-hot-toast';
 
 interface DepositFormVaultDetailProps {
   vault?: {
@@ -126,22 +127,25 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
 
   const handleSwitchChain = async () => {
     if (!vault?.chainId || !switchChainAsync) {
-      alert('Cannot switch chain - chain switching not available');
+      toast.error('Cannot switch chain - chain switching not available');
       return;
     }
 
     setIsSwitchingChain(true);
+    const loadingToast = toast.loading('Switching network...');
     try {
       console.log('Switching chain from', currentChainId, 'to', vault.chainId);
       await switchChainAsync({ chainId: vault.chainId });
       // Wait a moment for the chain switch to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
       console.log('Chain switch completed');
-      alert(`Successfully switched to ${requiredChainName}`);
+      toast.dismiss(loadingToast);
+      toast.success(`Successfully switched to ${requiredChainName}`);
     } catch (error: any) {
       console.error('Chain switch failed:', error);
       const errorMessage = error?.message || 'User rejected chain switch';
-      alert(`Failed to switch chain: ${errorMessage}`);
+      toast.dismiss(loadingToast);
+      toast.error(`Failed to switch chain: ${errorMessage}`);
     } finally {
       setIsSwitchingChain(false);
     }
@@ -149,15 +153,16 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
 
   const handleApprove = async () => {
     if (!amount || parseFloat(amount) <= 0) {
-      alert('Please enter a valid amount');
+      toast.error('Please enter a valid amount');
       return;
     }
     if (!vault || !address) {
-      alert('Wallet or vault not available');
+      toast.error('Wallet or vault not available');
       return;
     }
 
     setIsApproving(true);
+    const loadingToast = toast.loading('Approving transaction...');
     try {
       // Ensure correct chain
       if (vault.chainId && currentChainId !== vault.chainId) {
@@ -217,10 +222,12 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
       // Wait briefly, then refresh allowance
       await new Promise(resolve => setTimeout(resolve, 3000));
       await refetchAllowance();
-      alert('Approval successful. You can now deposit.');
+      toast.dismiss(loadingToast);
+      toast.success('Approval successful. You can now deposit.');
     } catch (error: any) {
       const errorMessage = error?.message || 'Approval failed';
-      alert(errorMessage);
+      toast.dismiss(loadingToast);
+      toast.error(errorMessage);
     } finally {
       setIsApproving(false);
     }
@@ -228,15 +235,16 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
 
   const handleDeposit = async () => {
     if (!amount || parseFloat(amount) <= 0) {
-      alert('Please enter a valid amount');
+      toast.error('Please enter a valid amount');
       return;
     }
     if (!vault || !address) {
-      alert('Wallet or vault not available');
+      toast.error('Wallet or vault not available');
       return;
     }
 
     setIsDepositing(true);
+    const loadingToast = toast.loading('Processing deposit...');
     
     try {
       // Ensure correct chain before deposit
@@ -325,7 +333,8 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
         throw new Error(`Deposit transaction failed: ${error?.message || 'User rejected or transaction failed'}`);
       }
 
-      alert(`Successfully deposited ${amount} ${selectedAsset}!`);
+      toast.dismiss(loadingToast);
+      toast.success(`Successfully deposited ${amount} ${selectedAsset}!`);
       setAmount('');
       await refetchAllowance();
       
@@ -339,7 +348,8 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
         chain: vault?.chainId,
         amount
       });
-      alert(`Deposit failed: ${errorMessage}`);
+      toast.dismiss(loadingToast);
+      toast.error(`Deposit failed: ${errorMessage}`);
     } finally {
       setIsDepositing(false);
     }

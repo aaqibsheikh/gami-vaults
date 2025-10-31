@@ -160,6 +160,7 @@ Thumbs.db
 # lock files (keep package-lock.json but ignore others)
 yarn.lock
 pnpm-lock.yaml
+package-lock.json
 
 # test files
 __tests__/
