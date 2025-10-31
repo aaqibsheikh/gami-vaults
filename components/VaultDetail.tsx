@@ -19,18 +19,15 @@ interface VaultDetailProps {
 }
 
 export default function VaultDetail({ vault }: VaultDetailProps) {
-  // Default values for when vault data is not available
   const vaultName = vault?.name || '--';
   const strategistName = vault?.strategist?.name || '--';
   const tvl = vault?.tvlUsd ? formatUsd(vault.tvlUsd) : '--';
   const apy = vault?.apyNet ? formatPercentage(vault.apyNet) : '--';
-  
-  // Calculate realized APY and vault age from vault data
+
   const realizedApy = vault?.metadata?.realizedApy || '--';
   const vaultAge = vault?.metadata?.vaultAge || '--';
   const provider = vault?.provider || 'flagship';
-  
-  // Determine badge text and styling based on provider
+
   const getProviderBadge = () => {
     switch (provider) {
       case 'ipor':
@@ -45,55 +42,62 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
   const badge = getProviderBadge();
 
   return (
-    <div className="flex w-full p-5 flex-col justify-center items-center gap-5 rounded-[21px] glass-border bg-white/6">
-      <div className="flex w-full p-4 flex-col justify-center items-center gap-4 rounded-[16px] bg-gradient-to-b from-[#141414] to-[#141414]">
-        <div className="flex w-full justify-between items-start">
-          <div className="flex flex-col items-start gap-4">
-            <div className="text-white font-modernist text-[40px] font-normal leading-[128%] tracking-[-0.8px]">
-              {vaultName}
-            </div>
-            <div className="text-white font-dm-sans text-[13px] font-light leading-[128%] tracking-[-0.25px]">
-              by {strategistName}
-            </div>
+    <div className='w-full px-[18.76px] py-[21px] rounded-[21.2px] bg-[#FFFFFF0F] backdrop-blur-lg space-y-5'>
+      <div className='flex bg-[#141414] rounded-[16.11px] w-full p-[14.97px] justify-between items-start'>
+        <div>
+          <div className='text-white font-modernist text-[40px] font-normal tracking-[-0.8px] leading-none'>
+            {vaultName}
           </div>
-          <div className={`flex px-[5px] py-[5px] justify-center items-center gap-3 rounded-[11px] ${badge.bgColor}`}>
-            <div className="text-white font-dm-sans text-[15px] font-medium">
-              {badge.text}
-            </div>
+
+          <div className='text-white font-dm-sans text-[12.51px] font-light leading-[128%] tracking-[-0.25px] mt-1.5'>
+            by {strategistName}
           </div>
+        </div>
+
+        <div
+          className={`rounded-[10px] text-white font-dm-sans text-[15.39px] font-medium leading-none ${badge.bgColor} p-[5.44px]`}
+        >
+          {badge.text}
         </div>
       </div>
 
-      <div className="flex w-full justify-between items-center">
-        <div className="flex flex-col justify-center items-center gap-2">
-          <div className="text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]">
+      <div className='flex justify-between items-center w-full'>
+        <div className='flex flex-col gap-2 justify-center items-center'>
+          <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
             {tvl}
           </div>
-          <div className="text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]">
+
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
             TOTAL TVL
           </div>
         </div>
-        <div className="flex flex-col justify-center items-center gap-2">
-          <div className="text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]">
+
+        <div className='flex flex-col gap-2 justify-center items-center'>
+          <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
             {apy}
           </div>
-          <div className="text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]">
+
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
             CURRENT APY
           </div>
         </div>
-        <div className="flex flex-col justify-center items-center gap-2">
-          <div className="text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]">
+
+        <div className='flex flex-col gap-2 justify-center items-center'>
+          <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
             {realizedApy}
           </div>
-          <div className="text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]">
+
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
             REALIZED APY
           </div>
         </div>
-        <div className="flex flex-col justify-center items-center gap-2">
-          <div className="text-[#00F792] font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]">
+
+        <div className='flex flex-col gap-2 justify-center items-center'>
+          <div className='text-[#00F792] font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
             {vaultAge}
           </div>
-          <div className="text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]">
+
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
             VAULT AGE
           </div>
         </div>
