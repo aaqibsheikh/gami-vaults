@@ -3,9 +3,10 @@
  * Server-only file - never import in client components
  */
 
-import { createPublicClient, createWalletClient, http, PublicClient, WalletClient, defineChain, encodeFunctionData } from 'viem';
+import { createPublicClient, createWalletClient, http, PublicClient, WalletClient, defineChain, encodeFunctionData, formatUnits } from 'viem';
 import { mainnet, arbitrum, optimism, base, avalanche } from 'viem/chains';
 import { NetworkConfig, AugustVaultResponse, AugustVaultSummary, AugustAPYResponse, AugustWithdrawalSummary } from './dto';
+import { CURATED_VAULTS, getCuratedVaultsByChain } from './curated-vaults';
 
 /**
  * Retry utility for API calls
@@ -317,10 +318,288 @@ export function createSdkClient(chainId: number): SdkClient {
     },
     
     async getPositions(userAddress: string) {
-      // August Digital API doesn't have a positions endpoint
-      // Return empty array to indicate no positions
-      console.log(`⚠️ [August API] Positions endpoint not available, returning empty array for ${userAddress}`);
-      return [];
+      try {
+        // Normalize user address to lowercase
+        const normalizedAddress = userAddress.toLowerCase() as `0x${string}`;
+        console.log(`🔍 [Positions] Fetching positions for ${normalizedAddress} on chain ${chainId}`);
+        
+        // Only check curated vaults for this chain
+        const curatedVaults = getCuratedVaultsByChain([chainId]);
+        if (!curatedVaults || curatedVaults.length === 0) {
+          console.log(`⚠️ [Positions] No curated vaults found for chain ${chainId}`);
+          return [];
+        }
+        
+        console.log(`📋 [Positions] Checking ${curatedVaults.length} curated vaults for user positions`);
+
+        // ERC4626/ERC20 ABI for balanceOf
+        const ERC20_ABI = [
+          {
+            inputs: [{ internalType: 'address', name: 'account', type: 'address' }],
+            name: 'balanceOf',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'decimals',
+            outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+        ] as const;
+
+        // ERC4626 ABI for reading vault data
+        const ERC4626_ABI = [
+          {
+            inputs: [],
+            name: 'totalAssets',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'totalSupply',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'asset',
+            outputs: [{ internalType: 'address', name: '', type: 'address' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'paused',
+            outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+        ] as const;
+
+        const positions = [];
+
+        // Check each curated vault for user positions
+        for (const curatedVault of curatedVaults) {
+          try {
+            const vaultAddress = curatedVault.address.toLowerCase();
+            
+            // First, verify this is a contract address (has code)
+            const code = await publicClient.getBytecode({ address: vaultAddress as `0x${string}` });
+            if (!code || code === '0x') {
+              console.log(`⚠️ [Positions] Skipping ${vaultAddress} - not a contract`);
+              continue;
+            }
+
+            // Check if vault is paused (some vaults revert balanceOf when paused)
+            let isPaused = false;
+            try {
+              isPaused = await publicClient.readContract({
+                address: vaultAddress as `0x${string}`,
+                abi: ERC4626_ABI,
+                functionName: 'paused',
+              }) as boolean;
+              if (isPaused) {
+                console.log(`⚠️ [Positions] Skipping ${vaultAddress} - vault is paused`);
+                continue;
+              }
+            } catch {
+              // If paused() doesn't exist, continue (not all vaults have this)
+              // This is fine, we'll try balanceOf anyway
+            }
+
+            // Read user's share balance with error handling
+            let sharesBalance: bigint;
+            try {
+              sharesBalance = await publicClient.readContract({
+                address: vaultAddress as `0x${string}`,
+                abi: ERC20_ABI,
+                functionName: 'balanceOf',
+                args: [normalizedAddress],
+              }) as bigint;
+            } catch (balanceError: any) {
+              // If balanceOf fails, the user likely has no position or contract doesn't support it
+              // Skip this vault silently
+              if (balanceError?.message?.includes('returned no data') || 
+                  balanceError?.message?.includes('reverted') ||
+                  balanceError?.shortMessage?.includes('returned no data') ||
+                  balanceError?.shortMessage?.includes('reverted')) {
+                console.log(`⚠️ [Positions] Skipping ${vaultAddress} - balanceOf failed (vault may be paused or not ERC4626)`);
+                continue;
+              }
+              // Re-throw unexpected errors
+              throw balanceError;
+            }
+
+            // If user has no shares, skip
+            if (sharesBalance === BigInt(0)) {
+              continue;
+            }
+
+            // Read vault data to calculate share price
+            let totalAssets: bigint;
+            let vaultDecimals: number;
+            let totalSupply: bigint;
+            let assetAddress: string | null = null;
+
+            try {
+              [totalAssets, vaultDecimals, totalSupply, assetAddress] = await Promise.all([
+                publicClient.readContract({
+                  address: vaultAddress as `0x${string}`,
+                  abi: ERC4626_ABI,
+                  functionName: 'totalAssets',
+                }) as Promise<bigint>,
+                publicClient.readContract({
+                  address: vaultAddress as `0x${string}`,
+                  abi: ERC20_ABI,
+                  functionName: 'decimals',
+                }).catch(() => 18) as Promise<number>,
+                publicClient.readContract({
+                  address: vaultAddress as `0x${string}`,
+                  abi: ERC4626_ABI,
+                  functionName: 'totalSupply',
+                }) as Promise<bigint>,
+                publicClient.readContract({
+                  address: vaultAddress as `0x${string}`,
+                  abi: ERC4626_ABI,
+                  functionName: 'asset',
+                }).catch(() => null) as Promise<string | null>,
+              ]);
+            } catch (error: any) {
+              // If we can't read vault data, skip this vault
+              console.warn(`⚠️ [Positions] Failed to read vault data for ${vaultAddress}:`, error?.message || error);
+              continue;
+            }
+
+            // Get asset decimals
+            let assetDecimals = 18;
+            if (assetAddress) {
+              try {
+                assetDecimals = await publicClient.readContract({
+                  address: assetAddress as `0x${string}`,
+                  abi: ERC20_ABI,
+                  functionName: 'decimals',
+                }) as number;
+              } catch {
+                assetDecimals = 18;
+              }
+            }
+
+            // Calculate share price
+            const sharesDecimals = vaultDecimals as number;
+            const sharesDecimal = formatUnits(sharesBalance, sharesDecimals);
+            let sharePrice = '1.0';
+
+            console.log(`\n  💰 [${vaultAddress.slice(0, 10)}...] Share Price Calculation:`);
+            console.log(`     • User Shares: ${sharesDecimal} (decimals: ${sharesDecimals})`);
+
+            if (totalSupply > BigInt(0)) {
+              const assetsDecimal = formatUnits(totalAssets, assetDecimals);
+              const supplyDecimal = formatUnits(totalSupply, sharesDecimals);
+              const assetsNum = parseFloat(assetsDecimal);
+              const supplyNum = parseFloat(supplyDecimal);
+              sharePrice = (assetsNum / supplyNum).toFixed(6);
+              console.log(`     • Total Assets: ${assetsDecimal} ${curatedVault.underlyingSymbol || 'tokens'}`);
+              console.log(`     • Total Supply: ${supplyDecimal} shares`);
+              console.log(`     • Share Price: ${sharePrice} = ${assetsNum} / ${supplyNum}`);
+            } else {
+              console.log(`     • Total Supply is 0, using default share price: ${sharePrice}`);
+            }
+
+            // Calculate current value in underlying tokens
+            const sharesNum = parseFloat(sharesDecimal);
+            const sharePriceNum = parseFloat(sharePrice);
+            const currentValue = (sharesNum * sharePriceNum).toString();
+            console.log(`     • Current Value: ${sharesNum} shares × ${sharePriceNum} = ${currentValue} tokens`);
+
+            // Calculate entry value assuming shares were purchased at initial share price of 1.0
+            // This is a reasonable approximation for ERC4626 vaults where shares start at 1:1 ratio
+            // If share price > 1.0, the vault has generated yield (positive P&L)
+            // If share price < 1.0, the vault has lost value (negative P&L)
+            const entrySharePrice = '1.0'; // Assume initial purchase at 1:1 ratio
+            const entryValue = (sharesNum * parseFloat(entrySharePrice)).toString();
+            console.log(`     • Entry Value: ${sharesNum} shares × ${entrySharePrice} = ${entryValue} tokens (assumed initial price)`);
+
+            // Try to get USD value - if oracle fails, use 0
+            let valueUsd = '0';
+            let entryValueUsd = '0';
+            console.log(`\n  💵 [${vaultAddress.slice(0, 10)}...] USD Value Calculation:`);
+            if (assetAddress) {
+              try {
+                const { getUsdValue } = await import('./oracles');
+                valueUsd = await getUsdValue(assetAddress, currentValue, chainId, assetDecimals);
+                entryValueUsd = await getUsdValue(assetAddress, entryValue, chainId, assetDecimals);
+                console.log(`     • Using Oracle - Asset Address: ${assetAddress.slice(0, 10)}...`);
+                console.log(`     • Current Value USD: ${valueUsd} (from ${currentValue} tokens)`);
+                console.log(`     • Entry Value USD: ${entryValueUsd} (from ${entryValue} tokens)`);
+              } catch (error) {
+                console.warn(`⚠️ [Positions] Failed to get USD value for vault ${vaultAddress}:`, error);
+                // Fallback: try to use a simple price lookup if available
+                // For ETH: assume $3000, for USDC/USDT: assume $1
+                if (assetAddress && currentValue) {
+                  const assetLower = assetAddress.toLowerCase();
+                  if (assetLower.includes('0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2') || 
+                      assetLower.includes('eth') || 
+                      chainId === 1) {
+                    // ETH approximation
+                    const ethPrice = 3000;
+                    valueUsd = (parseFloat(currentValue) * ethPrice).toString();
+                    console.log(`     • Using ETH Fallback - Price: $${ethPrice}`);
+                  } else {
+                    // Stablecoin approximation
+                    valueUsd = currentValue;
+                    console.log(`     • Using Stablecoin Fallback - 1:1 ratio`);
+                  }
+                  entryValueUsd = valueUsd;
+                  console.log(`     • Current Value USD: ${valueUsd} (fallback)`);
+                  console.log(`     • Entry Value USD: ${entryValueUsd} (fallback)`);
+                }
+              }
+            } else {
+              console.log(`     • No asset address, USD value set to 0`);
+            }
+
+            // Calculate P&L (current value - entry value)
+            const pnlUsd = (parseFloat(valueUsd) - parseFloat(entryValueUsd)).toString();
+            const pnlNum = parseFloat(pnlUsd);
+            const entryNum = parseFloat(entryValueUsd);
+            const pnlPercent = entryNum !== 0 ? ((pnlNum / entryNum) * 100).toFixed(2) : '0.00';
+            console.log(`\n  📈 [${vaultAddress.slice(0, 10)}...] P&L Calculation:`);
+            console.log(`     • Current Value: $${valueUsd}`);
+            console.log(`     • Entry Value: $${entryValueUsd}`);
+            console.log(`     • P&L USD: ${pnlNum >= 0 ? '+' : ''}$${pnlUsd}`);
+            console.log(`     • P&L %: ${pnlNum >= 0 ? '+' : ''}${pnlPercent}%`);
+            console.log(`     • Share Price Change: ${sharePrice} vs ${entrySharePrice} (${((parseFloat(sharePrice) - 1) * 100).toFixed(2)}%)`);
+
+            positions.push({
+              vault: vaultAddress,
+              shares: sharesDecimal,
+              value: currentValue,
+              valueUsd,
+              pnl: pnlUsd,
+              entryValue,
+              entryValueUsd,
+            });
+
+            console.log(`✅ [Positions] Found position for vault ${vaultAddress}: ${sharesDecimal} shares = ${valueUsd} USD`);
+          } catch (error) {
+            console.warn(`⚠️ [Positions] Error checking vault ${curatedVault.address}:`, error);
+            // Continue to next vault
+            continue;
+          }
+        }
+
+        console.log(`✅ [Positions] Found ${positions.length} positions for user ${userAddress}`);
+        return positions;
+      } catch (error) {
+        console.error(`❌ [Positions] Failed to fetch positions:`, error);
+        throw new Error(`Failed to fetch positions: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
     },
     
     async getPosition(vaultAddress: string, userAddress: string) {

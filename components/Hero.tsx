@@ -4,7 +4,7 @@ import Image from 'next/image';
 export default function Hero() {
   return (
     <section className='relative pt-[106px] pb-[50px]'>
-      <div className='absolute inset-0 -bottom-[80px]'>
+      {/* <div className='absolute inset-0 -bottom-[80px]'>
         <div className='h-full max-w-[1280px] mx-auto px-[84px] relative'>
           <div className='absolute left-[84px] top-0 bottom-0 w-px bg-[#242424]' />
 
@@ -14,7 +14,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className='absolute left-0 right-0 h-px bg-[#242424] bottom-0' />
+      <div className='absolute left-0 right-0 h-px bg-[#242424] bottom-0' /> */}
 
       <div className='max-w-[1280px] mx-auto px-[84px] relative z-10'>
         <div className='pt-[355px] pl-[21px] space-y-7'>

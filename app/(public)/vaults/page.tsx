@@ -59,7 +59,7 @@ export default function ExploreVaults() {
 
   return (
     <div className='min-h-screen bg-black'>
-      <div className='absolute inset-0 -bottom-[80px]'>
+      {/* <div className='absolute inset-0 -bottom-[80px]'>
         <div className='h-full max-w-[1280px] mx-auto px-[84px] relative'>
           <div className='absolute left-[84px] top-0 bottom-0 w-px bg-[#242424]' />
 
@@ -69,7 +69,7 @@ export default function ExploreVaults() {
         </div>
       </div>
 
-      <div className='absolute left-0 right-0 h-px bg-[#242424] bottom-0' />
+      <div className='absolute left-0 right-0 h-px bg-[#242424] bottom-0' /> */}
 
       <Header />
 

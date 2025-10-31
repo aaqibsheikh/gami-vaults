@@ -29,16 +29,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check cache first
+    // For testing: Add ?nocache=true to bypass cache
+    const { searchParams: queryParams } = new URL(request.url);
+    const noCache = queryParams.get('nocache') === 'true';
+
+    // Check cache first (unless nocache is set)
     const cacheKey = CacheKeys.portfolio(chain, address);
-    const cached = cache.get<PortfolioDTO>(cacheKey);
-    if (cached) {
-      return NextResponse.json(cached);
+    if (!noCache) {
+      const cached = cache.get<PortfolioDTO>(cacheKey);
+      if (cached) {
+        return NextResponse.json(cached);
+      }
     }
 
     // Create SDK client and fetch positions
     const sdk = createSdkClient(chain);
+    console.log(`🔍 [Portfolio API] Fetching positions for ${address} on chain ${chain}`);
     const positions = await sdk.getPositions(address);
+    console.log(`✅ [Portfolio API] Fetched ${positions.length} positions`);
 
     if (!positions || positions.length === 0) {
       const emptyPortfolio: PortfolioDTO = {
@@ -63,9 +71,10 @@ export async function GET(request: NextRequest) {
     for (const position of positions) {
       // Normalize numeric values
       const shares = normalizeToString(position.shares);
-      const valueUsd = normalizeToString(position.value);
-      const pnlUsd = normalizeToString(position.pnl);
-      const entryUsd = normalizeToString(position.entryValue);
+      // SDK returns valueUsd directly, but also has value for underlying tokens
+      const valueUsd = normalizeToString(position.valueUsd || position.value || '0');
+      const pnlUsd = normalizeToString(position.pnl || position.pnlUsd || '0');
+      const entryUsd = normalizeToString(position.entryValueUsd || position.entryValue || position.valueUsd || '0');
 
       // Convert to numbers for totals
       const valueNum = parseFloat(valueUsd);

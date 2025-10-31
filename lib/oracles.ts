@@ -96,6 +96,7 @@ class OracleAdapter {
     const tokenPrice = parseFloat(price);
     
     const usdValue = tokenAmount * tokenPrice;
+    console.log('usdValue.toString', usdValue.toString())
     return usdValue.toString();
   }
 
