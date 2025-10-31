@@ -6,13 +6,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
 import { useVaults } from '@/hooks/useVaults';
-import { getSupportedNetworks } from '@/lib/sdk';
+import { getSupportedNetworks, getNetworkConfig } from '@/lib/sdk';
 import { formatUsd, formatPercentage } from '@/lib/normalize';
 import VaultCart from './components/VaultCart';
 
 export default function ExploreVaults() {
   const tabs = ['Assets', 'USD', 'BTC', 'ETH', 'AVAX', 'Partner'];
-  const [activeViewType, setActiveViewType] = useState<'grid' | 'list'>('grid');
+  const [activeViewType, setActiveViewType] = useState<'grid' | 'list'>('list');
   const viewTypes: { icon: string; value: 'grid' | 'list' }[] = [
     {
       icon: '/assets/svgs/grid-icon.svg',
@@ -33,18 +33,28 @@ export default function ExploreVaults() {
     chainIds: supportedNetworks,
   });
 
-  // Transform vaults for display
-  const transformedVaults = useMemo(() => {
-    if (!vaults) return [];
+  // Transform vaults for display and compute featured (Upshift top 3)
+  const { transformedVaults, featuredVaults, otherVaults } = useMemo(() => {
+    if (!vaults) return { transformedVaults: [], featuredVaults: [], otherVaults: [] };
 
-    return vaults.map(vault => ({
-      name: vault.name,
-      apy: vault.apyNet ? formatPercentage(vault.apyNet) : 'N/A',
-      tvl: formatUsd(vault.tvlUsd),
-      assets: [vault.underlying.symbol],
-      chainId: vault.chainId,
-      vaultId: vault.id,
-    }));
+    const toDisplay = (v: any) => ({
+      name: v.name,
+      apy: v.apyNet ? formatPercentage(v.apyNet) : 'N/A',
+      tvl: formatUsd(v.tvlUsd),
+      assets: [v.underlying.symbol],
+      chainId: v.chainId,
+      vaultId: v.id,
+      provider: v.provider,
+      chainName: getNetworkConfig(v.chainId)?.name || 'Unknown',
+    });
+
+    const all = vaults.map(toDisplay);
+    const featuredRaw = vaults.filter((v: any) => v.provider === 'upshift').slice(0, 3);
+    const featuredIds = new Set(featuredRaw.map((v: any) => v.id));
+    const featured = featuredRaw.map(toDisplay);
+    const others = all.filter(v => !featuredIds.has(v.vaultId));
+
+    return { transformedVaults: all, featuredVaults: featured, otherVaults: others };
   }, [vaults]);
 
   return (
@@ -83,6 +93,114 @@ export default function ExploreVaults() {
             </p>
           </div>
 
+          {/* Featured Section - always cards (top 3 Upshift) */}
+          <div className='bg-[#141414] rounded-[21.93px] p-[20.37px] mt-10'>
+            <div className='flex justify-between items-center'>
+              <div className='flex items-center gap-[14.32px]'>
+                {tabs.map((tab, index) => (
+                  <button
+                    key={tab}
+                    className={`flex h-10 px-2.5 justify-center items-center rounded-[20.78px] backdrop-blur-lg ${
+                      index === 0
+                        ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
+                        : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
+                    } transition-colors`}
+                  >
+                    <div className='text-white font-dm-sans text-[13.58px] font-light leading-none'>
+                      {tab}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* <div className='flex items-center gap-[5px]'>
+                <div className='relative'>
+                  <input
+                    type='text'
+                    placeholder='Search by chain...'
+                    className='bg-[#FFFFFF0F] text-white placeholder:text-white text-[14px] font-light font-dm-sans outline-none h-[40px] w-[268px] rounded-[19.09px] pr-2 pl-[32.21px] shadow-[0_0_0_0.4px_#ffffff47] backdrop-blur-lg'
+                  />
+
+                  <svg
+                    width='13'
+                    height='15'
+                    viewBox='0 0 13 15'
+                    fill='none'
+                    xmlns='http://www.w3.org/2000/svg'
+                    className='absolute top-1/2 left-[14.55px] -translate-y-1/2 pointer-events-none'
+                  >
+                    <circle
+                      cx='7.95438'
+                      cy='4.71219'
+                      r='4.10417'
+                      stroke='white'
+                      strokeWidth='1.21605'
+                    />
+                    <rect
+                      x='4.91602'
+                      y='7.60031'
+                      width='1.41547'
+                      height='7.82305'
+                      rx='0.608025'
+                      transform='rotate(38.9421 4.91602 7.60031)'
+                      fill='white'
+                    />
+                  </svg>
+                </div>
+
+                {viewTypes.map(viewType => (
+                  <button
+                    key={viewType.value}
+                    className={`flex w-[50px] h-10 justify-center items-center rounded-[19.09px] backdrop-blur-lg ${
+                      viewType.value === activeViewType
+                        ? 'shadow-[0_0_0_0.4px_#A100FF] bg-[#A100FF2E]'
+                        : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
+                    } transition-all`}
+                    onClick={() => setActiveViewType(viewType.value)}
+                  >
+                    <div className='text-white font-dm-sans text-[13.58px] font-light leading-none'>
+                      <Image src={viewType.icon} alt={viewType.value} width={15} height={8.79} />
+                    </div>
+                  </button>
+                ))}
+              </div> */}
+            </div>
+
+            <div className='mt-5'>
+              {isLoading ? (
+                <div className='flex w-full flex-col items-center gap-[15px] py-8'>
+                  <div className='text-white/50 font-dm-sans text-[14px]'>Loading vaults...</div>
+                </div>
+              ) : error ? (
+                <div className='flex w-full flex-col items-center gap-[15px] py-8'>
+                  <div className='text-red-400 font-dm-sans text-[14px]'>
+                    Error loading vaults: {error.message}
+                  </div>
+                </div>
+              ) : featuredVaults.length === 0 ? (
+                <div className='flex w-full flex-col items-center gap-[15px] py-8'>
+                  <div className='text-white/50 font-dm-sans text-[14px]'>No featured vaults</div>
+                </div>
+              ) : (
+                <div className='grid grid-cols-3 gap-5'>
+                  {featuredVaults.map((vault, index) => (
+                    <VaultCart
+                      key={`${vault.chainId}-${vault.vaultId}-featured-${index}`}
+                      name={vault.name}
+                      apy={vault.apy}
+                      tvl={vault.tvl}
+                      assets={vault.assets}
+                      chainId={vault.chainId}
+                      vaultId={vault.vaultId}
+                      chainName={vault.chainName}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* All Vaults Section - controlled by view toggle */}
           <div className='bg-[#141414] rounded-[21.93px] p-[20.37px] mt-10'>
             <div className='flex justify-between items-center'>
               <div className='flex items-center gap-[14.32px]'>
@@ -166,7 +284,7 @@ export default function ExploreVaults() {
                     Error loading vaults: {error.message}
                   </div>
                 </div>
-              ) : transformedVaults.length === 0 ? (
+              ) : otherVaults.length === 0 ? (
                 <div className='flex w-full flex-col items-center gap-[15px] py-8'>
                   <div className='text-white/50 font-dm-sans text-[14px]'>No vaults available</div>
                 </div>
@@ -180,13 +298,16 @@ export default function ExploreVaults() {
                     <div>ACTIONS</div>
                   </div>
 
-                  {transformedVaults.map((vault, index) => (
+                  {otherVaults.map((vault, index) => (
                     <div
                       key={`${vault.chainId}-${vault.vaultId}-${index}`}
                       className='grid grid-cols-[2fr_1fr_1fr_2fr_1.5fr] gap-4 items-center shadow-[0_0.5px_0_0_#ffffff47] transition-colors py-[26px]'
                     >
-                      <div className='font-dm-sans text-white text-[13.24px] font-bold'>
-                        {vault.name}
+                      <div className='font-dm-sans text-white text-[13.24px] font-bold flex items-center gap-2'>
+                        <span>{vault.name}</span>
+                        <span className='bg-[#2C2929] rounded-[5px] h-[21px] px-[8px] text-[12px] text-white flex items-center justify-center font-dm-sans'>
+                          {vault.chainName}
+                        </span>
                       </div>
 
                       <div className='font-dm-sans text-white text-[13.24px]'>{vault.apy}</div>
@@ -224,7 +345,7 @@ export default function ExploreVaults() {
                 </>
               ) : (
                 <div className='grid grid-cols-3 gap-5'>
-                  {transformedVaults.map((vault, index) => (
+                  {otherVaults.map((vault, index) => (
                     <VaultCart
                       key={`${vault.chainId}-${vault.vaultId}-${index}`}
                       name={vault.name}
@@ -233,6 +354,7 @@ export default function ExploreVaults() {
                       assets={vault.assets}
                       chainId={vault.chainId}
                       vaultId={vault.vaultId}
+                      chainName={vault.chainName}
                     />
                   ))}
                 </div>
