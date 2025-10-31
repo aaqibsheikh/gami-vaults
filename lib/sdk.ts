@@ -517,7 +517,7 @@ export function getSupportedNetworks(): number[] {
       .filter((n) => !Number.isNaN(n));
     if (parsed.length > 0) return parsed;
   }
-  return [1, 8453, 43114, 999];
+  return [1]; // need to final this??
 }
 
 /**

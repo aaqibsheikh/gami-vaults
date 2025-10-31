@@ -7,9 +7,10 @@ interface VaultCartProps {
   assets: string[];
   chainId: number;
   vaultId: string;
+  chainName?: string;
 }
 
-const VaultCart = ({ name, apy, tvl, assets, chainId, vaultId }: VaultCartProps) => {
+const VaultCart = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: VaultCartProps) => {
   return (
     <div className='w-[337px] h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
       <div className='w-full h-full bg-black rounded-[22.37px] p-[22.37px] relative overflow-hidden'>
@@ -33,8 +34,15 @@ const VaultCart = ({ name, apy, tvl, assets, chainId, vaultId }: VaultCartProps)
             </Link>
           </div>
 
-          <div className='text-[9.59px] font-medium leading-none text-white bg-[#2C2929] rounded-[7.49px] py-[3.74px] px-[4.49px]'>
-            Flagship
+          <div className='flex items-center gap-[6px]'>
+            {chainName && (
+              <div className='flex items-center gap-1 text-[9.59px] font-medium leading-none text-white bg-[#2C2929] rounded-[7.49px] py-[3.74px] px-[6.5px]'>
+                <span>{chainName}</span>
+              </div>
+            )}
+            <div className='text-[9.59px] font-medium leading-none text-white bg-[#2C2929] rounded-[7.49px] py-[3.74px] px-[4.49px]'>
+              Flagship
+            </div>
           </div>
         </div>
 

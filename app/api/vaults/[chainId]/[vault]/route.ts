@@ -103,6 +103,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
               sdk.getVaultSummary(vault).catch(() => null),
               sdk.getVaultAPY(vault).catch(() => null)
             ]);
+
           } catch (error) {
             console.warn(`Could not fetch summary/APY for vault ${vault}:`, error);
           }

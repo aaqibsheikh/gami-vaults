@@ -52,7 +52,6 @@ export async function GET(request: NextRequest) {
           
           // Fetch specific vault data
           const augustVault = await sdk.getVault(curatedVault.address);
-          console.log('augustVaultaugustVault', augustVault);
           // Transform to our DTO format
           const vaultDTO = transformAugustVault(augustVault);
           vaultDTO.provider = 'upshift';

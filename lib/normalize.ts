@@ -59,13 +59,22 @@ export function formatUsd(value: string, compact: boolean = true): string {
 
 /**
  * Format percentage values
+ * Expects the value to be in decimal form (e.g., 0.17 for 17%)
+ * and multiplies by 100 to convert to percentage
  */
 export function formatPercentage(value: string, decimals: number = 2): string {
   const num = parseFloat(value);
   
   if (isNaN(num)) return '0%';
   
-  return `${num.toFixed(decimals)}%`;
+  // Multiply by 100 to convert decimal to percentage
+  const percentage = num * 100;
+  
+  // Remove trailing zeros after decimal
+  // For example: 17.00 -> 17, 17.50 -> 17.5, 17.12 -> 17.12
+  const formatted = percentage.toFixed(decimals).replace(/\.?0+$/, '');
+  
+  return `${formatted}%`;
 }
 
 /**

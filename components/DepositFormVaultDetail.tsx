@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount, useSendTransaction, useChainId, useSwitchChain } from 'wagmi';
-import { isAddress, getAddress } from 'viem';
+import { useAccount, useSendTransaction, useChainId, useSwitchChain, useReadContract } from 'wagmi';
+import { isAddress, getAddress, parseUnits } from 'viem';
 import { formatPercentage, formatUsd } from '@/lib/normalize';
 import { useTokenBalance } from '@/hooks/useTokenBalance';
 import { useVaultPosition } from '@/hooks/useVaultPosition';
@@ -33,6 +33,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
   const [amount, setAmount] = useState('');
   const [selectedAsset, setSelectedAsset] = useState(vault?.underlying.symbol || '');
   const [isDepositing, setIsDepositing] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
   const [isSwitchingChain, setIsSwitchingChain] = useState(false);
 
   // Check if wallet is on the correct chain
@@ -87,6 +88,42 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
     }
   };
 
+  // Read ERC20 allowance: how much `vault.id` is allowed to spend from `address`
+  const { data: allowanceData, refetch: refetchAllowance, isFetching: isFetchingAllowance } = useReadContract({
+    address: (vault?.underlying.address || '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    abi: [
+      {
+        inputs: [
+          { internalType: 'address', name: 'owner', type: 'address' },
+          { internalType: 'address', name: 'spender', type: 'address' }
+        ],
+        name: 'allowance',
+        outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function'
+      }
+    ] as const,
+    functionName: 'allowance',
+    args: [
+      (address || '0x0000000000000000000000000000000000000000') as `0x${string}`,
+      (vault?.id || '0x0000000000000000000000000000000000000000') as `0x${string}`
+    ],
+    query: {
+      enabled: Boolean(vault?.underlying.address && vault?.id && address),
+    }
+  });
+
+  const allowance = typeof allowanceData === 'bigint' ? allowanceData : BigInt(0);
+  const requiredAmount = (() => {
+    if (!amount || !vault?.underlying.decimals) return BigInt(0);
+    try {
+      return parseUnits(amount as `${string}`, vault.underlying.decimals);
+    } catch {
+      return BigInt(0);
+    }
+  })();
+  const needsApproval = requiredAmount > BigInt(0) && allowance < requiredAmount;
+
   const handleSwitchChain = async () => {
     if (!vault?.chainId || !switchChainAsync) {
       alert('Cannot switch chain - chain switching not available');
@@ -110,6 +147,85 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
     }
   };
 
+  const handleApprove = async () => {
+    if (!amount || parseFloat(amount) <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
+    if (!vault || !address) {
+      alert('Wallet or vault not available');
+      return;
+    }
+
+    setIsApproving(true);
+    try {
+      // Ensure correct chain
+      if (vault.chainId && currentChainId !== vault.chainId) {
+        if (!switchChainAsync) {
+          throw new Error(`Please switch your wallet to chain ${vault.chainId} (currently on ${currentChainId})`);
+        }
+        await switchChainAsync({ chainId: vault.chainId });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      // Build approval tx
+      const approveUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}/api/tx/approve`
+        : '/api/tx/approve';
+
+      const approveRes = await fetch(approveUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          chain: vault.chainId,
+          token: vault.underlying.address,
+          spender: vault.id,
+          amount: amount
+        })
+      });
+      if (!approveRes.ok) {
+        const errorText = await approveRes.text();
+        let errorData: any;
+        try { errorData = JSON.parse(errorText); } catch { errorData = { error: errorText || 'Unknown error' }; }
+        throw new Error(`Failed to build approval transaction: ${errorData.error || approveRes.statusText} (${approveRes.status})`);
+      }
+      const approveTx = await approveRes.json();
+      if (!approveTx.to || !approveTx.data) throw new Error('Invalid approval transaction response from server');
+      if (!isAddress(approveTx.to)) throw new Error(`Invalid "to" address format: ${approveTx.to}`);
+      const toAddress = getAddress(approveTx.to);
+
+      // Send approval
+      if (sendTransactionAsync) {
+        await sendTransactionAsync({
+          to: toAddress,
+          data: approveTx.data as `0x${string}`,
+          value: BigInt(approveTx.value || '0'),
+        });
+      } else {
+        await new Promise<void>((resolve, reject) => {
+          sendTransaction({
+            to: toAddress,
+            data: approveTx.data as `0x${string}`,
+            value: BigInt(approveTx.value || '0'),
+          }, {
+            onSuccess: () => resolve(),
+            onError: (error) => reject(error),
+          });
+        });
+      }
+
+      // Wait briefly, then refresh allowance
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      await refetchAllowance();
+      alert('Approval successful. You can now deposit.');
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Approval failed';
+      alert(errorMessage);
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
   const handleDeposit = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       alert('Please enter a valid amount');
@@ -123,128 +239,16 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
     setIsDepositing(true);
     
     try {
-      // 1) Build approval tx (token -> approve vault for amount)
-      console.log('Building approval transaction:', {
-        chain: vault.chainId,
-        token: vault.underlying.address,
-        spender: vault.id,
-        amount: amount
-      });
-      
-      // Use absolute URL to avoid Next.js routing issues
-      const approveUrl = typeof window !== 'undefined' 
-        ? `${window.location.origin}/api/tx/approve`
-        : '/api/tx/approve';
-      
-      console.log('Fetching from URL:', approveUrl);
-      
-      const approveRes = await fetch(approveUrl, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          chain: vault.chainId,
-          token: vault.underlying.address,
-          spender: vault.id,
-          amount: amount
-        })
-      });
-      
-      console.log('Approval response status:', approveRes.status, approveRes.statusText);
-      console.log('Approval response headers:', Object.fromEntries(approveRes.headers.entries()));
-      
-      if (!approveRes.ok) {
-        const errorText = await approveRes.text();
-        console.error('Error response body:', errorText);
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { error: errorText || 'Unknown error' };
-        }
-        throw new Error(`Failed to build approval transaction: ${errorData.error || approveRes.statusText} (${approveRes.status})`);
-      }
-      
-      const approveTx = await approveRes.json();
-      console.log('Approval transaction response:', approveTx);
-      
-      // Check if we got the GET handler's response instead of POST handler's response
-      if (approveTx.ok && approveTx.message) {
-        console.error('Received GET handler response instead of POST:', approveTx);
-        throw new Error('Server returned wrong response - POST request was handled by GET handler. This may be a Next.js routing issue.');
-      }
-      
-      // Validate transaction data
-      if (!approveTx.to || !approveTx.data) {
-        console.error('Invalid approve transaction response:', approveTx);
-        throw new Error('Invalid approval transaction response from server');
-      }
-      
-      // Validate and normalize address using viem
-      if (!isAddress(approveTx.to)) {
-        console.error('Invalid address from API:', approveTx.to);
-        throw new Error(`Invalid "to" address format: ${approveTx.to}`);
-      }
-      
-      // Normalize address (checksum it properly)
-      const toAddress = getAddress(approveTx.to);
-      
-      console.log('Approval transaction prepared:', {
-        originalTo: approveTx.to,
-        normalizedTo: toAddress,
-        dataLength: approveTx.data?.length,
-        value: approveTx.value
-      });
-
-      // Ensure wallet is on the correct chain before sending approval
+      // Ensure correct chain before deposit
       if (vault.chainId && currentChainId !== vault.chainId) {
-        console.log('Wallet is on chain', currentChainId, 'but vault requires chain', vault.chainId);
         if (!switchChainAsync) {
           throw new Error(`Please switch your wallet to chain ${vault.chainId} (currently on ${currentChainId})`);
         }
-        try {
-          console.log('Switching chain from', currentChainId, 'to', vault.chainId);
-          await switchChainAsync({ chainId: vault.chainId });
-          // Wait a moment for the chain switch to complete
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          console.log('Chain switch completed');
-        } catch (error: any) {
-          throw new Error(`Failed to switch chain: ${error?.message || 'User rejected chain switch'}`);
-        }
+        await switchChainAsync({ chainId: vault.chainId });
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      // Send approval transaction - use sendTransactionAsync if available, otherwise use callback pattern
-      try {
-        if (sendTransactionAsync) {
-          await sendTransactionAsync({
-            to: toAddress,
-            data: approveTx.data as `0x${string}`,
-            value: BigInt(approveTx.value || '0'),
-          });
-          console.log('Approval transaction sent successfully');
-        } else {
-          // Fallback to callback pattern if sendTransactionAsync not available
-          await new Promise<void>((resolve, reject) => {
-            sendTransaction({
-              to: toAddress,
-              data: approveTx.data as `0x${string}`,
-              value: BigInt(approveTx.value || '0'),
-            }, {
-              onSuccess: () => resolve(),
-              onError: (error) => reject(error),
-            });
-          });
-        }
-      } catch (error: any) {
-        throw new Error(`Approval transaction failed: ${error?.message || 'User rejected or transaction failed'}`);
-      }
-
-      // Wait a bit for approval to be mined
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // 2) Build deposit tx
+      // Build deposit tx
       const depositUrl = typeof window !== 'undefined' 
         ? `${window.location.origin}/api/tx/deposit`
         : '/api/tx/deposit';
@@ -295,25 +299,6 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
         value: depositTx.value
       });
 
-      // Ensure wallet is still on the correct chain before sending deposit
-      // Note: We can't call hooks inside the handler, so we use currentChainId from component level
-      // The chain should still be correct after approval, but we check anyway
-      if (vault.chainId && currentChainId !== vault.chainId) {
-        console.log('Wallet chain check before deposit. Current chain:', currentChainId, 'Required:', vault.chainId);
-        if (!switchChainAsync) {
-          throw new Error(`Please switch your wallet to chain ${vault.chainId} (currently on ${currentChainId})`);
-        }
-        try {
-          console.log('Switching chain before deposit from', currentChainId, 'to', vault.chainId);
-          await switchChainAsync({ chainId: vault.chainId });
-          // Wait a moment for the chain switch to complete
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          console.log('Chain switch completed before deposit');
-        } catch (error: any) {
-          throw new Error(`Failed to switch chain before deposit: ${error?.message || 'User rejected chain switch'}`);
-        }
-      }
-
       // Send deposit transaction - use sendTransactionAsync if available, otherwise use callback pattern
       try {
         if (sendTransactionAsync) {
@@ -342,6 +327,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
 
       alert(`Successfully deposited ${amount} ${selectedAsset}!`);
       setAmount('');
+      await refetchAllowance();
       
     } catch (error: any) {
       console.error('Deposit failed:', error);
@@ -496,8 +482,9 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
         </div>
 
         <button
-          onClick={handleDeposit}
+          onClick={needsApproval ? handleApprove : handleDeposit}
           disabled={
+            isApproving ||
             isDepositing ||
             isTxPending ||
             isWrongChain ||
@@ -508,11 +495,11 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
           }
           className='w-full px-[28.44px] h-[40px] rounded-[10px] bg-gradient-purple text-white text-[15px] font-medium font-dm-sans hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed'
         >
-          {isDepositing || isTxPending
-            ? 'Processing...'
+          {isApproving || isDepositing || isTxPending
+            ? (needsApproval ? 'Approving...' : 'Processing...')
             : isWrongChain
-              ? `Switch to ${requiredChainName} to Deposit`
-              : 'Deposit'}
+              ? `Switch to ${requiredChainName} to ${needsApproval ? 'Approve' : 'Deposit'}`
+              : (needsApproval ? 'Approve' : 'Deposit')}
         </button>
       </div>
     </div>
