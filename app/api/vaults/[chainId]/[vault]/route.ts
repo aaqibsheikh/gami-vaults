@@ -50,8 +50,29 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     let vaultDTO: VaultDTO | null = null;
 
-    // First, try to find the vault in IPOR (if enabled)
-    if (isIporEnabled()) {
+    // First, check if this is a curated vault (Lagoon or Ipor)
+    // This avoids unnecessary API calls to external services
+    const curatedVault = getCuratedVault(vault, chainId);
+    
+    // Try Lagoon if curated vault is Lagoon
+    if (curatedVault && curatedVault.provider === 'lagoon') {
+      try {
+        console.log(`🔍 [Vault Detail] Checking curated Lagoon vault: ${vault} on chain ${chainId}`);
+        console.log(`✅ [Vault Detail] Found curated Lagoon vault: ${curatedVault.name}`);
+        
+        vaultDTO = await getLagoonVault(
+          vault,
+          chainId,
+          curatedVault.underlyingSymbol,
+          6 // USDC has 6 decimals
+        );
+      } catch (error) {
+        console.warn(`Could not fetch from Lagoon:`, error);
+      }
+    }
+
+    // If not found, try to find the vault in IPOR (if enabled)
+    if (!vaultDTO && isIporEnabled()) {
       try {
         console.log(`🔍 [Vault Detail] Checking IPOR for vault: ${vault} on chain ${chainId}`);
         const iporVaults = await getIporVaults([chainId]);
@@ -68,7 +89,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // If not found in IPOR, try Upshift/August Digital
+    // If not found in curated or IPOR, try Upshift/August Digital
     if (!vaultDTO) {
       try {
         console.log(`🔍 [Vault Detail] Checking Upshift for vault: ${vault} on chain ${chainId}`);
@@ -131,29 +152,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }
       } catch (error) {
         console.warn(`Could not fetch from Upshift:`, error);
-      }
-    }
-
-    // If not found in IPOR or Upshift, try Lagoon
-    if (!vaultDTO) {
-      try {
-        console.log(`🔍 [Vault Detail] Checking Lagoon for vault: ${vault} on chain ${chainId}`);
-        
-        // Check if this is a curated Lagoon vault
-        const curatedVault = getCuratedVault(vault, chainId);
-        if (curatedVault && curatedVault.provider === 'lagoon') {
-          console.log(`✅ [Vault Detail] Found curated Lagoon vault: ${curatedVault.name}`);
-          
-          // Fetch Lagoon vault data
-          vaultDTO = await getLagoonVault(
-            vault,
-            chainId,
-            curatedVault.underlyingSymbol,
-            6 // USDC has 6 decimals
-          );
-        }
-      } catch (error) {
-        console.warn(`Could not fetch from Lagoon:`, error);
       }
     }
 

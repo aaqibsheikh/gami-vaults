@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSdkClient, isSupportedNetwork } from '@/lib/sdk';
 import { cache, CacheKeys, CacheTTL } from '@/lib/cache';
 import { normalizeToString } from '@/lib/normalize';
+import { getLagoonVault } from '@/lib/lagoon-sdk';
+import { getCuratedVault } from '@/lib/curated-vaults';
 
 interface RouteParams {
   params: Promise<{
@@ -66,28 +68,52 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Fetch vault data and APY data
+    // Try to fetch vault data from different sources
+    // First try August Digital (Upshift)
     const [vaultData, apyData, vaultSummary] = await Promise.all([
       sdk.getVault(vault).catch(() => null),
       sdk.getVaultAPY(vault).catch(() => null),
       sdk.getVaultSummary(vault).catch(() => null)
     ]);
 
-    if (!vaultData) {
-      return NextResponse.json(
-        { error: 'Vault not found' },
-        { status: 404 }
-      );
+    let currentAPY = 0;
+    let currentTVL = 0;
+
+    if (vaultData) {
+      // We have August Digital data
+      const apyValue = apyData?.liquidAPY30Day || apyData?.liquidAPY7Day || vaultData.reported_apy?.apy || 0;
+      currentAPY = typeof apyValue === 'string' ? parseFloat(apyValue) : apyValue;
+      
+      const tvlValue = vaultSummary?.total_assets || vaultSummary?.tvl || 0;
+      currentTVL = typeof tvlValue === 'string' ? parseFloat(tvlValue) : tvlValue;
+    } else {
+      // Try Lagoon if August Digital doesn't have it
+      const curatedVault = getCuratedVault(vault, chainId);
+      if (curatedVault && curatedVault.provider === 'lagoon') {
+        try {
+          const lagoonVault = await getLagoonVault(
+            vault,
+            chainId,
+            curatedVault.underlyingSymbol,
+            6 // USDC has 6 decimals
+          );
+          currentAPY = parseFloat(lagoonVault.apyNet || '0');
+          currentTVL = parseFloat(lagoonVault.tvlUsd || '0');
+        } catch (error) {
+          console.warn(`Could not fetch Lagoon vault data for historical:`, error);
+        }
+      } else {
+        return NextResponse.json(
+          { error: 'Vault not found' },
+          { status: 404 }
+        );
+      }
     }
 
     // Generate historical data points
     const historicalData: HistoricalDataPoint[] = [];
     const now = new Date();
     const daysBack = period === '7d' ? 7 : 30;
-    
-    // Get current APY values
-    const currentAPY = apyData?.liquidAPY30Day || apyData?.liquidAPY7Day || vaultData.reported_apy?.apy || 0;
-    const currentTVL = vaultSummary?.total_assets || vaultSummary?.tvl || 0;
     
     // Generate mock historical data points (in a real implementation, this would come from the API)
     for (let i = daysBack; i >= 0; i--) {
