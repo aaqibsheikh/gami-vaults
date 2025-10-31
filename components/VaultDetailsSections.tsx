@@ -74,155 +74,168 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
   };
 
   return (
-    <div className="flex items-start gap-16 w-full">
-      <div className="flex w-[651px] flex-col items-start gap-12">
-        <div className="flex w-full flex-col items-start gap-5">
-          <div className="text-white font-modernist text-[20px] font-bold leading-[162%] tracking-[-0.4px]">
-            Strategy Overview
-          </div>
-          <div className="w-full text-white font-dm-sans text-[20px] font-light leading-[128%] tracking-[-0.4px] whitespace-pre-line">
-            {strategyDescription}
-          </div>
+    <div className='space-y-[30px] w-[58.89%]'>
+      <div className='space-y-4'>
+        <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px]'>
+          Strategy Overview
         </div>
 
-        <div className="flex flex-col items-start gap-5 self-stretch">
-          <div className="flex justify-between items-center w-full">
-            <div className="text-white font-modernist text-[20px] font-bold leading-[162%] tracking-[-0.4px]">
-              Historical Performance
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setSelectedPeriod('7d')}
-                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                  selectedPeriod === '7d'
-                    ? 'bg-white/20 text-white'
-                    : 'bg-white/10 text-white/70 hover:bg-white/15'
-                }`}
-              >
-                7D
-              </button>
-              <button
-                onClick={() => setSelectedPeriod('30d')}
-                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                  selectedPeriod === '30d'
-                    ? 'bg-white/20 text-white'
-                    : 'bg-white/10 text-white/70 hover:bg-white/15'
-                }`}
-              >
-                30D
-              </button>
-            </div>
-          </div>
-          <div className="flex h-[237px] px-3 py-3 justify-center items-center gap-2 self-stretch rounded-[30px] glass-border bg-white/6">
-            {isLoadingHistorical ? (
-              <div className="flex-1 text-white text-center font-modernist text-[16px] font-normal leading-[162%] tracking-[-0.32px]">
-                Loading historical data...
-              </div>
-            ) : historicalData && historicalData.length > 0 ? (
-              <PerformanceChart
-                data={historicalData}
-                period={selectedPeriod}
-                type="apy"
-                className="w-full h-full"
-              />
-            ) : (
-              <div className="flex-1 text-white text-center font-modernist text-[16px] font-normal leading-[162%] tracking-[-0.32px]">
-                No historical data available
-              </div>
-            )}
-          </div>
+        <div className='w-full text-white font-dm-sans text-[20px] font-light leading-[128%] tracking-[-0.4px] whitespace-pre-line'>
+          {strategyDescription}
         </div>
+      </div>
 
-        <div className="flex px-4 py-4 flex-col justify-center items-center gap-5 self-stretch rounded-[20px] glass-border bg-white/6">
-          <div className="flex w-full px-[10px] flex-col items-start gap-6">
-            <div className="text-white font-modernist text-[20px] font-bold leading-[162%] tracking-[-0.4px]">
-              Protocol Allocation
-            </div>
+      <div className='space-y-5 w-full'>
+        <div className='flex justify-between items-center'>
+          <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px]'>
+            Historical Performance
           </div>
-          <div className="flex flex-col items-start gap-[18px] self-stretch">
-            {protocols.map((protocol, index) => (
-              <div
-                key={index}
-                className="flex px-4 py-4 flex-col justify-center items-center gap-4 self-stretch rounded-[16px] bg-gradient-to-b from-[#141414] to-[#141414]"
-              >
-                <div className="flex justify-between items-center self-stretch">
-                  <div className="flex items-start gap-2 flex-1">
-                    <div className="flex w-[15px] flex-col items-start gap-4">
-                      <div
-                        className="w-[15px] h-[15px] rounded-full"
-                        style={{ backgroundColor: protocol.color }}
-                      ></div>
-                    </div>
-                    <div className="w-[537px] text-white font-dm-sans text-[20px] font-medium leading-[128%] tracking-[-0.4px]">
-                      {protocol.name}
-                    </div>
-                    <div className="text-white font-dm-sans text-[16px] font-medium leading-[128%] tracking-[-0.32px]">
-                      {protocol.percentage}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="flex px-4 py-4 flex-col justify-center items-center gap-5 self-stretch rounded-[20px] glass-border bg-white/6">
-          <div className="flex w-full px-[10px] flex-col items-start gap-6">
-            <div className="text-white font-dm-sans text-[20px] font-bold leading-[162%] tracking-[-0.4px]">
-              Fee Structure
-            </div>
-          </div>
-          <div className="flex flex-col items-start gap-[18px] self-stretch">
-            {fees.map((fee, index) => (
-              <div
-                key={index}
-                className="flex px-4 py-4 flex-col justify-center items-center gap-4 self-stretch rounded-[16px] bg-gradient-to-b from-[#141414] to-[#141414]"
-              >
-                <div className="flex justify-between items-center self-stretch">
-                  <div className="flex items-start gap-2 flex-1">
-                    <div className="text-white font-dm-sans text-[17px] font-normal leading-[128%] tracking-[-0.34px]">
-                      {fee.label}
-                    </div>
-                    <div className="text-white font-dm-sans text-[17px] font-bold leading-[128%] tracking-[-0.34px] ml-auto">
-                      {fee.value}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex px-5 py-5 flex-col justify-center items-center gap-5 self-stretch rounded-[21px] border border-[#FF9C46]/50 bg-[#FF9C46]/6">
-          <div className="text-white font-dm-sans text-[20px] font-bold leading-[162%] tracking-[-0.4px] self-stretch">
-            ⚠ Risk Disclosure
-          </div>
-          <div className="w-full text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]">
-            Smart contract risk across multiple DeFi protocols<br />
-            Liquidation risk in leveraged positions<br />
-            Impermanent loss in liquidity provision strategies<br />
-            Oracle manipulation and price feed vulnerabilities<br />
-            Regulatory uncertainty in DeFi markets
-          </div>
-        </div>
-
-        <div className="flex flex-col items-start gap-5 self-stretch">
-          <div className="text-white font-dm-sans text-[20px] font-bold leading-[162%] tracking-[-0.4px]">
-            Contract Information
-          </div>
-          <div className="flex px-5 py-5 justify-center items-center gap-5 self-stretch rounded-[21px] glass-border bg-white/6">
-            <div className="w-[558px] text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]">
-              {contractAddress}
-            </div>
-            <button 
-              onClick={handleCopyAddress}
-              className="flex px-[10px] py-[10px] justify-center items-center gap-[10px] rounded-[10px] border border-white/40 hover:bg-white/10 transition-colors"
+          <div className='flex gap-2'>
+            <button
+              onClick={() => setSelectedPeriod('7d')}
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                selectedPeriod === '7d'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-white/10 text-white/70 hover:bg-white/15'
+              }`}
             >
-              <div className="text-white/50 font-dm-sans text-[14px] font-light leading-[128%] tracking-[-0.28px]">
-                {copied ? 'Copied!' : 'Copy'}
-              </div>
+              7D
+            </button>
+
+            <button
+              onClick={() => setSelectedPeriod('30d')}
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                selectedPeriod === '30d'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-white/10 text-white/70 hover:bg-white/15'
+              }`}
+            >
+              30D
             </button>
           </div>
+        </div>
+
+        <div className='flex h-[237px] px-3 py-3 justify-center items-center gap-2 shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[30px]'>
+          {isLoadingHistorical ? (
+            <div className='flex-1 text-white text-center font-modernist text-[16px] font-normal leading-[162%] tracking-[-0.32px]'>
+              Loading historical data...
+            </div>
+          ) : historicalData && historicalData.length > 0 ? (
+            <PerformanceChart
+              data={historicalData}
+              period={selectedPeriod}
+              type='apy'
+              className='w-full h-full'
+            />
+          ) : (
+            <div className='flex-1 text-white text-center font-modernist text-[16px] font-normal leading-[162%] tracking-[-0.32px]'>
+              No historical data available
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className='rounded-[20px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] px-3 py-[30px] space-y-5'>
+        <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px] px-3'>
+          Protocol Allocation
+        </div>
+
+        <div className='space-y-[18px]'>
+          {protocols.map((protocol, index) => (
+            <div
+              key={index}
+              className='rounded-[16px] bg-[#141414] flex justify-between items-center p-[14.97px]'
+            >
+              <div className='flex gap-2 items-center'>
+                <div
+                  className='w-[15px] h-[15px] rounded-full'
+                  style={{ backgroundColor: protocol.color }}
+                ></div>
+
+                <div className='text-white font-dm-sans text-xl font-medium leading-[128%] tracking-[-0.4px]'>
+                  {protocol.name}
+                </div>
+              </div>
+
+              <div className='text-white font-dm-sans text-base font-medium leading-[128%] tracking-[-0.32px]'>
+                {protocol.percentage}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className='rounded-[20px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] px-3 py-[30px] space-y-5'>
+        <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px] px-3'>
+          Fee Structure
+        </div>
+
+        <div className='space-y-[18px]'>
+          {fees.map((fee, index) => (
+            <div
+              key={index}
+              className='rounded-[16px] bg-[#141414] flex justify-between items-center py-[14.97px] px-[13px]'
+            >
+              <div className='text-white font-dm-sans text-[17px] font-medium leading-[128%] tracking-[-0.4px]'>
+                {fee.label}
+              </div>
+
+              <div className='text-white font-dm-sans text-[17px] font-medium leading-[128%] tracking-[-0.32px]'>
+                {fee.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className='rounded-[20.78px] border border-[#FF9C4680] bg-[#FF9C460F] py-[30px] px-[20px] space-y-3.5'>
+        <div className='text-white font-dm-sans text-[20px] font-bold flex items-center gap-0.5'>
+          <span className='-mt-1.5'>⚠️</span>
+          <span>Risk Disclosure</span>
+        </div>
+
+        <ul className='pl-1.5 space-y-0.5 list-disc list-inside'>
+          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+            Smart contract risk across multiple DeFi protocols
+          </li>
+
+          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+            Liquidation risk in leveraged positions
+          </li>
+
+          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+            Impermanent loss in liquidity provision strategies
+          </li>
+
+          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+            Oracle manipulation and price feed vulnerabilities
+          </li>
+
+          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+            Regulatory uncertainty in DeFi markets
+          </li>
+        </ul>
+      </div>
+
+      <div className='space-y-5'>
+        <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px] px-3'>
+          Contract Information
+        </div>
+
+        <div className='rounded-[21px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] px-[9.5px] py-5 flex justify-between items-center'>
+          <div className='w-[558px] text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+            {contractAddress}
+          </div>
+
+          <button
+            onClick={handleCopyAddress}
+            className='rounded-[10px] border border-white/40 hover:bg-white/10 transition-colors h-[30px] px-2.5'
+          >
+            <div className='text-[#FFFFFF80] font-dm-sans text-sm font-light leading-[128%] tracking-[-0.28px]'>
+              {copied ? 'Copied!' : 'Copy'}
+            </div>
+          </button>
         </div>
       </div>
     </div>
