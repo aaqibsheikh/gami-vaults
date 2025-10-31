@@ -8,6 +8,22 @@ import { addressSchema, chainIdSchema, decimalStringSchema } from '@/lib/zodSche
 import { createSdkClient, isSupportedNetwork } from '@/lib/sdk';
 import { TransactionResponse } from '@/lib/dto';
 
+// Avoid 405s from dev service worker prefetch by responding to GET/OPTIONS
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+      'Access-Control-Allow-Headers': 'Content-Type, Accept'
+    }
+  });
+}
+
+export async function GET() {
+  return NextResponse.json({ ok: true, message: 'Use POST to build approval transaction' });
+}
+
 const approveSchema = {
   parse(body: any) {
     const chain = chainIdSchema.parse(body.chain);
