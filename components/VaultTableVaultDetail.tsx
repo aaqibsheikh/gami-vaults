@@ -92,7 +92,6 @@ function VaultRow({ name, apy, tvl, assets, chainId, vaultId, provider }: VaultR
 
 export default function VaultTable() {
   const supportedNetworks = getSupportedNetworks();
-  console.log('supportedNetworks', supportedNetworks);
   const { data: vaults, isLoading, error } = useVaults({
     chainIds: supportedNetworks
   });
