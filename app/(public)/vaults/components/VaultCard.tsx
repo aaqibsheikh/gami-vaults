@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-interface VaultCartProps {
+interface VaultCardProps {
   name: string;
   apy: string;
   tvl: string;
@@ -10,9 +10,9 @@ interface VaultCartProps {
   chainName?: string;
 }
 
-const VaultCart = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: VaultCartProps) => {
+const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: VaultCardProps) => {
   return (
-    <div className='w-[337px] h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
+    <div className='w-[337px] min-h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
       <div className='w-full h-full bg-black rounded-[22.37px] p-[22.37px] relative overflow-hidden'>
         <div
           className='absolute top-0 left-0 z-0 w-full'
@@ -95,4 +95,4 @@ const VaultCart = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: Vaul
   );
 };
 
-export default VaultCart;
+export default VaultCard;

@@ -8,7 +8,7 @@ import { useState, useMemo } from 'react';
 import { useVaults } from '@/hooks/useVaults';
 import { getSupportedNetworks, getNetworkConfig } from '@/lib/sdk';
 import { formatUsd, formatPercentage } from '@/lib/normalize';
-import VaultCart from './components/VaultCart';
+import VaultCard from './components/VaultCard';
 
 export default function ExploreVaults() {
   const tabs = ['Assets', 'USD', 'BTC', 'ETH', 'AVAX', 'Partner'];
@@ -184,7 +184,7 @@ export default function ExploreVaults() {
               ) : (
                 <div className='grid grid-cols-3 gap-5'>
                   {featuredVaults.map((vault, index) => (
-                    <VaultCart
+                    <VaultCard
                       key={`${vault.chainId}-${vault.vaultId}-featured-${index}`}
                       name={vault.name}
                       apy={vault.apy}
@@ -346,7 +346,7 @@ export default function ExploreVaults() {
               ) : (
                 <div className='grid grid-cols-3 gap-5'>
                   {otherVaults.map((vault, index) => (
-                    <VaultCart
+                    <VaultCard
                       key={`${vault.chainId}-${vault.vaultId}-${index}`}
                       name={vault.name}
                       apy={vault.apy}
