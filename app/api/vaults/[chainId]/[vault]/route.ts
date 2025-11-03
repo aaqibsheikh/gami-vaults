@@ -60,11 +60,25 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         console.log(`🔍 [Vault Detail] Checking curated Lagoon vault: ${vault} on chain ${chainId}`);
         console.log(`✅ [Vault Detail] Found curated Lagoon vault: ${curatedVault.name}`);
         
+        // Determine asset decimals based on underlying symbol
+        const getAssetDecimals = (symbol: string): number => {
+          const decimalsMap: Record<string, number> = {
+            'USDC': 6,
+            'USDT': 6,
+            'BTC': 8,
+            'WBTC': 8,
+            'ETH': 18,
+            'WETH': 18,
+            'DAI': 18
+          };
+          return decimalsMap[symbol] || 18;
+        };
+        
         vaultDTO = await getLagoonVault(
           vault,
           chainId,
           curatedVault.underlyingSymbol,
-          6 // USDC has 6 decimals
+          getAssetDecimals(curatedVault.underlyingSymbol)
         );
       } catch (error) {
         console.warn(`Could not fetch from Lagoon:`, error);

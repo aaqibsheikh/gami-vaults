@@ -7,11 +7,12 @@
  * - Upshift: 0x0985C88929A776a2E059615137a48bA5A473E25D
  * - Lagoon: 0xdae854d0896ad2fee335689a3f7b4a95fd1a3e46
  * - Lagoon: 0x59b7942f7d2afd085691ce65c152e0d38d4eff22
- * - Lagoon x Stakedo: TBD
+ * - Lagoon Gami Stake DAO USDC: 0x33e1339567c183fbadcb43f72d11c47229d468ab
  * - IPOR: TBD
  * 
- * BTC vault:
+ * BTC vaults:
  * - Upshift: 0x6625bA54DC861e9f5c678983dBa5BA96d19a9224
+ * - Lagoon Gami WBTC: 0x414070fb9e64fd69160d75da57e75ba11f9f605a
  * 
  * Important Note on Upshift Vaults:
  * - Upshift vaults store funds in subaccounts, not directly in the vault address
@@ -71,6 +72,26 @@ export const CURATED_VAULTS: CuratedVault[] = [
     underlyingSymbol: 'USDC',
     provider: 'lagoon',
     externalUrl: 'https://app.lagoon.finance/vault/1/0x59b7942f7d2afd085691ce65c152e0d38d4eff22'
+  },
+  
+  // Lagoon Gami Stake DAO USDC Vault
+  {
+    address: '0x33e1339567c183fbadcb43f72d11c47229d468ab',
+    chainId: 1, // Ethereum mainnet
+    name: 'Gami Stake DAO USDC',
+    underlyingSymbol: 'USDC',
+    provider: 'lagoon',
+    externalUrl: 'https://app.lagoon.finance/vault/1/0x33e1339567c183fbadcb43f72d11c47229d468ab'
+  },
+  
+  // Lagoon Gami WBTC Vault
+  {
+    address: '0x414070fb9e64fd69160d75da57e75ba11f9f605a',
+    chainId: 1, // Ethereum mainnet
+    name: 'Gami WBTC',
+    underlyingSymbol: 'WBTC',
+    provider: 'lagoon',
+    externalUrl: 'https://v1.lagoon.finance/vault/1/0x414070fb9e64fd69160d75da57e75ba11f9f605a'
   },
   
   // Upshift BTC Vault
