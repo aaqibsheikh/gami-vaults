@@ -70,7 +70,7 @@ export default function Header() {
           </Link>
 
           <Link
-            href='#about'
+            href='/about'
             className='text-white text-[14px] leading-[21px] px-2 py-2.5 hover:opacity-80 transition-opacity'
           >
             About
