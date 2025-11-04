@@ -9,6 +9,7 @@ import { createPublicClient, http, PublicClient } from 'viem';
 import { mainnet } from 'viem/chains';
 import { VaultDTO } from './dto';
 import { normalizeToString } from './normalize';
+import { getUsdValue } from './oracles';
 
 /**
  * Lagoon vault contract ABI (minimal for reading basic data)
@@ -221,22 +222,37 @@ async function getUsdcPrice(): Promise<number> {
 /**
  * Transform Lagoon vault data to VaultDTO format
  */
-export function transformLagoonVault(
+export async function transformLagoonVault(
   vaultData: LagoonVaultData,
   chainId: number,
   underlyingSymbol: string,
   assetDecimals: number
-): VaultDTO {
-  // Calculate TVL: totalAssets in USD
-  // Note: This is simplified. In production, you'd use the actual USDC price
-  const tvlUsd = Number(vaultData.totalAssets) / Math.pow(10, assetDecimals);
+): Promise<VaultDTO> {
+  // Calculate TVL: totalAssets in USD using oracle
+  const rawTokenAmount = Number(vaultData.totalAssets) / Math.pow(10, assetDecimals);
+  
+  // Get USD value from oracle (Chainlink)
+  let tvlUsd: string;
+  try {
+    tvlUsd = await getUsdValue(
+      vaultData.asset,
+      rawTokenAmount.toString(),
+      chainId,
+      assetDecimals
+    );
+    console.log(`💰 [Lagoon] TVL calculated: ${rawTokenAmount} ${underlyingSymbol} = $${tvlUsd}`);
+  } catch (error) {
+    console.warn(`⚠️ [Lagoon] Oracle failed, using fallback calculation for ${underlyingSymbol}`);
+    // Fallback to 1:1 for stablecoins, 0 for others
+    tvlUsd = rawTokenAmount.toString();
+  }
   
   return {
     id: vaultData.address,
     chainId,
     name: vaultData.name,
     symbol: vaultData.symbol,
-    tvlUsd: normalizeToString(tvlUsd),
+    tvlUsd: normalizeToString(parseFloat(tvlUsd)),
     apyNet: '0', // Lagoon doesn't provide APY via on-chain calls
     fees: {
       mgmtBps: '0',
@@ -268,7 +284,7 @@ export async function getLagoonVault(
 ): Promise<VaultDTO> {
   try {
     const vaultData = await fetchLagoonVault(address, chainId);
-    return transformLagoonVault(vaultData, chainId, underlyingSymbol, assetDecimals);
+    return await transformLagoonVault(vaultData, chainId, underlyingSymbol, assetDecimals);
   } catch (error) {
     console.error(`Error fetching Lagoon vault ${address}:`, error);
     throw error;
