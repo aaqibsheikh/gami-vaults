@@ -169,6 +169,12 @@ export interface VaultDTO {
     logo?: string;
     vaultAge?: string;
     realizedApy?: string;
+    aprNetAll?: string; // linear annualized APR across full history
+    aprNet30d?: string; // linear annualized APR over last 30d
+    aprNet7d?: string; // linear annualized APR over last 7d
+    apyNetAll?: string; // compounded APY across full history
+    apyNet30d?: string; // compounded APY over last 30d
+    apyNet7d?: string; // compounded APY over last 7d
   };
 }
 

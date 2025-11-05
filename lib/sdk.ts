@@ -245,7 +245,7 @@ export function createSdkClient(chainId: number): SdkClient {
           }
 
           const data = await response.json() as AugustVaultResponse;
-          console.log(`📊 [August API] Vault details for ${address}:`, JSON.stringify(data, null, 2));
+          // console.log(`📊 [August API] Vault details for ${address}:`, JSON.stringify(data, null, 2));
           
           return data;
         } catch (error) {

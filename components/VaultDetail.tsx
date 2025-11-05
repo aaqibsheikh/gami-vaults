@@ -1,30 +1,25 @@
 'use client';
 
 import { formatUsd, formatPercentage } from '@/lib/normalize';
+import { VaultDTO } from '@/lib/dto';
 
 interface VaultDetailProps {
-  vault?: {
-    name: string;
-    strategist?: { name: string };
-    tvlUsd: string;
-    apyNet: string;
-    status: string;
-    provider?: string;
-    createdAt?: string;
-    metadata?: {
-      vaultAge?: string;
-      realizedApy?: string;
-    };
-  };
+  vault?: VaultDTO;
 }
 
 export default function VaultDetail({ vault }: VaultDetailProps) {
   const vaultName = vault?.name || '--';
   const strategistName = vault?.strategist?.name || '--';
   const tvl = vault?.tvlUsd ? formatUsd(vault.tvlUsd) : '--';
-  const apy = vault?.apyNet ? formatPercentage(vault.apyNet) : '--';
+  // Net APR windows (Lagoon)
+  const aprAll = vault?.metadata?.aprNetAll ? formatPercentage(vault.metadata.aprNetAll) : '--';
+  const apr30d = vault?.metadata?.aprNet30d ? formatPercentage(vault.metadata.aprNet30d) : '--';
+  const apr7d = vault?.metadata?.aprNet7d ? formatPercentage(vault.metadata.aprNet7d) : '--';
 
   const realizedApy = vault?.metadata?.realizedApy || '--';
+  const apyAll = vault?.metadata?.apyNetAll ? formatPercentage(vault.metadata.apyNetAll) : '--';
+  const apy30d = vault?.metadata?.apyNet30d ? formatPercentage(vault.metadata.apyNet30d) : '--';
+  const apy7d = vault?.metadata?.apyNet7d ? formatPercentage(vault.metadata.apyNet7d) : '--';
   const vaultAge = vault?.metadata?.vaultAge || '--';
   const provider = vault?.provider || 'flagship';
 
@@ -73,15 +68,35 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
         </div>
 
         <div className='flex flex-col gap-2 justify-center items-center'>
-          <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
-            {apy}
+          <div className='text-white font-modernist text-[18px] font-bold leading-[110%] tracking-[-0.4px]'>
+            Net APR
           </div>
-
           <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-            CURRENT APY
+            ALL: {aprAll}
+          </div>
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+            30D: {apr30d}
+          </div>
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+            7D: {apr7d}
           </div>
         </div>
 
+        <div className='flex flex-col gap-2 justify-center items-center'>
+          <div className='text-white font-modernist text-[18px] font-bold leading-[110%] tracking-[-0.4px]'>
+            Net APY
+          </div>
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+            ALL: {apyAll}
+          </div>
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+            30D: {apy30d}
+          </div>
+          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+            7D: {apy7d}
+          </div>
+        </div>
+{/* 
         <div className='flex flex-col gap-2 justify-center items-center'>
           <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
             {realizedApy}
@@ -90,7 +105,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
           <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
             REALIZED APY
           </div>
-        </div>
+        </div> */}
 
         <div className='flex flex-col gap-2 justify-center items-center'>
           <div className='text-[#00F792] font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
