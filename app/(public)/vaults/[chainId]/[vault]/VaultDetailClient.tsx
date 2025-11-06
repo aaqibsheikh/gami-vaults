@@ -6,7 +6,7 @@ import { useVault } from '@/hooks/useVault';
 import { Loader } from '@/components/Loader';
 import VaultDetail from '@/components/VaultDetail';
 import VaultDetailsSections from '@/components/VaultDetailsSections';
-import DepositFormVaultDetail from '@/components/DepositFormVaultDetail';
+import VaultActionTabs from '@/components/VaultActionTabs';
 import VaultTransparency from '@/components/VaultTransparency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -118,8 +118,7 @@ export default function VaultDetailClient({
 
               <div className='flex gap-16 items-start w-full mt-[68px]'>
                 <VaultDetailsSections vault={vault} />
-
-                <DepositFormVaultDetail vault={vault} />
+                <VaultActionTabs vault={vault} />
               </div>
 
               <VaultTransparency vault={vault} />

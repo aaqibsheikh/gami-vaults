@@ -3,7 +3,7 @@
  * Server-only file - never import in client components
  */
 
-import { createPublicClient, createWalletClient, http, PublicClient, WalletClient, defineChain, encodeFunctionData, formatUnits } from 'viem';
+import { createPublicClient, createWalletClient, http, PublicClient, WalletClient, defineChain, encodeFunctionData, formatUnits, parseUnits } from 'viem';
 import { mainnet, arbitrum, optimism, base, avalanche } from 'viem/chains';
 import { NetworkConfig, AugustVaultResponse, AugustVaultSummary, AugustAPYResponse, AugustWithdrawalSummary } from './dto';
 import { CURATED_VAULTS, getCuratedVaultsByChain } from './curated-vaults';
@@ -154,8 +154,8 @@ export interface SdkClient {
   getRedemptions(userAddress: string, vaultAddress?: string): Promise<any[]>;
   
   // Transaction builders (will need contract interaction)
-  buildDepositTx(vaultAddress: string, amount: string, userAddress: string): Promise<any>;
-  buildWithdrawTx(vaultAddress: string, shares: string, userAddress: string): Promise<any>;
+  buildDepositTx(vaultAddress: string, amount: string, userAddress: string, provider?: 'upshift' | 'ipor' | 'lagoon'): Promise<any>;
+  buildWithdrawTx(vaultAddress: string, shares: string, userAddress: string, provider?: 'upshift' | 'ipor' | 'lagoon'): Promise<any>;
   buildApprovalTx(tokenAddress: string, spender: string, amount: string): Promise<any>;
 }
 
@@ -626,27 +626,14 @@ export function createSdkClient(chainId: number): SdkClient {
       }
     },
     
-    async buildDepositTx(vaultAddress: string, amount: string, userAddress: string) {
-      // On-chain builder using ERC4626 deposit(assets, receiver)
-      // 1) read vault.asset() to get underlying token
-      // 2) read token.decimals() to scale decimal string to base units
-      // 3) encode deposit calldata
+    async buildDepositTx(vaultAddress: string, amount: string, userAddress: string, provider?: 'upshift' | 'ipor' | 'lagoon') {
+      // Common ABIs for reading vault and token data
       const ERC4626_ABI = [
         {
           inputs: [],
           name: 'asset',
           outputs: [{ internalType: 'address', name: '', type: 'address' }],
           stateMutability: 'view',
-          type: 'function',
-        },
-        {
-          inputs: [
-            { internalType: 'uint256', name: 'assets', type: 'uint256' },
-            { internalType: 'address', name: 'receiver', type: 'address' }
-          ],
-          name: 'deposit',
-          outputs: [{ internalType: 'uint256', name: 'shares', type: 'uint256' }],
-          stateMutability: 'nonpayable',
           type: 'function',
         }
       ] as const;
@@ -661,7 +648,7 @@ export function createSdkClient(chainId: number): SdkClient {
         }
       ] as const;
 
-      // Read underlying token
+      // Read underlying token address
       const assetAddress = await publicClient.readContract({
         address: vaultAddress as `0x${string}`,
         abi: ERC4626_ABI,
@@ -681,8 +668,51 @@ export function createSdkClient(chainId: number): SdkClient {
       const assetsStr = `${whole}${fracPadded}`.replace(/^0+(?=\d)/, '');
       const assets = BigInt(assetsStr || '0');
 
+      // Lagoon vaults use ERC-7540 standard with requestDeposit (asynchronous deposit)
+      if (provider === 'lagoon') {
+        const LAGOON_ABI = [
+          {
+            inputs: [
+              { internalType: 'uint256', name: 'assets', type: 'uint256' },
+              { internalType: 'address', name: 'receiver', type: 'address' },
+              { internalType: 'address', name: 'owner', type: 'address' }
+            ],
+            name: 'requestDeposit',
+            outputs: [{ internalType: 'uint256', name: 'shares', type: 'uint256' }],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          }
+        ] as const;
+
+        const data = encodeFunctionData({
+          abi: LAGOON_ABI,
+          functionName: 'requestDeposit',
+          args: [assets, userAddress as `0x${string}`, userAddress as `0x${string}`]
+        });
+
+        return {
+          to: vaultAddress,
+          data,
+          value: '0x0'
+        };
+      }
+
+      // Standard ERC4626 vaults (Upshift, IPOR, etc.) use deposit() directly
+      const STANDARD_ERC4626_ABI = [
+        {
+          inputs: [
+            { internalType: 'uint256', name: 'assets', type: 'uint256' },
+            { internalType: 'address', name: 'receiver', type: 'address' }
+          ],
+          name: 'deposit',
+          outputs: [{ internalType: 'uint256', name: 'shares', type: 'uint256' }],
+          stateMutability: 'nonpayable',
+          type: 'function',
+        }
+      ] as const;
+
       const data = encodeFunctionData({
-        abi: ERC4626_ABI,
+        abi: STANDARD_ERC4626_ABI,
         functionName: 'deposit',
         args: [assets, userAddress as `0x${string}`]
       });
@@ -694,8 +724,99 @@ export function createSdkClient(chainId: number): SdkClient {
       };
     },
     
-    async buildWithdrawTx(vaultAddress: string, shares: string, userAddress: string) {
-      // On-chain builder using ERC4626 redeem(shares, receiver, owner)
+    async buildWithdrawTx(vaultAddress: string, shares: string, userAddress: string, provider?: 'upshift' | 'ipor' | 'lagoon') {
+      // Read vault token decimals from contract to ensure correct conversion
+      const ERC20_ABI = [
+        {
+          inputs: [],
+          name: 'decimals',
+          outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+          stateMutability: 'view',
+          type: 'function',
+        }
+      ] as const;
+
+      let vaultDecimals = 18; // Default fallback
+      try {
+        vaultDecimals = await publicClient.readContract({
+          address: vaultAddress as `0x${string}`,
+          abi: ERC20_ABI,
+          functionName: 'decimals',
+        }) as number;
+      } catch (error) {
+        console.warn(`Failed to read vault decimals for ${vaultAddress}, using default 18:`, error);
+        vaultDecimals = 18;
+      }
+
+      // Convert decimal shares to base units using parseUnits from viem (handles decimal conversion correctly)
+      let sharesUnits: bigint;
+      try {
+        sharesUnits = parseUnits(shares as `${number}`, vaultDecimals);
+        console.log(`[buildWithdrawTx] Converting ${shares} shares with ${vaultDecimals} decimals: ${sharesUnits.toString()}`);
+      } catch (error) {
+        console.error(`[buildWithdrawTx] Failed to parse shares "${shares}" with ${vaultDecimals} decimals:`, error);
+        throw new Error(`Invalid shares amount: ${shares}`);
+      }
+
+      // Lagoon vaults use ERC-7540 standard with requestRedeem (asynchronous redemption)
+      if (provider === 'lagoon') {
+        const LAGOON_ABI = [
+          {
+            inputs: [
+              { internalType: 'uint256', name: 'shares', type: 'uint256' },
+              { internalType: 'address', name: 'receiver', type: 'address' },
+              { internalType: 'address', name: 'owner', type: 'address' }
+            ],
+            name: 'requestRedeem',
+            outputs: [{ internalType: 'uint256', name: 'assets', type: 'uint256' }],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          }
+        ] as const;
+
+        const data = encodeFunctionData({
+          abi: LAGOON_ABI,
+          functionName: 'requestRedeem',
+          args: [sharesUnits, userAddress as `0x${string}`, userAddress as `0x${string}`]
+        });
+
+        return {
+          to: vaultAddress,
+          data,
+          value: '0x0'
+        };
+      }
+
+      // Upshift vaults also use requestRedeem (asynchronous redemption with cooldown)
+      if (provider === 'upshift') {
+        const UPSHIFT_ABI = [
+          {
+            inputs: [
+              { internalType: 'uint256', name: 'shares', type: 'uint256' },
+              { internalType: 'address', name: 'receiverAddr', type: 'address' },
+              { internalType: 'address', name: 'holderAddr', type: 'address' }
+            ],
+            name: 'requestRedeem',
+            outputs: [{ internalType: 'uint256', name: 'assets', type: 'uint256' }],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          }
+        ] as const;
+
+        const data = encodeFunctionData({
+          abi: UPSHIFT_ABI,
+          functionName: 'requestRedeem',
+          args: [sharesUnits, userAddress as `0x${string}`, userAddress as `0x${string}`]
+        });
+
+        return {
+          to: vaultAddress,
+          data,
+          value: '0x0'
+        };
+      }
+
+      // Standard ERC4626 vaults (IPOR, etc.) use redeem() directly for instant redemption
       const ERC4626_ABI = [
         {
           inputs: [
@@ -709,14 +830,6 @@ export function createSdkClient(chainId: number): SdkClient {
           type: 'function',
         }
       ] as const;
-
-      // Convert decimal shares to base units assuming vault token decimals are 18 by default.
-      // If different, front-end should provide correct base-unit shares or extend to read decimals().
-      const DEFAULT_DECIMALS = 18;
-      const [whole, frac = ''] = shares.split('.');
-      const fracPadded = (frac + '0'.repeat(DEFAULT_DECIMALS)).slice(0, DEFAULT_DECIMALS);
-      const sharesStr = `${whole}${fracPadded}`.replace(/^0+(?=\d)/, '');
-      const sharesUnits = BigInt(sharesStr || '0');
 
       const data = encodeFunctionData({
         abi: ERC4626_ABI,

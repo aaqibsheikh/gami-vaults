@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
     // Validate request body
     const validatedBody = withdrawTxSchema.parse(body);
     const { chain, vault, owner, shares } = validatedBody;
+    const provider = body.provider as 'upshift' | 'ipor' | 'lagoon' | undefined;
 
     // Check if chain is supported
     if (!isSupportedNetwork(chain)) {
@@ -38,8 +39,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build the withdrawal transaction
-    const txData = await sdk.buildWithdrawTx(vault, normalizedShares, owner);
+    // Build the withdrawal transaction (pass provider for Lagoon vaults)
+    const txData = await sdk.buildWithdrawTx(vault, normalizedShares, owner, provider);
 
     const response: TransactionResponse = {
       to: txData.to,

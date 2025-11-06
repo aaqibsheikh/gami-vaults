@@ -22,6 +22,7 @@ interface DepositFormVaultDetailProps {
     };
     apyNet: string;
     tvlUsd: string;
+    provider?: 'upshift' | 'ipor' | 'lagoon';
   };
 }
 
@@ -269,7 +270,8 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
           chain: vault.chainId,
           vault: vault.id,
           owner: address,
-          amount: amount
+          amount: amount,
+          provider: vault.provider // Pass provider so backend can use requestDeposit for Lagoon vaults
         })
       });
       
@@ -334,7 +336,11 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
       }
 
       toast.dismiss(loadingToast);
-      toast.success(`Successfully deposited ${amount} ${selectedAsset}!`);
+      if (vault.provider === 'lagoon') {
+        toast.success(`Deposit request submitted for ${amount} ${selectedAsset}. You'll receive shares after settlement.`);
+      } else {
+        toast.success(`Successfully deposited ${amount} ${selectedAsset}!`);
+      }
       setAmount('');
       await refetchAllowance();
       
@@ -356,7 +362,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
   };
 
   return (
-    <div className='w-[35.03%] p-[11px] rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] bg-[#090909e0] backdrop-blur-lg'>
+    <div className='p-[11px] rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] bg-[#090909e0] backdrop-blur-lg'>
       <div className='w-full h-full p-5 rounded-[20px] bg-[#FFFFFF0F]'>
         <h2 className='text-white font-dm-sans text-[17px] font-bold leading-[128%] tracking-[-0.344px] mb-[30px]'>
           Deposit

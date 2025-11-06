@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     // Validate request body
     const validatedBody = depositTxSchema.parse(body);
     const { chain, vault, owner, amount } = validatedBody;
+    const provider = body.provider as 'upshift' | 'ipor' | 'lagoon' | undefined;
 
     // Check if chain is supported
     if (!isSupportedNetwork(chain)) {
@@ -50,8 +51,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build the deposit transaction
-    const txData = await sdk.buildDepositTx(vault, normalizedAmount, owner);
+    // Build the deposit transaction (pass provider for Lagoon vaults)
+    const txData = await sdk.buildDepositTx(vault, normalizedAmount, owner, provider);
 
     const response: TransactionResponse = {
       to: txData.to,
