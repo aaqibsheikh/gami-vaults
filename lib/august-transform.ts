@@ -152,7 +152,7 @@ export function transformAugustVault(augustVault: AugustVaultResponse): VaultDTO
   // Get strategist information
   const strategists = getStrategists(augustVault);
   const primaryStrategist = strategists.length > 0 ? strategists[0] : undefined;
-  
+  console.log('augustVault.reported_apy', augustVault.reported_apy)
   return {
     // Use the on-chain vault contract address as the ID throughout the app
     id: augustVault.address,
@@ -289,6 +289,76 @@ export function getVaultTVL(augustVault: AugustVaultResponse, summary?: AugustVa
   
   // Return '0' if no TVL data is available
   return '0';
+}
+
+/**
+ * Convert APY to APR (approximation for daily compounding)
+ * Formula: APR = 365 * ((1 + APY)^(1/365) - 1)
+ * For very small APY values, this approximates to: APR ≈ ln(1 + APY)
+ */
+function convertApyToApr(apy: number): string {
+  if (!isFinite(apy) || apy <= 0) return '0';
+  try {
+    // For daily compounding: APR = 365 * ((1 + APY)^(1/365) - 1)
+    const apr = 365 * (Math.pow(1 + apy, 1 / 365) - 1);
+    return isFinite(apr) ? normalizeToString(apr) : '0';
+  } catch {
+    return '0';
+  }
+}
+
+/**
+ * Compute APR/APY windows from August APY data
+ * Similar to Lagoon's computeNetWindows, but uses APY directly from August API
+ */
+export function computeAugustWindows(
+  augustAPY: AugustAPYResponse,
+  currentApy?: number // Current/reported APY for "all" window
+): { apr: { all: string; d30: string; d7: string }, apy: { all: string; d30: string; d7: string } } {
+  const apy30d = augustAPY.liquidAPY30Day || augustAPY.hgETH30dLiquidAPY || 0;
+  const apy7d = augustAPY.liquidAPY7Day || augustAPY.hgETH7dLiquidAPY || 0;
+  const apyAll = currentApy || apy30d; // Use current APY if provided, otherwise fallback to 30d
+
+  return {
+    apr: {
+      all: convertApyToApr(apyAll),
+      d30: convertApyToApr(apy30d),
+      d7: convertApyToApr(apy7d),
+    },
+    apy: {
+      all: normalizeToString(apyAll),
+      d30: normalizeToString(apy30d),
+      d7: normalizeToString(apy7d),
+    },
+  };
+}
+
+/**
+ * Fallback: compute 7d/30d APR & APY windows from August summary returns when APY series is missing
+ * returns_7d and returns_30d are period returns r over their window
+ */
+export function computeWindowsFromSummary(
+  summary: AugustVaultSummary,
+  currentApy?: number
+): { apr: { all: string; d30: string; d7: string }, apy: { all: string; d30: string; d7: string } } {
+  const secondsInYear = 365 * 24 * 60 * 60;
+  const sec7 = 7 * 24 * 60 * 60;
+  const sec30 = 30 * 24 * 60 * 60;
+
+  const r7 = typeof summary.returns_7d === 'string' ? parseFloat(summary.returns_7d as any) : (summary.returns_7d || 0);
+  const r30 = typeof summary.returns_30d === 'string' ? parseFloat(summary.returns_30d as any) : (summary.returns_30d || 0);
+
+  const apr7 = isFinite(r7) && r7 !== 0 ? normalizeToString(r7 * (secondsInYear / sec7)) : '0';
+  const apr30 = isFinite(r30) && r30 !== 0 ? normalizeToString(r30 * (secondsInYear / sec30)) : '0';
+  const apy7 = isFinite(r7) && r7 !== 0 ? normalizeToString(Math.pow(1 + r7, secondsInYear / sec7) - 1) : '0';
+  const apy30 = isFinite(r30) && r30 !== 0 ? normalizeToString(Math.pow(1 + r30, secondsInYear / sec30) - 1) : '0';
+
+  const apyAll = currentApy || (isFinite(r30) ? (Math.pow(1 + r30, secondsInYear / sec30) - 1) : 0);
+
+  return {
+    apr: { all: convertApyToApr(apyAll), d30: apr30, d7: apr7 },
+    apy: { all: normalizeToString(apyAll), d30: apy30, d7: apy7 },
+  };
 }
 
 /**

@@ -79,25 +79,25 @@ const GovernanceIcon = () => (
 export default function InstitutionalFeatures() {
   const features: Feature[] = [
     {
-      title: 'Curated<br />Vaults',
+      title: 'Curated<br class="hidden sm:block />Vaults',
       description:
         'Dynamically rebalanced and curated vaults across protocols to maximize APR while minimizing risks',
       icon: <CuratedVaultsIcon />,
     },
     {
-      title: 'Institutional Infrastructure',
+      title: 'Institutional<br /> Infrastructure',
       description:
         "Vault Infrastructures Protocol's audited vault architecture with multi-signature and hardware security modules",
       icon: <InstitutionalIcon />,
     },
     {
-      title: 'Active Risk Management',
+      title: 'Active Risk<br class="hidden sm:block" /> Management',
       description:
         'Real-time threat detection and risk management instruments including parametric insurance',
       icon: <RiskManagementIcon />,
     },
     {
-      title: 'Strategic Governance',
+      title: 'Strategic<br class="hidden sm:block" /> Governance',
       description:
         'Leveraging governance exposure to redirect protocol emissions toward our strategies',
       icon: <GovernanceIcon />,
@@ -106,16 +106,17 @@ export default function InstitutionalFeatures() {
 
   return (
     <section className='pt-[35px] pb-[80px]'>
-      <div className='flex justify-between items-start gap-[180px]'>
+      <div className='flex justify-between items-start xl:gap-[180px] gap-x-20 sm:gap-y-14 gap-y-[30px] lg:flex-row flex-col'>
         <div className='flex-shrink-0 min-w-[329px]'>
-          <h2 className='font-modernist text-[57px] font-normal leading-[100%] tracking-[-1.15px] gradient-text whitespace-nowrap'>
-            Institutional <br /> DeFI, <br /> Simplified
+          <h2 className='font-modernist text-[57px] font-normal leading-[100%] tracking-[-1.15px] gradient-text'>
+            Institutional <br className='hidden lg:block' /> DeFI,{' '}
+            <br className='hidden lg:block' /> Simplified
           </h2>
         </div>
 
-        <div className='grid flex-1 grid-cols-2 gap-x-[70px] gap-y-24'>
+        <div className='grid flex-1 sm:grid-cols-2 gap-x-[70px] sm:gap-y-24 gap-y-9'>
           {features.map((feature, index) => (
-            <div key={index} className='space-y-[30px]'>
+            <div key={index} className='sm:space-y-[30px] space-y-4'>
               <div className='w-14 h-14'>{feature.icon}</div>
 
               <h3

@@ -47,14 +47,12 @@ export default function Header() {
     <header
       className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 border-b ${isScrolled ? 'backdrop-blur-sm bg-black/80 border-white/10' : 'bg-transparent border-transparent'}`}
     >
-      <div className='max-w-[1280px] mx-auto py-5 px-[84px] flex items-center justify-between'>
-        <div>
-          <Link href='/' className='transition-opacity hover:opacity-80'>
-            <Image src='/assets/svgs/gami-logo.svg' alt='Gami Logo' width={153} height={24} />
-          </Link>
-        </div>
+      <div className='max-w-[1280px] mx-auto py-5 xl:px-[84px] px-4 flex items-center justify-between'>
+        <Link href='/' className='flex-shrink-0 transition-opacity hover:opacity-80'>
+          <Image src='/assets/svgs/gami-logo.svg' alt='Gami Logo' width={153} height={24} />
+        </Link>
 
-        <nav className='flex gap-5 items-center font-modernist'>
+        <nav className='hidden gap-5 items-center font-modernist sm:flex'>
           <Link
             href='/vaults'
             className='text-white text-[14px] leading-[21px] px-2 py-2.5 hover:opacity-80 transition-opacity'
@@ -78,7 +76,7 @@ export default function Header() {
         </nav>
 
         <div className='flex items-center gap-[14px]'>
-          <div>
+          <div className='hidden md:block'>
             <input
               type='text'
               placeholder='Search vaults...'
@@ -118,6 +116,26 @@ export default function Header() {
               </button>
             )}
           </div>
+
+          {/* <div>
+            <svg
+              width='16'
+              height='15'
+              viewBox='0 0 16 15'
+              fill='none'
+              xmlns='http://www.w3.org/2000/svg'
+            >
+              <circle cx='2.05479' cy='2.05503' r='2.05479' fill='#D9D9D9' />
+              <circle cx='7.58897' cy='2.05479' r='2.05479' fill='#D9D9D9' />
+              <circle cx='13.1232' cy='2.05479' r='2.05479' fill='#D9D9D9' />
+              <circle cx='2.05479' cy='7.31531' r='2.05479' fill='#D9D9D9' />
+              <circle cx='7.58897' cy='7.31531' r='2.05479' fill='#D9D9D9' />
+              <circle cx='13.1232' cy='7.31531' r='2.05479' fill='#D9D9D9' />
+              <circle cx='2.05479' cy='12.5756' r='2.05479' fill='#D9D9D9' />
+              <circle cx='7.58897' cy='12.5756' r='2.05479' fill='#D9D9D9' />
+              <circle cx='13.1232' cy='12.5756' r='2.05479' fill='#D9D9D9' />
+            </svg>
+          </div> */}
         </div>
       </div>
     </header>

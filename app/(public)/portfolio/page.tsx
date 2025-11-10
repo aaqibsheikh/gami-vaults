@@ -487,7 +487,9 @@ export default function PortfolioPage() {
                     />
                   </svg>
                 </div>
+
                 <h3 className='mb-2 text-lg font-medium text-white'>No Positions</h3>
+
                 <p className='text-gray-300'>You don&apos;t have any vault positions yet.</p>
               </div>
             ) : (

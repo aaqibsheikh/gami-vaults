@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Providers>
           <Header />
-          <main className='max-w-[1280px] mx-auto px-[84px] min-h-[calc(100vh-420px)]'>
+          <main className='max-w-[1280px] mx-auto xl:px-[84px] sm:px-4 px-[31px] min-h-[calc(100vh-420px)]'>
             {children}
           </main>
           <Footer />

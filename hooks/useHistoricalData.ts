@@ -13,7 +13,7 @@ interface HistoricalDataPoint {
 
 interface HistoricalResponse {
   data: HistoricalDataPoint[];
-  period: '7d' | '30d';
+  period: '7d' | '30d' | '365d' | 'all';
   vaultAddress: string;
   chainId: number;
 }
@@ -21,7 +21,7 @@ interface HistoricalResponse {
 interface UseHistoricalDataOptions {
   chainId: number;
   vaultId: string;
-  period?: '7d' | '30d';
+  period?: '7d' | '30d' | '365d' | 'all';
   enabled?: boolean;
 }
 

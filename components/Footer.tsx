@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <footer className='relative bg-black min-h-[420px] overflow-hidden'>
-      <div className='flex absolute bottom-[-20px] left-0 items-center'>
+      {/* <div className='flex absolute bottom-[-20px] left-0 items-center'>
         <h2 className='font-modernist font-bold text-[269px] tracking-[-5.385px] text-white leading-none'>
           Gami
         </h2>
@@ -19,16 +19,14 @@ export default function Footer() {
             fill='white'
           />
         </svg>
-      </div>
+      </div> */}
 
-      <div className='relative pl-[57px] pr-[108px] pt-[47px] mx-auto max-w-[1526px]'>
+      <div className='relative lg:pl-[57px] lg:pr-[108px] px-7 pt-[47px] mx-auto max-w-[1526px]'>
         <div className='flex justify-between items-start mb-20'>
-          <div className='max-w-md'>
-            <p className='text-white font-dm-sans text-base font-normal leading-[140%]'>
-              Gami provides on-chain asset management <br /> infrastructure with active curation &
-              dynamic risk <br /> management
-            </p>
-          </div>
+          <p className='text-white font-dm-sans text-base font-normal leading-[140%] md:block hidden'>
+            Gami provides on-chain asset management <br /> infrastructure with active curation &
+            dynamic risk <br className='hidden lg:block' /> management
+          </p>
 
           <div className='flex flex-col gap-4'>
             <a
@@ -149,7 +147,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className='flex absolute bottom-4 right-[108px] justify-end items-end'>
+      <div className='flex absolute bottom-4 right-[108px] justify-end items-end lg:block hidden'>
         <div className='text-white font-dm-sans text-[14px] font-normal'>
           ©2025 Gami Labs. All rights reserved.
         </div>

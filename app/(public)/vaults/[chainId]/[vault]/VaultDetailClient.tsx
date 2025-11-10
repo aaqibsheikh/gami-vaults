@@ -5,9 +5,9 @@ import { useVault } from '@/hooks/useVault';
 import { Loader } from '@/components/Loader';
 import VaultDetail from '@/components/VaultDetail';
 import VaultDetailsSections from '@/components/VaultDetailsSections';
-import DepositFormVaultDetail from '@/components/DepositFormVaultDetail';
 import VaultTransparency from '@/components/VaultTransparency';
 import Image from 'next/image';
+import DepositFormVaultDetail from '@/components/DepositFormVaultDetail';
 interface VaultDetailClientProps {
   chainId: string;
   vault: string;
@@ -124,4 +124,3 @@ export default function VaultDetailClient({
     </>
   );
 }
-

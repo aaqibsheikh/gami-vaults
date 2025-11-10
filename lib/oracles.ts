@@ -1,8 +1,10 @@
 /**
  * Oracle adapter for price feeds
- * Placeholder implementation - replace with actual oracle integration
+ * Integrates with Chainlink Data Feeds for real-time price data
  */
 
+import { createPublicClient, http, PublicClient, getAddress } from 'viem';
+import { mainnet } from 'viem/chains';
 import { NetworkConfig } from './dto';
 
 export interface PriceFeed {
@@ -19,17 +21,133 @@ export interface OracleConfig {
   maxAge: number; // maximum age in milliseconds
 }
 
+/**
+ * Chainlink AggregatorV3Interface ABI
+ * Reference: https://docs.chain.link/data-feeds/api-reference
+ */
+const CHAINLINK_AGGREGATOR_ABI = [
+  {
+    inputs: [],
+    name: 'latestRoundData',
+    outputs: [
+      { internalType: 'uint80', name: 'roundId', type: 'uint80' },
+      { internalType: 'int256', name: 'answer', type: 'int256' },
+      { internalType: 'uint256', name: 'startedAt', type: 'uint256' },
+      { internalType: 'uint256', name: 'updatedAt', type: 'uint256' },
+      { internalType: 'uint80', name: 'answeredInRound', type: 'uint80' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;
+
+/**
+ * Chainlink Price Feed addresses on Ethereum Mainnet
+ * Reference: https://docs.chain.link/data-feeds/price-feeds/addresses
+ */
+const CHAINLINK_PRICE_FEEDS: Record<number, Record<string, string>> = {
+  // Ethereum Mainnet
+  1: {
+    // WBTC/USD - Use BTC/USD feed as proxy (WBTC/USD not available on mainnet)
+    // Reference: https://data.chain.link/feeds/ethereum/mainnet/btc-usd
+    '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': '0xF4030086522a5bEEA4988F8Ca5B36dbC97BeE88c',
+    // WETH/USD
+    '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+    // USDC/USD (native USDC is typically $1, but using Chainlink for consistency)
+    '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6',
+    // USDT/USD
+    '0xdac17f958d2ee523a2206206994597c13d831ec7': '0x3E7d1eAB13ad0104d2750B8863b489D65364e32D',
+  },
+};
+
 class OracleAdapter {
   private config: OracleConfig;
   private priceCache = new Map<string, PriceFeed>();
+  private publicClients = new Map<number, PublicClient>();
 
   constructor(config: OracleConfig) {
     this.config = config;
   }
 
   /**
-   * Get price for a token (placeholder implementation)
-   * TODO: Replace with actual oracle integration (Chainlink, Pyth, etc.)
+   * Get or create a public client for the specified chain
+   */
+  private getPublicClient(chainId: number): PublicClient {
+    if (!this.publicClients.has(chainId)) {
+      const rpcUrl = process.env[`RPC_${chainId}`] || 'https://eth.llamarpc.com';
+      const publicClient = createPublicClient({
+        chain: chainId === 1 ? mainnet : mainnet, // Add more chains as needed
+        transport: http(rpcUrl),
+      });
+      this.publicClients.set(chainId, publicClient);
+    }
+    return this.publicClients.get(chainId)!;
+  }
+
+  /**
+   * Fetch price from Chainlink oracle
+   */
+  private async fetchChainlinkPrice(
+    tokenAddress: string,
+    chainId: number
+  ): Promise<{ price: number; decimals: number }> {
+    console.log(`🔗 [Chainlink] Fetching price for ${tokenAddress} on chain ${chainId}`);
+    
+    // Get the Chainlink aggregator address for this token
+    const chainFeeds = CHAINLINK_PRICE_FEEDS[chainId];
+    if (!chainFeeds) {
+      throw new Error(`Chainlink feeds not configured for chain ${chainId}`);
+    }
+
+    const aggregatorAddress = chainFeeds[tokenAddress.toLowerCase()];
+    if (!aggregatorAddress) {
+      throw new Error(`Chainlink feed not found for token ${tokenAddress} on chain ${chainId}`);
+    }
+
+    try {
+      const publicClient = this.getPublicClient(chainId);
+      
+      // Normalize the address using checksum
+      const normalizedAddress = getAddress(aggregatorAddress);
+      
+      // Read price and decimals from Chainlink
+      const [priceData, feedDecimals] = await Promise.all([
+        publicClient.readContract({
+          address: normalizedAddress,
+          abi: CHAINLINK_AGGREGATOR_ABI,
+          functionName: 'latestRoundData',
+        }) as Promise<readonly [bigint, bigint, bigint, bigint, bigint]>,
+        publicClient.readContract({
+          address: normalizedAddress,
+          abi: CHAINLINK_AGGREGATOR_ABI,
+          functionName: 'decimals',
+        }) as Promise<number>,
+      ]);
+
+      const [, priceRaw] = priceData;
+      
+      // Chainlink typically returns prices with 8 decimals
+      const price = Number(priceRaw) / Math.pow(10, feedDecimals);
+      
+      console.log(`✅ [Chainlink] Price: $${price} (decimals: ${feedDecimals})`);
+      
+      return { price, decimals: feedDecimals };
+    } catch (error) {
+      console.error(`❌ [Chainlink] Failed to fetch price:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get price for a token using Chainlink oracle
+   * Falls back to mock prices if Chainlink feed is not available
    */
   async getTokenPrice(
     token: string,
@@ -47,19 +165,36 @@ class OracleAdapter {
       }
     }
 
-    // TODO: Replace with actual oracle call
-    const mockPrice = await this.fetchMockPrice(token, chainId);
+    // Try to fetch from Chainlink first
+    let price: number;
+    let decimals: number;
+    let source: string;
+    
+    try {
+      const chainlinkData = await this.fetchChainlinkPrice(token, chainId);
+      price = chainlinkData.price;
+      decimals = chainlinkData.decimals;
+      source = 'chainlink';
+      console.log(`✅ [Oracle] Using Chainlink price for ${token}`);
+    } catch (error) {
+      // Fallback to mock prices if Chainlink fails
+      console.warn(`⚠️ [Oracle] Chainlink fetch failed for ${token}, using fallback`);
+      const mockPrice = await this.fetchMockPrice(token, chainId);
+      price = parseFloat(mockPrice);
+      decimals = 18;
+      source = 'fallback';
+    }
     
     const priceFeed: PriceFeed = {
       token,
-      price: mockPrice,
-      decimals: 18,
+      price: price.toString(),
+      decimals,
       lastUpdated: Date.now(),
-      source: 'mock'
+      source
     };
 
     this.priceCache.set(cacheKey, priceFeed);
-    return mockPrice;
+    return price.toString();
   }
 
   /**

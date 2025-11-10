@@ -4,8 +4,8 @@ import Image from 'next/image';
 export default function Hero() {
   return (
     <section className='pt-[106px] pb-[50px]'>
-      <div className='relative z-10'>
-        <div className='pt-[355px] pl-[21px] space-y-7'>
+      <div className='relative'>
+        <div className='lg:pt-[355px] pt-10 pl-[21px] space-y-7'>
           <h1 className='font-modernist text-[57.48px] font-normal leading-[100%] tracking-[-1.5px] text-white'>
             Discover and deposit <br /> into <span className='gradient-text'>Gami Vaults</span>
           </h1>
@@ -29,7 +29,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className='absolute top-2.5 right-[50px]'>
+        <div className='absolute top-2.5 right-0 xl:right-[50px] lg:block hidden'>
           <Image
             src='/assets/images/gradient-glass.png'
             alt='Gradient glass vault visualization'

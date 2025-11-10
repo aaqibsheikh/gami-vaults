@@ -45,24 +45,20 @@ export default function DeFiProtocols() {
             </p>
           </div>
 
-          <div className='flex gap-8 justify-between w-full'>
+          <div className='flex flex-col gap-5 justify-between w-full lg:flex-row xl:gap-8'>
             {structure.map(section => (
               <div key={section.title} className='flex flex-col gap-5 items-center'>
                 <h3 className='text-xl text-white capitalize font-dm-sans'>{section.title}</h3>
 
-                <div className='flex gap-5 justify-center items-center'>
+                <div className='flex gap-3 justify-center items-center xl:gap-5'>
                   {section.items.map(item => (
                     <div
                       key={item.name}
                       className='flex items-center justify-center flex-col rounded-[16px] transition-colors gap-2.5'
                     >
-                      <Image
-                        src={item.logo}
-                        alt={item.name}
-                        width={70}
-                        height={70}
-                        className='object-cover bg-[#1A1A1A] hover:bg-[#252525] rounded-[18px]'
-                      />
+                      <div className='w-[70px] h-[70px] relative'>
+                        <Image src={item.logo} alt={item.name} fill />
+                      </div>
 
                       <p className='text-[12.26px] leading-[110%] tracking-[-0.245px] text-white'>
                         {item.name}
