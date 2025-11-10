@@ -8,8 +8,6 @@ import { useVaults } from '@/hooks/useVaults';
 import { getNetworkConfig } from '@/lib/sdk';
 import { formatUsd } from '@/lib/normalize';
 import { PositionDTO } from '@/lib/dto';
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
 import Image from 'next/image';
 
 type FilterTab = 'All Chains' | 'Token';
@@ -50,12 +48,11 @@ export default function PortfolioPage() {
     chainIds: [1], // Ethereum mainnet only
   });
 
-
   // Create a map of vault address -> vault metadata
   const vaultMetadataMap = useMemo(() => {
     const map = new Map<string, { name: string; provider?: string; underlyingSymbol?: string }>();
     if (allVaults) {
-      allVaults.forEach((vault) => {
+      allVaults.forEach(vault => {
         map.set(vault.id.toLowerCase(), {
           name: vault.name,
           provider: vault.provider,
@@ -75,7 +72,7 @@ export default function PortfolioPage() {
   const enrichedPositions: PositionWithMetadata[] = useMemo(() => {
     if (!portfolio) return [];
 
-    const enriched = portfolio.positions.map((position) => {
+    const enriched = portfolio.positions.map(position => {
       const metadata = vaultMetadataMap.get(position.vault.toLowerCase());
       const enrichedPos = {
         ...position,
@@ -97,7 +94,7 @@ export default function PortfolioPage() {
       console.log(`       💵 Current Value USD: ${pos.valueUsd}`);
       console.log(`       📈 Entry Value USD: ${pos.entryUsd}`);
       console.log(`       📉 P&L USD: ${pos.pnlUsd}`);
-      
+
       // Calculate P&L percentage
       const entryNum = parseFloat(pos.entryUsd);
       const pnlNum = parseFloat(pos.pnlUsd);
@@ -154,30 +151,24 @@ export default function PortfolioPage() {
   // Calculate summary stats
   const summaryStats = useMemo(() => {
     console.log('\n📊 Calculating Summary Statistics:');
-    
+
     const activeVaults = filteredPositions.length;
     console.log(`  • Active Vaults: ${activeVaults}`);
-    
+
     console.log('\n  💰 Calculating Total Assets:');
-    const totalAssets = filteredPositions.reduce(
-      (sum, p) => {
-        const value = parseFloat(p.valueUsd);
-        console.log(`    • ${p.vaultName}: ${p.valueUsd} → Running Total: ${sum + value}`);
-        return sum + value;
-      },
-      0
-    );
+    const totalAssets = filteredPositions.reduce((sum, p) => {
+      const value = parseFloat(p.valueUsd);
+      console.log(`    • ${p.vaultName}: ${p.valueUsd} → Running Total: ${sum + value}`);
+      return sum + value;
+    }, 0);
     console.log(`    ✅ Final Total Assets: ${totalAssets}`);
-    
+
     console.log('\n  📈 Calculating Total P&L:');
-    const totalPnl = filteredPositions.reduce(
-      (sum, p) => {
-        const pnl = parseFloat(p.pnlUsd);
-        console.log(`    • ${p.vaultName}: ${p.pnlUsd} → Running Total: ${sum + pnl}`);
-        return sum + pnl;
-      },
-      0
-    );
+    const totalPnl = filteredPositions.reduce((sum, p) => {
+      const pnl = parseFloat(p.pnlUsd);
+      console.log(`    • ${p.vaultName}: ${p.pnlUsd} → Running Total: ${sum + pnl}`);
+      return sum + pnl;
+    }, 0);
     console.log(`    ✅ Final Total P&L: ${totalPnl}`);
 
     const stats = {
@@ -187,11 +178,15 @@ export default function PortfolioPage() {
     };
 
     console.log('\n📈 Final Summary Statistics:');
-    console.log('  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(
+      '  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    );
     console.log(`  • Active Vaults: ${stats.activeVaults}`);
     console.log(`  • Total Assets: $${stats.totalAssets.toFixed(2)}`);
     console.log(`  • Total P&L: ${stats.totalPnl >= 0 ? '+' : ''}$${stats.totalPnl.toFixed(2)}`);
-    console.log('  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(
+      '  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    );
 
     return stats;
   }, [filteredPositions]);
@@ -199,10 +194,12 @@ export default function PortfolioPage() {
   // Console logs for portfolio data - after all calculations
   useEffect(() => {
     if (!mounted) return;
-    
+
     console.group('📊 Portfolio Data Flow');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
+    console.log(
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    );
+
     console.log('\n🔗 Connection State:');
     console.log('  • Wallet Address:', address || 'Not connected');
     console.log('  • Is Connected:', isConnected);
@@ -211,7 +208,7 @@ export default function PortfolioPage() {
     if (error) {
       console.log('  • Error:', error.message);
     }
-    
+
     console.log('\n📥 Raw Portfolio Data from API:');
     if (portfolio) {
       console.log('  • Total Positions:', portfolio.positions.length);
@@ -230,7 +227,7 @@ export default function PortfolioPage() {
     } else {
       console.log('  • No portfolio data yet');
     }
-    
+
     console.log('\n📚 Vault Metadata:');
     if (allVaults) {
       console.log('  • Total Vaults Fetched:', allVaults.length);
@@ -245,9 +242,22 @@ export default function PortfolioPage() {
       console.log('  • No vault metadata yet');
     }
 
-    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(
+      '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    );
     console.groupEnd();
-  }, [mounted, portfolio, allVaults, enrichedPositions, filteredPositions, summaryStats, address, isConnected, isLoading, error]);
+  }, [
+    mounted,
+    portfolio,
+    allVaults,
+    enrichedPositions,
+    filteredPositions,
+    summaryStats,
+    address,
+    isConnected,
+    isLoading,
+    error,
+  ]);
 
   // Get provider badge
   const getProviderBadge = (provider?: string) => {
@@ -269,13 +279,15 @@ export default function PortfolioPage() {
       ['Date', 'Vault', 'Action', 'Amount', 'Status'].join(','),
       // Note: Transaction history would need to be fetched from on-chain events
       // For now, we'll export position data
-      ...filteredPositions.map((pos) => [
-        new Date().toLocaleDateString(),
-        pos.vaultName || pos.vault,
-        'Position',
-        formatUsd(pos.valueUsd),
-        'Active'
-      ].join(','))
+      ...filteredPositions.map(pos =>
+        [
+          new Date().toLocaleDateString(),
+          pos.vaultName || pos.vault,
+          'Position',
+          formatUsd(pos.valueUsd),
+          'Active',
+        ].join(',')
+      ),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -290,21 +302,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className='min-h-screen bg-black'>
-      {/* <div className='absolute inset-0 -bottom-[80px]'>
-        <div className='h-full max-w-[1280px] mx-auto px-[84px] relative'>
-          <div className='absolute left-[84px] top-0 bottom-0 w-px bg-[#242424]' />
-
-          <div className='absolute left-1/2 top-0 bottom-[52px] w-px bg-[#242424] -translate-x-1/2' />
-
-          <div className='absolute right-[84px] top-0 bottom-0 w-px bg-[#242424]' />
-        </div>
-      </div> */}
-
-      {/* <div className='absolute left-0 right-0 h-px bg-[#242424] bottom-0' /> */}
-
-      <Header />
-
+    <>
       <Image
         src='/assets/images/vault-detail-glass.svg'
         alt='Vault detail glass'
@@ -313,250 +311,275 @@ export default function PortfolioPage() {
         className='absolute top-0 right-0 pointer-events-none'
       />
 
-      <section className='max-w-[1280px] mx-auto px-[84px] pt-[156.33px] pb-10 relative z-10'>
-        <div className='relative z-10 px-5'>
-          <div className='space-y-1.5 font-bold'>
-            <h1 className='font-modernist text-[57px] font-bold'>Portfolio</h1>
+      <section className='pt-[156.33px] pb-10 relative z-10'>
+        <div className='space-y-1.5 font-bold px-7'>
+          <h1 className='font-modernist text-[57px] font-bold'>Portfolio</h1>
 
-            <p className='font-dm-sans text-xl font-[200] leading-[128%] tracking-[-0.4px] text-white'>
-              Track your positions and performance across all vaults
+          <p className='font-dm-sans text-xl font-[200] leading-[128%] tracking-[-0.4px] text-white'>
+            Track your positions and performance across all vaults
+          </p>
+        </div>
+
+        {!mounted || !isConnected ? (
+          <div className='flex flex-col items-center justify-center w-full bg-[#FFFFFF0F] py-[60px] shadow-[0_0_0_0.4px_#ffffff47] rounded-[33.43px] px-[70px] mt-10 backdrop-blur-lg'>
+            <div className='mb-6 text-gray-400'>
+              <svg
+                className='mx-auto w-16 h-16'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
+                />
+              </svg>
+            </div>
+
+            <h2 className='mb-3 text-2xl font-bold text-white'>Connect Your Wallet</h2>
+
+            <p className='mx-auto mb-0 max-w-md text-center text-gray-300'>
+              Please connect your wallet using the button in the header to view your portfolio.
             </p>
           </div>
+        ) : (
+          <>
+            <div className='flex justify-between items-center w-full bg-[#FFFFFF0F] py-[31px] shadow-[0_0_0_0.4px_#ffffff47] rounded-[33.43px] px-[70px] mt-10 backdrop-blur-lg'>
+              <div className='flex flex-col gap-1.5 justify-center items-center'>
+                <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+                  {isLoading ? '--' : summaryStats.activeVaults}
+                </div>
 
-          {!mounted || !isConnected ? (
-            <div className='flex flex-col items-center justify-center w-full bg-[#FFFFFF0F] py-[60px] shadow-[0_0_0_0.4px_#ffffff47] rounded-[33.43px] px-[70px] mt-10 backdrop-blur-lg'>
-              <div className='mb-6 text-gray-400'>
-                <svg className='mx-auto w-16 h-16' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z' />
-                </svg>
+                <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                  ACTIVE VAULTS
+                </div>
               </div>
-              <h2 className='mb-4 text-2xl font-bold text-white'>Connect Your Wallet</h2>
-              <p className='mx-auto mb-0 max-w-md text-center text-gray-300'>
-                Please connect your wallet using the button in the header to view your portfolio.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className='flex justify-between items-center w-full bg-[#FFFFFF0F] py-[31px] shadow-[0_0_0_0.4px_#ffffff47] rounded-[33.43px] px-[70px] mt-10 backdrop-blur-lg'>
-                <div className='flex flex-col gap-1.5 justify-center items-center'>
-                  <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
-                    {isLoading ? '--' : summaryStats.activeVaults}
-                  </div>
 
-                  <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-                    ACTIVE VAULTS
-                  </div>
+              <div className='flex flex-col gap-1.5 justify-center items-center'>
+                <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+                  {isLoading ? '--' : formatUsd(summaryStats.totalAssets.toString())}
                 </div>
 
-                <div className='flex flex-col gap-1.5 justify-center items-center'>
-                  <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
-                    {isLoading ? '--' : formatUsd(summaryStats.totalAssets.toString())}
-                  </div>
-
-                  <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-                    TOTAL ASSETS
-                  </div>
+                <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                  TOTAL ASSETS
                 </div>
+              </div>
 
-                <div className='flex flex-col gap-1.5 justify-center items-center'>
-                  <div className={`font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px] ${
+              <div className='flex flex-col gap-1.5 justify-center items-center'>
+                <div
+                  className={`font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px] ${
                     summaryStats.totalPnl >= 0 ? 'text-[#00F792]' : 'text-red-400'
-                  }`}>
-                    {isLoading ? '--' : `${summaryStats.totalPnl >= 0 ? '+' : ''}${formatUsd(summaryStats.totalPnl.toString())}`}
-                  </div>
+                  }`}
+                >
+                  {isLoading
+                    ? '--'
+                    : `${summaryStats.totalPnl >= 0 ? '+' : ''}${formatUsd(summaryStats.totalPnl.toString())}`}
+                </div>
 
-                  <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-                    TOTAL PNL
-                  </div>
+                <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                  TOTAL PNL
                 </div>
               </div>
+            </div>
 
-              {error && (
-                <div className='p-4 mt-4 text-center bg-red-500/10 border border-red-500/50 rounded-[33.43px]'>
-                  <p className='text-red-400 font-dm-sans text-sm'>{error.message}</p>
-                </div>
-              )}
-            </>
-          )}
+            {error && (
+              <div className='p-4 mt-4 text-center bg-red-500/10 border border-red-500/50 rounded-[33.43px]'>
+                <p className='text-sm text-red-400 font-dm-sans'>{error.message}</p>
+              </div>
+            )}
+          </>
+        )}
 
+        {mounted && isConnected && (
           <div className='mt-10'>
-            <h2 className='font-modernist text-[30px] leading-[100%] tracking-[-0.64px] text-white mb-6'>
+            <h2 className='font-modernist text-[30px] leading-[100%] tracking-[-0.64px] text-white mb-6 px-7'>
               Active Positions
             </h2>
 
-            {mounted && isConnected && (
-              <>
-                <div className='flex justify-between items-center mb-8'>
-                  <div className='flex gap-3 items-center'>
-                    {(['All Chains', 'Token'] as FilterTab[]).map((tab) => (
+            <div className='flex justify-between items-center px-7 mb-8'>
+              <div className='flex gap-3 items-center'>
+                {(['All Chains', 'Token'] as FilterTab[]).map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveFilter(tab)}
+                    className={`flex h-10 px-2.5 justify-center items-center rounded-[20.78px] backdrop-blur-lg ${
+                      activeFilter === tab
+                        ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
+                        : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
+                    } transition-colors`}
+                  >
+                    <div className='text-white font-dm-sans text-[13.58px] font-light leading-none'>
+                      {tab}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className='relative'>
+                <button
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  className='flex items-center gap-2 px-3 py-2 rounded-[32px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg hover:bg-white/10 transition-colors'
+                >
+                  <span className='text-white text-[13.58px] font-light'>Sort by: {sortBy}</span>
+
+                  <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
+                    <path
+                      d='M3 4.5L6 7.5L9 4.5'
+                      stroke='white'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    />
+                  </svg>
+                </button>
+
+                {showSortDropdown && (
+                  <div className='absolute right-0 mt-2 rounded-[16px] bg-[#141414] border border-white/20 shadow-lg z-10 min-w-[180px]'>
+                    {(['Position Size', 'P&L', 'Value'] as SortOption[]).map(option => (
                       <button
-                        key={tab}
-                        onClick={() => setActiveFilter(tab)}
-                        className={`flex h-10 px-2.5 justify-center items-center rounded-[20.78px] backdrop-blur-lg ${
-                          activeFilter === tab
-                            ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
-                            : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
-                        } transition-colors`}
+                        key={option}
+                        onClick={() => {
+                          setSortBy(option);
+                          setShowSortDropdown(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-white font-dm-sans text-[13.58px] font-light hover:bg-white/10 transition-colors first:rounded-t-[16px] last:rounded-b-[16px] ${
+                          sortBy === option ? 'bg-[#A100FF2E]' : ''
+                        }`}
                       >
-                        <div className='text-white font-dm-sans text-[13.58px] font-light leading-none'>
-                          {tab}
-                        </div>
+                        {option}
                       </button>
                     ))}
                   </div>
+                )}
+              </div>
+            </div>
 
-                  <div className='relative'>
-                    <button
-                      onClick={() => setShowSortDropdown(!showSortDropdown)}
-                      className='flex items-center gap-2 px-3 py-2 rounded-[32px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg hover:bg-white/10 transition-colors'
-                    >
-                      <span className='text-white text-[13.58px] font-light'>Sort by: {sortBy}</span>
+            {isLoading ? (
+              <div className='space-y-6'>
+                {[1, 2].map(i => (
+                  <div
+                    key={i}
+                    className='shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[20.34px] p-2 animate-pulse'
+                  >
+                    <div className='p-[14.36px] rounded-[15.46px] bg-[#141414]'>
+                      <div className='mb-4 h-6 rounded bg-white/10'></div>
+                      <div className='h-20 rounded bg-white/10'></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredPositions.length === 0 ? (
+              <div className='p-12 text-center bg-[#FFFFFF0F] rounded-[20.34px] border border-white/10'>
+                <div className='mb-4 text-gray-400'>
+                  <svg
+                    className='mx-auto w-12 h-12'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+                    />
+                  </svg>
+                </div>
+                <h3 className='mb-2 text-lg font-medium text-white'>No Positions</h3>
+                <p className='text-gray-300'>You don&apos;t have any vault positions yet.</p>
+              </div>
+            ) : (
+              <div className='space-y-6'>
+                {filteredPositions.map(position => (
+                  <div
+                    key={`${position.chainId}-${position.vault}`}
+                    className='shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[20.34px] p-2'
+                  >
+                    <div className='p-[14.36px] rounded-[15.46px] bg-[#141414]'>
+                      <div className='flex relative z-10 justify-between items-start'>
+                        <div>
+                          <div className='font-bold text-xl leading-none tracking-[-0.358px] text-white'>
+                            {position.vaultName}
+                          </div>
 
-                      <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
-                        <path
-                          d='M3 4.5L6 7.5L9 4.5'
-                          stroke='white'
-                          strokeWidth='1.5'
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                        />
-                      </svg>
-                    </button>
+                          <Link
+                            href={`/vaults/${position.chainId}/${position.vault}`}
+                            className='text-[#CF7CFF] text-[10px] underline hover:text-[#A100FF] transition-colors'
+                          >
+                            View Vault
+                          </Link>
+                        </div>
 
-                    {showSortDropdown && (
-                      <div className='absolute right-0 mt-2 rounded-[16px] bg-[#141414] border border-white/20 shadow-lg z-10 min-w-[180px]'>
-                        {(['Position Size', 'P&L', 'Value'] as SortOption[]).map((option) => (
-                          <button
-                            key={option}
-                            onClick={() => {
-                              setSortBy(option);
-                              setShowSortDropdown(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-white font-dm-sans text-[13.58px] font-light hover:bg-white/10 transition-colors first:rounded-t-[16px] last:rounded-b-[16px] ${
-                              sortBy === option ? 'bg-[#A100FF2E]' : ''
+                        <div className='text-[14.76px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px]'>
+                          {getProviderBadge(position.vaultProvider)}
+                        </div>
+                      </div>
+
+                      <div className='flex justify-evenly items-center mt-3.5 shadow-[0_0_0_0.4px_#ffffff47] rounded-[18.77px] py-[22px]'>
+                        <div className='text-center'>
+                          <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                            DEPOSITED
+                          </div>
+
+                          <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
+                            {formatUsd(position.entryUsd)}
+                          </div>
+                        </div>
+
+                        <div className='w-[1px] h-[9.48px] bg-white'></div>
+
+                        <div className='text-center'>
+                          <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                            CURRENT VALUE
+                          </div>
+
+                          <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
+                            {formatUsd(position.valueUsd)}
+                          </div>
+                        </div>
+
+                        <div className='w-[1px] h-[9.48px] bg-white'></div>
+
+                        <div className='text-center'>
+                          <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                            EARNED
+                          </div>
+
+                          <div
+                            className={`text-[16.66px] font-bold font-modernist tracking-[-0.333px] leading-none ${
+                              parseFloat(position.pnlUsd) >= 0 ? 'text-[#00F792]' : 'text-red-400'
                             }`}
                           >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {isLoading ? (
-                  <div className='space-y-6'>
-                    {[1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className='shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[20.34px] p-2 animate-pulse'
-                      >
-                        <div className='p-[14.36px] rounded-[15.46px] bg-[#141414]'>
-                          <div className='h-6 bg-white/10 rounded mb-4'></div>
-                          <div className='h-20 bg-white/10 rounded'></div>
+                            {parseFloat(position.pnlUsd) >= 0 ? '+' : ''}
+                            {formatUsd(position.pnlUsd)}
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : filteredPositions.length === 0 ? (
-                  <div className='p-12 text-center bg-[#FFFFFF0F] rounded-[20.34px] border border-white/10'>
-                    <div className='text-gray-400 mb-4'>
-                      <svg className='mx-auto w-12 h-12' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' />
-                      </svg>
+
+                      <div className='flex gap-4 mt-3.5'>
+                        <Link
+                          href={`/vaults/${position.chainId}/${position.vault}?action=deposit`}
+                          className='flex-1 h-[31.19px] px-6 rounded-[10px] bg-gradient-purple text-white font-dm-sans text-[10.99px] font-bold hover:opacity-90 transition-opacity flex items-center justify-center'
+                        >
+                          Add Funds
+                        </Link>
+
+                        <Link
+                          href={`/vaults/${position.chainId}/${position.vault}?action=withdraw`}
+                          className='flex-1 h-[31.19px] px-6 rounded-[10px] glass-border bg-[#FFFFFF0D] text-white font-dm-sans text-[10.99px] font-normal hover:bg-white/10 transition-colors flex items-center justify-center'
+                        >
+                          Withdraw
+                        </Link>
+                      </div>
                     </div>
-                    <h3 className='mb-2 text-lg font-medium text-white'>No Positions</h3>
-                    <p className='text-gray-300'>You don't have any vault positions yet.</p>
                   </div>
-                ) : (
-                  <div className='space-y-6'>
-                    {filteredPositions.map((position) => (
-                      <div
-                        key={`${position.chainId}-${position.vault}`}
-                        className='shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[20.34px] p-2'
-                      >
-                        <div className='p-[14.36px] rounded-[15.46px] bg-[#141414]'>
-                          <div className='flex relative z-10 justify-between items-start'>
-                            <div>
-                              <div className='font-bold text-xl leading-none tracking-[-0.358px] text-white'>
-                                {position.vaultName}
-                              </div>
-
-                              <Link
-                                href={`/vaults/${position.chainId}/${position.vault}`}
-                                className='text-[#CF7CFF] text-[10px] underline hover:text-[#A100FF] transition-colors'
-                              >
-                                View Vault
-                              </Link>
-                            </div>
-
-                            <div className='text-[14.76px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px]'>
-                              {getProviderBadge(position.vaultProvider)}
-                            </div>
-                          </div>
-
-                          <div className='flex justify-evenly items-center mt-3.5 shadow-[0_0_0_0.4px_#ffffff47] rounded-[18.77px] py-[22px]'>
-                            <div className='text-center'>
-                              <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
-                                DEPOSITED
-                              </div>
-
-                              <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
-                                {formatUsd(position.entryUsd)}
-                              </div>
-                            </div>
-
-                            <div className='w-[1px] h-[9.48px] bg-white'></div>
-
-                            <div className='text-center'>
-                              <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
-                                CURRENT VALUE
-                              </div>
-
-                              <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
-                                {formatUsd(position.valueUsd)}
-                              </div>
-                            </div>
-
-                            <div className='w-[1px] h-[9.48px] bg-white'></div>
-
-                            <div className='text-center'>
-                              <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
-                                EARNED
-                              </div>
-
-                              <div className={`text-[16.66px] font-bold font-modernist tracking-[-0.333px] leading-none ${
-                                parseFloat(position.pnlUsd) >= 0 ? 'text-[#00F792]' : 'text-red-400'
-                              }`}>
-                                {parseFloat(position.pnlUsd) >= 0 ? '+' : ''}{formatUsd(position.pnlUsd)}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className='flex gap-4 mt-3.5'>
-                            <Link
-                              href={`/vaults/${position.chainId}/${position.vault}?action=deposit`}
-                              className='flex-1 h-[31.19px] px-6 rounded-[10px] bg-gradient-purple text-white font-dm-sans text-[10.99px] font-bold hover:opacity-90 transition-opacity flex items-center justify-center'
-                            >
-                              Add Funds
-                            </Link>
-
-                            <Link
-                              href={`/vaults/${position.chainId}/${position.vault}?action=withdraw`}
-                              className='flex-1 h-[31.19px] px-6 rounded-[10px] glass-border bg-[#FFFFFF0D] text-white font-dm-sans text-[10.99px] font-normal hover:bg-white/10 transition-colors flex items-center justify-center'
-                            >
-                              Withdraw
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
+                ))}
+              </div>
             )}
           </div>
-        </div>
+        )}
 
         {mounted && isConnected && (
           <div className='bg-[#FFFFFF0F] rounded-[20.34px] p-5 mt-10'>
@@ -577,7 +600,8 @@ export default function PortfolioPage() {
               {filteredPositions.length === 0 ? (
                 <div className='py-12 text-center'>
                   <p className='text-gray-400 font-dm-sans text-[13.24px]'>
-                    No transaction history available. Transaction history will be available once on-chain events are integrated.
+                    No transaction history available. Transaction history will be available once
+                    on-chain events are integrated.
                   </p>
                 </div>
               ) : (
@@ -607,8 +631,11 @@ export default function PortfolioPage() {
                   </thead>
 
                   <tbody>
-                    {filteredPositions.map((position) => (
-                      <tr key={`${position.chainId}-${position.vault}`} className='border-b border-white/10 last:border-0'>
+                    {filteredPositions.map(position => (
+                      <tr
+                        key={`${position.chainId}-${position.vault}`}
+                        className='border-b border-white/10 last:border-0'
+                      >
                         <td className='py-3 text-white font-dm-sans text-[13.24px] font-normal'>
                           {position.vaultName}
                         </td>
@@ -621,10 +648,13 @@ export default function PortfolioPage() {
                           {formatUsd(position.valueUsd)}
                         </td>
 
-                        <td className={`py-3 font-dm-sans text-[13.24px] font-bold text-center ${
-                          parseFloat(position.pnlUsd) >= 0 ? 'text-[#00F792]' : 'text-red-400'
-                        }`}>
-                          {parseFloat(position.pnlUsd) >= 0 ? '+' : ''}{formatUsd(position.pnlUsd)}
+                        <td
+                          className={`py-3 font-dm-sans text-[13.24px] font-bold text-center ${
+                            parseFloat(position.pnlUsd) >= 0 ? 'text-[#00F792]' : 'text-red-400'
+                          }`}
+                        >
+                          {parseFloat(position.pnlUsd) >= 0 ? '+' : ''}
+                          {formatUsd(position.pnlUsd)}
                         </td>
 
                         <td className='py-3 text-[#00F792] font-dm-sans text-[13.24px] font-normal text-right'>
@@ -639,8 +669,6 @@ export default function PortfolioPage() {
           </div>
         )}
       </section>
-
-      <Footer />
 
       {/* 
       COMMENTED OUT ORIGINAL PORTFOLIO PAGE CODE - PRESERVED FOR REFERENCE
@@ -819,6 +847,6 @@ export default function PortfolioPage() {
         </main>
       </div>
       */}
-    </div>
+    </>
   );
 }

@@ -53,7 +53,7 @@ export default function VaultTransparency({ vault }: VaultTransparencyProps) {
   const totalTvl = '$200.75M';
 
   return (
-    <div className='w-full mt-[30px] px-[12px] py-[20px] rounded-[20px] shadow-[0_0_0_0.8px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg'>
+    <div className='mt-[30px] px-[12px] py-[20px] rounded-[20px] shadow-[0_0_0_0.8px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg'>
       <h2 className='text-white font-dm-sans text-[17px] font-bold leading-[128%] tracking-[-0.344px] mb-[30px] px-3'>
         Transparency
       </h2>

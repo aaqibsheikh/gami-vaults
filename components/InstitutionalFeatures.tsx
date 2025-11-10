@@ -105,7 +105,7 @@ export default function InstitutionalFeatures() {
   ];
 
   return (
-    <section className='max-w-[1280px] mx-auto px-[84px] pt-[35px] pb-[80px]'>
+    <section className='pt-[35px] pb-[80px]'>
       <div className='flex justify-between items-start gap-[180px]'>
         <div className='flex-shrink-0 min-w-[329px]'>
           <h2 className='font-modernist text-[57px] font-normal leading-[100%] tracking-[-1.15px] gradient-text whitespace-nowrap'>

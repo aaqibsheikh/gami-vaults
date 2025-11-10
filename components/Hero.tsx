@@ -3,20 +3,8 @@ import Image from 'next/image';
 
 export default function Hero() {
   return (
-    <section className='relative pt-[106px] pb-[50px]'>
-      {/* <div className='absolute inset-0 -bottom-[80px]'>
-        <div className='h-full max-w-[1280px] mx-auto px-[84px] relative'>
-          <div className='absolute left-[84px] top-0 bottom-0 w-px bg-[#242424]' />
-
-          <div className='absolute left-1/2 top-0 bottom-[52px] w-px bg-[#242424] -translate-x-1/2' />
-
-          <div className='absolute right-[84px] top-0 bottom-0 w-px bg-[#242424]' />
-        </div>
-      </div>
-
-      <div className='absolute left-0 right-0 h-px bg-[#242424] bottom-0' /> */}
-
-      <div className='max-w-[1280px] mx-auto px-[84px] relative z-10'>
+    <section className='pt-[106px] pb-[50px]'>
+      <div className='relative z-10'>
         <div className='pt-[355px] pl-[21px] space-y-7'>
           <h1 className='font-modernist text-[57.48px] font-normal leading-[100%] tracking-[-1.5px] text-white'>
             Discover and deposit <br /> into <span className='gradient-text'>Gami Vaults</span>
@@ -41,7 +29,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className='flex absolute top-0 right-[136px] justify-center lg:justify-end'>
+        <div className='absolute top-2.5 right-[50px]'>
           <Image
             src='/assets/images/gradient-glass.png'
             alt='Gradient glass vault visualization'

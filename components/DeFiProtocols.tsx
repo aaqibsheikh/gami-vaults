@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function DeFiProtocols() {
   const structure = [
     {
@@ -28,7 +30,7 @@ export default function DeFiProtocols() {
   ];
 
   return (
-    <section className='max-w-[1280px] mx-auto px-[84px] pt-[35px]'>
+    <section className='pt-[35px]'>
       <div className='rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-[27px] py-[30px] bg-[#FFFFFF0F]'>
         <div className='flex flex-col items-center gap-[30px]'>
           <div className='space-y-7'>
@@ -54,10 +56,12 @@ export default function DeFiProtocols() {
                       key={item.name}
                       className='flex items-center justify-center flex-col rounded-[16px] transition-colors gap-2.5'
                     >
-                      <img
+                      <Image
                         src={item.logo}
                         alt={item.name}
-                        className='object-cover w-[70px] h-[70px] bg-[#1A1A1A] hover:bg-[#252525] rounded-[18px]'
+                        width={70}
+                        height={70}
+                        className='object-cover bg-[#1A1A1A] hover:bg-[#252525] rounded-[18px]'
                       />
 
                       <p className='text-[12.26px] leading-[110%] tracking-[-0.245px] text-white'>

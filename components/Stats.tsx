@@ -7,7 +7,7 @@ export default function Stats() {
   ];
 
   return (
-    <div className='max-w-[1280px] mx-auto px-[84px] pt-[29px] z-10 relative'>
+    <section className='pt-[29px] z-10 relative'>
       <div className='rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-10 py-8 bg-[#FFFFFF0F]'>
         <div className='flex flex-wrap gap-4 justify-between items-center'>
           {stats.map((stat, index) => (
@@ -23,7 +23,7 @@ export default function Stats() {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
