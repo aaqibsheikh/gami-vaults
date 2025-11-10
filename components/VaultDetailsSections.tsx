@@ -8,6 +8,13 @@ interface VaultDetailsSectionsProps {
   vault?: {
     id: string;
     chainId?: number;
+    symbol?: string;
+    name?: string;
+    underlying?: {
+      symbol: string;
+      address: string;
+      decimals: number;
+    };
     strategy?: {
       name: string;
       description: string;
@@ -28,13 +35,20 @@ interface VaultDetailsSectionsProps {
 
 export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProps) {
   const [copied, setCopied] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d'>('30d');
+  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '365d' | 'all'>('30d');
+  const [selectedMetric, setSelectedMetric] = useState<'apy' | 'tvl' | 'price'>('price');
+  const [isMetricDropdownOpen, setIsMetricDropdownOpen] = useState(false);
+  const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
 
   // Fetch historical data
+  // Map period to API format: '7d' | '30d' | '365d' | 'all'
+  const apiPeriod = selectedPeriod === '7d' ? '7d' : 
+                    selectedPeriod === '30d' ? '30d' : 
+                    selectedPeriod === '365d' ? '365d' : 'all';
   const { data: historicalData, isLoading: isLoadingHistorical } = useHistoricalData({
     chainId: vault?.chainId || 1,
     vaultId: vault?.id || '',
-    period: selectedPeriod,
+    period: apiPeriod,
     enabled: !!vault?.id && !!vault?.chainId
   });
 
@@ -88,33 +102,221 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
       <div className='space-y-5 w-full'>
         <div className='flex justify-between items-center'>
           <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px]'>
-            Historical Performance
+            Chart
           </div>
 
-          <div className='flex gap-2'>
-            <button
-              onClick={() => setSelectedPeriod('7d')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                selectedPeriod === '7d'
-                  ? 'bg-white/20 text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/15'
-              }`}
-            >
-              7D
-            </button>
+          <div className='flex gap-2 items-center'>
+            {/* Metric Selector Dropdown */}
+            <div className='relative'>
+              <button
+                onClick={() => setIsMetricDropdownOpen(!isMetricDropdownOpen)}
+                className='flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
+              >
+                <span>
+                  {selectedMetric === 'apy' ? 'APY' : selectedMetric === 'tvl' ? 'TVL' : 'Price per share'}
+                </span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${isMetricDropdownOpen ? 'rotate-180' : ''}`}
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                </svg>
+              </button>
+              
+              {isMetricDropdownOpen && (
+                <>
+                  <div
+                    className='fixed inset-0 z-10'
+                    onClick={() => setIsMetricDropdownOpen(false)}
+                  />
+                  <div className='absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-white/20 rounded-lg shadow-lg z-20 py-1'>
+                    <button
+                      onClick={() => {
+                        setSelectedMetric('price');
+                        setIsMetricDropdownOpen(false);
+                      }}
+                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                    >
+                      <span>Price per share</span>
+                      {selectedMetric === 'price' && (
+                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
+                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedMetric('tvl');
+                        setIsMetricDropdownOpen(false);
+                      }}
+                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                    >
+                      <span>TVL</span>
+                      {selectedMetric === 'tvl' && (
+                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
+                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedMetric('apy');
+                        setIsMetricDropdownOpen(false);
+                      }}
+                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                    >
+                      <span>APY</span>
+                      {selectedMetric === 'apy' && (
+                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
+                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
 
-            <button
-              onClick={() => setSelectedPeriod('30d')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                selectedPeriod === '30d'
-                  ? 'bg-white/20 text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/15'
-              }`}
-            >
-              30D
-            </button>
+            {/* Period Selector Dropdown */}
+            <div className='relative'>
+              <button
+                onClick={() => setIsPeriodDropdownOpen(!isPeriodDropdownOpen)}
+                className='flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
+              >
+                <span>
+                  {selectedPeriod === '7d' ? '1 Week' : 
+                   selectedPeriod === '30d' ? '1 Month' : 
+                   selectedPeriod === '365d' ? '1 Year' : 
+                   'All'}
+                </span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${isPeriodDropdownOpen ? 'rotate-180' : ''}`}
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                </svg>
+              </button>
+              
+              {isPeriodDropdownOpen && (
+                <>
+                  <div
+                    className='fixed inset-0 z-10'
+                    onClick={() => setIsPeriodDropdownOpen(false)}
+                  />
+                  <div className='absolute right-0 mt-2 w-40 bg-[#1a1a1a] border border-white/20 rounded-lg shadow-lg z-20 py-1'>
+                    <button
+                      onClick={() => {
+                        setSelectedPeriod('7d');
+                        setIsPeriodDropdownOpen(false);
+                      }}
+                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                    >
+                      <span>1 Week</span>
+                      {selectedPeriod === '7d' && (
+                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
+                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedPeriod('30d');
+                        setIsPeriodDropdownOpen(false);
+                      }}
+                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                    >
+                      <span>1 Month</span>
+                      {selectedPeriod === '30d' && (
+                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
+                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedPeriod('365d');
+                        setIsPeriodDropdownOpen(false);
+                      }}
+                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                    >
+                      <span>1 Year</span>
+                      {selectedPeriod === '365d' && (
+                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
+                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedPeriod('all');
+                        setIsPeriodDropdownOpen(false);
+                      }}
+                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                    >
+                      <span>All</span>
+                      {selectedPeriod === 'all' && (
+                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
+                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Current Value Display */}
+        {historicalData && historicalData.length > 0 && (
+          <div className='flex items-center gap-3 px-3 py-2'>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              selectedMetric === 'price' 
+                ? 'bg-gradient-to-br from-blue-400 to-cyan-400'
+                : selectedMetric === 'tvl'
+                ? 'bg-gradient-to-br from-orange-400 to-amber-400'
+                : 'bg-gradient-to-br from-green-400 to-emerald-400'
+            }`}>
+              <span className='text-white font-bold text-lg'>
+                {selectedMetric === 'price' ? '$' : selectedMetric === 'tvl' ? '$' : '%'}
+              </span>
+            </div>
+            <div>
+              <div className='text-white/70 font-dm-sans text-sm'>
+                {selectedMetric === 'price' 
+                  ? `1 ${vault?.symbol || vault?.underlying?.symbol || 'share'}`
+                  : selectedMetric === 'tvl'
+                  ? 'Total Value Locked'
+                  : 'Annual Percentage Yield'}
+              </div>
+              <div className='text-white font-dm-sans text-lg font-medium'>
+                {(() => {
+                  const latestData = historicalData[historicalData.length - 1];
+                  if (selectedMetric === 'price') {
+                    const price = parseFloat(latestData.price);
+                    const underlyingSymbol = vault?.underlying?.symbol || 'USDC';
+                    return `${price.toFixed(6)} ${underlyingSymbol}`;
+                  } else if (selectedMetric === 'tvl') {
+                    const tvl = parseFloat(latestData.tvl);
+                    return `$${tvl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                  } else {
+                    const apy = parseFloat(latestData.apy) * 100;
+                    return `${apy.toFixed(2)}%`;
+                  }
+                })()}
+              </div>
+              {selectedMetric === 'price' && historicalData && historicalData.length > 0 && (
+                <div className='text-white/50 font-dm-sans text-sm'>
+                  ${parseFloat(historicalData[historicalData.length - 1].price).toFixed(2)}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className='flex h-[237px] px-3 py-3 justify-center items-center gap-2 shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[30px]'>
           {isLoadingHistorical ? (
@@ -124,8 +326,8 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
           ) : historicalData && historicalData.length > 0 ? (
             <PerformanceChart
               data={historicalData}
-              period={selectedPeriod}
-              type='apy'
+              period={apiPeriod}
+              type={selectedMetric}
               className='w-full h-full'
             />
           ) : (

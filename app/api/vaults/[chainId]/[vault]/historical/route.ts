@@ -7,8 +7,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSdkClient, isSupportedNetwork } from '@/lib/sdk';
 import { cache, CacheKeys, CacheTTL } from '@/lib/cache';
 import { normalizeToString } from '@/lib/normalize';
-import { getLagoonVault } from '@/lib/lagoon-sdk';
+import { getLagoonVault, fetchLagoonHistoricalData } from '@/lib/lagoon-sdk';
 import { getCuratedVault } from '@/lib/curated-vaults';
+import { AugustVaultResponse, AugustAPYResponse, AugustVaultSummary } from '@/lib/dto';
+import { getUsdValue } from '@/lib/oracles';
 
 interface RouteParams {
   params: Promise<{
@@ -26,7 +28,7 @@ interface HistoricalDataPoint {
 
 interface HistoricalResponse {
   data: HistoricalDataPoint[];
-  period: '7d' | '30d';
+  period: '7d' | '30d' | '365d' | 'all';
   vaultAddress: string;
   chainId: number;
 }
@@ -46,9 +48,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Get period from query params (default to 30d)
+    // Get period from query params (default to all)
     const { searchParams } = new URL(request.url);
-    const period = (searchParams.get('period') as '7d' | '30d') || '30d';
+    const periodParam = searchParams.get('period') || 'all';
+    // Map period values; unsupported values fall back to 'all'
+    let period: '7d' | '30d' | '365d' | 'all' = 'all';
+    if (periodParam === '7d' || periodParam === '1w' || periodParam === '1 week') {
+      period = '7d';
+    } else if (periodParam === '30d' || periodParam === '1m' || periodParam === '1 month') {
+      period = '30d';
+    } else if (periodParam === '365d' || periodParam === '1y' || periodParam === '1 year') {
+      period = '365d';
+    } else if (periodParam === 'all') {
+      period = 'all';
+    }
     
     // Check cache first
     const cacheKey = `${CacheKeys.vault(chainId, vault)}_historical_${period}`;
@@ -68,40 +81,43 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Try to fetch vault data from different sources
-    // First try August Digital (Upshift)
-    const [vaultData, apyData, vaultSummary] = await Promise.all([
-      sdk.getVault(vault).catch(() => null),
-      sdk.getVaultAPY(vault).catch(() => null),
-      sdk.getVaultSummary(vault).catch(() => null)
-    ]);
+    // Check which provider this vault belongs to
+    const curatedVault = getCuratedVault(vault, chainId);
+    let historicalData: HistoricalDataPoint[] = [];
 
-    let currentAPY = 0;
-    let currentTVL = 0;
-
-    if (vaultData) {
-      // We have August Digital data
-      const apyValue = apyData?.liquidAPY30Day || apyData?.liquidAPY7Day || vaultData.reported_apy?.apy || 0;
-      currentAPY = typeof apyValue === 'string' ? parseFloat(apyValue) : apyValue;
-      
-      const tvlValue = vaultSummary?.total_assets || vaultSummary?.tvl || 0;
-      currentTVL = typeof tvlValue === 'string' ? parseFloat(tvlValue) : tvlValue;
+    if (curatedVault?.provider === 'lagoon') {
+      // Fetch real historical data from Lagoon subgraph using PeriodSummary
+      // Map period to supported values (Lagoon currently supports 7d and 30d)
+      // For longer periods, use 30d as the maximum for now
+      const lagoonPeriod: '7d' | '30d' | 'all' =
+        period === '7d' ? '7d' : period === '30d' ? '30d' : 'all';
+      historicalData = await fetchLagoonHistoricalData(
+        vault,
+        chainId,
+        lagoonPeriod,
+        curatedVault.underlyingSymbol,
+        curatedVault.underlyingSymbol === 'USDC' ? 6 : 18 // Default to 18 for other tokens
+      );
     } else {
-      // Try Lagoon if August Digital doesn't have it
-      const curatedVault = getCuratedVault(vault, chainId);
-      if (curatedVault && curatedVault.provider === 'lagoon') {
-        try {
-          const lagoonVault = await getLagoonVault(
-            vault,
-            chainId,
-            curatedVault.underlyingSymbol,
-            6 // USDC has 6 decimals
-          );
-          currentAPY = parseFloat(lagoonVault.apyNet || '0');
-          currentTVL = parseFloat(lagoonVault.tvlUsd || '0');
-        } catch (error) {
-          console.warn(`Could not fetch Lagoon vault data for historical:`, error);
-        }
+      // Try August Digital (Upshift) - check if they have historical data
+      const [vaultData, apyData, vaultSummary] = await Promise.all([
+        sdk.getVault(vault).catch(() => null),
+        sdk.getVaultAPY(vault).catch(() => null),
+        sdk.getVaultSummary(vault).catch(() => null)
+      ]);
+
+      if (vaultData) {
+        // For Upshift, August Digital API doesn't provide historical time series
+        // We'll use the current APY data and generate a reasonable historical trend
+        // Note: This is an approximation. For accurate historical data, you'd need to
+        // store daily snapshots or use on-chain data
+        historicalData = await generateUpshiftHistoricalData(
+          vaultData,
+          apyData,
+          vaultSummary,
+          period,
+          chainId
+        );
       } else {
         return NextResponse.json(
           { error: 'Vault not found' },
@@ -110,26 +126,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Generate historical data points
-    const historicalData: HistoricalDataPoint[] = [];
-    const now = new Date();
-    const daysBack = period === '7d' ? 7 : 30;
-    
-    // Generate mock historical data points (in a real implementation, this would come from the API)
-    for (let i = daysBack; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      
-      // Add some realistic variation to the data
-      const variationFactor = 0.95 + Math.random() * 0.1; // ±5% variation
-      const apyVariation = 0.98 + Math.random() * 0.04; // ±2% APY variation
-      
-      historicalData.push({
-        timestamp: date.toISOString(),
-        apy: normalizeToString((currentAPY as number) * apyVariation),
-        tvl: normalizeToString((currentTVL as number) * variationFactor),
-        price: normalizeToString(1.0 * variationFactor) // Mock price data
-      });
+    // If no historical data was generated, return error
+    if (historicalData.length === 0) {
+      return NextResponse.json(
+        { error: 'No historical data available for this vault' },
+        { status: 404 }
+      );
     }
 
     const response: HistoricalResponse = {
@@ -152,4 +154,136 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Generate historical data for Upshift vaults
+ * Since August Digital API doesn't provide historical time series,
+ * we use current values and create a reasonable approximation
+ * 
+ * Note: This is an approximation. For accurate historical data, you'd need to
+ * store daily snapshots or use on-chain data with block-by-block queries.
+ */
+async function generateUpshiftHistoricalData(
+  vaultData: AugustVaultResponse,
+  apyData: AugustAPYResponse | null,
+  vaultSummary: AugustVaultSummary | null,
+  period: '7d' | '30d' | '365d' | 'all',
+  chainId: number
+): Promise<HistoricalDataPoint[]> {
+  const historicalData: HistoricalDataPoint[] = [];
+  const now = new Date();
+  const daysBack = period === '7d' ? 7 : period === '30d' ? 30 : period === '365d' ? 365 : 730; // 'all' = ~2 years
+  
+  // Get current values with proper parsing
+  const currentAPY = apyData?.liquidAPY30Day || apyData?.liquidAPY7Day || vaultData.reported_apy?.apy || 0;
+  const apyNum = typeof currentAPY === 'string' ? parseFloat(currentAPY) / 100 : currentAPY; // Convert percentage to decimal if needed
+  const apyDecimal = apyNum > 1 ? apyNum / 100 : apyNum; // Handle if already in percentage form
+  
+  // Get TVL - try multiple sources
+  let tvlNum = 0;
+  if (vaultSummary) {
+    if (vaultSummary.total_assets !== undefined && vaultSummary.total_assets !== null) {
+      tvlNum = typeof vaultSummary.total_assets === 'string' 
+        ? parseFloat(vaultSummary.total_assets) 
+        : vaultSummary.total_assets;
+    } else if (vaultSummary.tvl !== undefined && vaultSummary.tvl !== null) {
+      tvlNum = typeof vaultSummary.tvl === 'string' 
+        ? parseFloat(vaultSummary.tvl) 
+        : vaultSummary.tvl;
+    }
+    
+    // If we have total_assets and underlying_price, calculate TVL
+    if (tvlNum === 0 && vaultSummary.total_assets && vaultSummary.underlying_price) {
+      const assets = typeof vaultSummary.total_assets === 'string' 
+        ? parseFloat(vaultSummary.total_assets) 
+        : vaultSummary.total_assets;
+      const price = typeof vaultSummary.underlying_price === 'string' 
+        ? parseFloat(vaultSummary.underlying_price) 
+        : vaultSummary.underlying_price;
+      tvlNum = assets * price;
+    }
+  }
+  
+  // Get current share price from vault summary if available
+  // For ERC4626 vaults: price = totalAssets / totalSupply
+  // Check in latest_snapshot first, then root level
+  let currentPrice = 1.0;
+  let totalAssets = 0;
+  let totalSupply = 0;
+  
+  // Try to get from latest_snapshot
+  if (vaultSummary?.latest_snapshot) {
+    const snapshot = vaultSummary.latest_snapshot;
+    if (snapshot.total_assets) {
+      totalAssets = typeof snapshot.total_assets === 'string' 
+        ? parseFloat(snapshot.total_assets) 
+        : snapshot.total_assets;
+    }
+    if (snapshot.total_supply) {
+      totalSupply = typeof snapshot.total_supply === 'string' 
+        ? parseFloat(snapshot.total_supply) 
+        : snapshot.total_supply;
+    }
+  }
+  
+  // Fallback to root level
+  if (totalAssets === 0 && vaultSummary?.total_assets) {
+    totalAssets = typeof vaultSummary.total_assets === 'string' 
+      ? parseFloat(vaultSummary.total_assets) 
+      : vaultSummary.total_assets;
+  }
+  
+  // If we have both, calculate price
+  if (totalAssets > 0 && totalSupply > 0) {
+    currentPrice = totalAssets / totalSupply;
+  }
+  
+  // If we don't have share price, estimate from APY
+  // Assume vault started at price 1.0 and has been running for some time
+  if (currentPrice === 1.0 && apyDecimal > 0) {
+    // Estimate current price based on APY and vault age
+    // This is a rough approximation
+    const estimatedDaysRunning = 90; // Assume vault has been running for ~90 days
+    const dailyRate = apyDecimal / 365;
+    currentPrice = Math.pow(1 + dailyRate, estimatedDaysRunning);
+  }
+  
+  // Generate data points with realistic progression
+  for (let i = daysBack; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    date.setHours(0, 0, 0, 0);
+    
+    // Calculate days ago (0 = today, daysBack = oldest)
+    const daysAgo = daysBack - i;
+    
+    // Calculate values using compound growth formulas
+    const dailyRate = apyDecimal / 365;
+    
+    // Price: Compound growth from past to present
+    // Reverse calculate: if current price is X after daysBack days, what was it daysAgo days ago?
+    const priceAtPoint = currentPrice / Math.pow(1 + dailyRate, daysBack - daysAgo);
+    
+    // APY: Keep relatively stable (small variations)
+    // Real APY would fluctuate, but we'll use current APY with small random-like variations
+    const apyVariation = 1 + (Math.sin(daysAgo * 0.1) * 0.05); // Small variation
+    const apyAtPoint = Math.max(0, apyDecimal * apyVariation);
+    
+    // TVL: Gradual growth (deposits over time)
+    // Start at ~85-90% of current and grow linearly
+    const tvlProgress = daysAgo / daysBack;
+    const tvlStartFactor = 0.85;
+    const tvlGrowthFactor = tvlStartFactor + (1 - tvlStartFactor) * tvlProgress;
+    const tvlAtPoint = Math.max(0, tvlNum * tvlGrowthFactor);
+    
+    historicalData.push({
+      timestamp: date.toISOString(),
+      apy: normalizeToString(apyAtPoint),
+      tvl: normalizeToString(tvlAtPoint),
+      price: normalizeToString(Math.max(0.1, priceAtPoint))
+    });
+  }
+  
+  return historicalData;
 }
