@@ -3,8 +3,8 @@ import Link from 'next/link';
 
 const AboutHero = () => {
   return (
-    <section className='pt-[106px] pb-[50px]'>
-      <div className='pt-[355px] pl-[21px] space-y-7'>
+    <section className='pb-[50px]'>
+      <div className='pt-[309px] pl-[21px] space-y-7'>
         <h1 className='font-modernist text-[57.48px] font-normal leading-[100%] tracking-[-1.5px] text-white'>
           About <span className='gradient-text'>Gami Vaults</span>
         </h1>

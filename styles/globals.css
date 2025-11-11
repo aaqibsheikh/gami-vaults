@@ -24,8 +24,8 @@
     font-family: 'DM-Sans', -apple-system, Roboto, Helvetica, sans-serif;
   }
   
-  .gradient-purple {
-    background: radial-gradient(122.51% 108.33% at 50% -30.83%, #CF7CFF 27.73%, #2315B5 100%);
+  .bg-gradient-purple {
+    background: linear-gradient(to top, #2315B4, #CF7CFF);
   }
   
   .glass-border {

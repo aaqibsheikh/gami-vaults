@@ -66,7 +66,7 @@ export default function ExploreVaults() {
         className='absolute top-0 right-0 pointer-events-none'
       />
 
-      <section id='vaults' className='pt-40 pb-14 w-full'>
+      <section id='vaults' className='pt-20 pb-14 w-full'>
         <div className='space-y-1.5'>
           <h1 className='font-modernist text-[57px] font-normal'>
             Explore <span className='font-bold'>Vaults</span>

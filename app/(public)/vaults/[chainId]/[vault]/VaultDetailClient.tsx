@@ -60,7 +60,7 @@ export default function VaultDetailClient({
         className='absolute top-0 right-0 pointer-events-none'
       />
 
-      <section id='vaults' className='pt-32 pb-12'>
+      <section id='vaults' className='pt-12 pb-12'>
         {isLoading && (
           <div className='space-y-8'>
             <Loader label='Fetching vault details' />

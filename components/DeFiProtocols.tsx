@@ -22,23 +22,23 @@ export default function DeFiProtocols() {
       title: 'Infrastructure',
       items: [
         { name: 'Upshift', logo: '/assets/images/upshift.svg' },
-        { name: 'Morpho', logo: '/assets/images/morpho.svg' },
-        { name: 'Curve Finance', logo: '/assets/images/curve-finance.svg' },
-        { name: 'Spectra Finance', logo: '/assets/images/spectra.svg' },
+        { name: 'Hypernative', logo: '/assets/svgs/hypernative.svg' },
+        { name: 'Nexus Mutual', logo: '/assets/svgs/nexus-mutual.svg' },
+        { name: 'Fordefi', logo: '/assets/svgs/fordefi.svg' },
       ],
     },
   ];
 
   return (
     <section className='pt-[35px]'>
-      <div className='rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-[27px] py-[30px] bg-[#FFFFFF0F]'>
-        <div className='flex flex-col items-center gap-[30px]'>
-          <div className='space-y-7'>
-            <h2 className='font-modernist text-[40px] font-normal leading-[100%] tracking-[-0.8px] text-white text-center'>
-              Powered by leading DeFi Protocols
+      <div className='rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] sm:px-[27px] px-[15px] sm:py-[30px] py-[20px] bg-[#FFFFFF0F]'>
+        <div className='flex flex-col items-center sm:gap-[30px] gap-4'>
+          <div className='space-y-4 sm:space-y-7'>
+            <h2 className='font-modernist sm:text-[40px] text-xl font-normal leading-[100%] sm:tracking-[-0.8px] text-white text-center'>
+              Powered by leading <br className='sm:hidden' /> DeFi Protocols
             </h2>
 
-            <p className='font-dm-sans text-xl font-light leading-[128%] tracking-[-0.4px] text-white text-center'>
+            <p className='font-dm-sans sm:text-xl text-base font-light leading-[128%] sm:tracking-[-0.4px] text-white text-center'>
               We are forming strategic partnerships with leading protocols in the industry to
               provide yields that meet institutional standards, ensuring that our clients benefit
               from top-tier financial opportunities and infrastructures.
@@ -47,20 +47,22 @@ export default function DeFiProtocols() {
 
           <div className='flex flex-col gap-5 justify-between w-full lg:flex-row xl:gap-8'>
             {structure.map(section => (
-              <div key={section.title} className='flex flex-col gap-5 items-center'>
-                <h3 className='text-xl text-white capitalize font-dm-sans'>{section.title}</h3>
+              <div key={section.title} className='flex flex-col sm:gap-5 gap-3.5 items-center'>
+                <h3 className='text-sm text-white capitalize sm:text-xl font-dm-sans'>
+                  {section.title}
+                </h3>
 
-                <div className='flex gap-3 justify-center items-center xl:gap-5'>
+                <div className='flex gap-3.5 justify-center items-center xl:gap-5'>
                   {section.items.map(item => (
                     <div
                       key={item.name}
                       className='flex items-center justify-center flex-col rounded-[16px] transition-colors gap-2.5'
                     >
-                      <div className='w-[70px] h-[70px] relative'>
+                      <div className='sm:w-[70px] w-[50px] sm:h-[70px] h-[50px] relative'>
                         <Image src={item.logo} alt={item.name} fill />
                       </div>
 
-                      <p className='text-[12.26px] leading-[110%] tracking-[-0.245px] text-white'>
+                      <p className='sm:text-[12.26px] text-[8.54px] leading-[110%] sm:tracking-[-0.245px] text-white'>
                         {item.name}
                       </p>
                     </div>

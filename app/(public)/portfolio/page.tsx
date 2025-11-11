@@ -311,7 +311,7 @@ export default function PortfolioPage() {
         className='absolute top-0 right-0 pointer-events-none'
       />
 
-      <section className='pt-[156.33px] pb-10 relative z-10'>
+      <section className='pt-[76.33px] pb-10 relative z-10'>
         <div className='space-y-1.5 font-bold px-7'>
           <h1 className='font-modernist text-[57px] font-bold'>Portfolio</h1>
 
