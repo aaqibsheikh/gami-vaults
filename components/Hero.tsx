@@ -35,9 +35,12 @@ export default function Hero() {
               Explore Vaults →
             </Link>
 
-            <button className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors'>
+            <Link
+              href='/about'
+              className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors flex items-center justify-center'
+            >
               About
-            </button>
+            </Link>
           </div>
         </div>
 
