@@ -1,157 +1,116 @@
+import Image from 'next/image';
+import Link from 'next/link';
+
 export default function Footer() {
   return (
-    <footer className='relative bg-black min-h-[420px] overflow-hidden'>
-      <div className='flex absolute bottom-[-20px] left-0 items-center'>
-        <h2 className='font-modernist font-bold text-[269px] tracking-[-5.385px] text-white leading-none'>
+    <footer className='relative bg-black min-h-[229px] md:min-h-[420px] sm:min-h-[350px] overflow-hidden'>
+      <div className='flex absolute bottom-[-20px] left-0 items-start'>
+        <h2 className='font-modernist font-bold lg:text-[269px] sm:text-[200px] text-[140px] t racking-[-5.385px] text-white leading-none'>
           Gami
         </h2>
 
-        <svg
-          className='-mt-[120px] ml-6'
-          width='87'
-          height='87'
-          viewBox='0 0 87 87'
-          fill='none'
-          xmlns='http://www.w3.org/2000/svg'
-        >
-          <path
-            d='M43.5839 86.7119C19.9311 86.7119 0.501953 67.9106 0.501953 43.63C0.501953 19.3494 19.9311 0.548096 43.5839 0.548096C67.2367 0.548096 86.6658 19.3494 86.6658 43.63C86.6658 67.9106 67.2367 86.7119 43.5839 86.7119ZM43.5839 75.3237C58.8948 75.3237 73.9946 62.7537 73.9946 43.63C73.9946 24.7212 58.8948 11.9363 43.5839 11.9363C28.2729 11.9363 13.1731 24.6138 13.1731 43.63C13.1731 62.6462 28.2729 75.3237 43.5839 75.3237ZM43.5839 67.5883C29.7512 67.5883 20.459 58.0265 20.459 43.63C20.459 29.341 29.7512 19.7792 43.5839 19.7792C54.8823 19.7792 63.7521 27.2997 65.864 38.4731H53.8264C52.3481 33.9608 48.23 30.9525 43.5839 30.9525C37.1427 30.9525 32.919 36.002 32.919 43.63C32.919 51.258 37.1427 56.4149 43.5839 56.4149C48.23 56.4149 52.3481 53.4067 53.8264 48.8944H65.864C63.7521 60.0678 54.8823 67.5883 43.5839 67.5883Z'
-            fill='white'
-          />
-        </svg>
+        <Image
+          className='sm:ml-6 ml-2 mt-[5%] sm:w-[87px] w-[47px]'
+          width={87}
+          height={87}
+          src='/assets/svgs/copyright-icon.svg'
+          alt='Copyright Icon'
+        />
       </div>
 
-      <div className='relative pl-[57px] pr-[108px] pt-[47px] mx-auto max-w-[1526px]'>
-        <div className='flex justify-between items-start mb-20'>
-          <div className='max-w-md'>
-            <p className='text-white font-dm-sans text-base font-normal leading-[140%]'>
-              Gami provides on-chain asset management <br /> infrastructure with active curation &
-              dynamic risk <br /> management
-            </p>
-          </div>
+      <div className='relative lg:pl-[57px] lg:pr-[108px] px-6 sm:pt-[47px] pt-[52px] mx-auto max-w-[1526px]'>
+        <div className='flex justify-between items-start'>
+          <p className='text-white font-dm-sans text-base font-normal leading-[140%] md:block hidden'>
+            Gami provides on-chain asset management <br /> infrastructure with active curation &
+            dynamic risk <br className='hidden lg:block' /> management
+          </p>
 
-          <div className='flex flex-col gap-4'>
-            <a
-              href='#vaults'
-              className='text-white font-dm-sans text-[16px] font-normal hover:opacity-80 transition-opacity'
+          <div className='flex flex-col gap-2 sm:gap-4'>
+            <Link
+              href='/vaults'
+              className='text-white font-dm-sans sm:text-[16px] text-[8.14px] font-normal hover:opacity-80 transition-opacity'
             >
               Vaults
-            </a>
+            </Link>
 
-            <a
-              href='#portfolio'
-              className='text-white font-dm-sans text-[16px] font-normal hover:opacity-80 transition-opacity'
+            <Link
+              href='/portfolio'
+              className='text-white font-dm-sans sm:text-[16px] text-[8.14px] font-normal hover:opacity-80 transition-opacity'
             >
               Portfolio
-            </a>
+            </Link>
 
-            <a
-              href='#docs'
-              className='text-white font-dm-sans text-[16px] font-normal hover:opacity-80 transition-opacity'
+            <Link
+              href='/about'
+              className='text-white font-dm-sans sm:text-[16px] text-[8.14px] font-normal hover:opacity-80 transition-opacity'
             >
-              Docs
-            </a>
+              About
+            </Link>
           </div>
 
-          <div className='flex gap-3 items-center'>
+          <div className='flex gap-1 items-center sm:gap-3'>
             <a
               href='#'
-              className='flex justify-center items-center w-11 h-11 rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
+              className='flex justify-center items-center sm:w-11 sm:h-11 w-[26.5px] h-[26.5px] rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
               aria-label='Instagram'
             >
-              <svg
-                width='15'
-                height='15'
-                viewBox='0 0 15 15'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  d='M7.11111 1.28514C8.99599 1.28514 9.25301 1.28514 10.0241 1.28514C10.7095 1.28514 11.0522 1.45649 11.3092 1.54217C11.6519 1.71352 11.909 1.7992 12.166 2.05623C12.423 2.31325 12.5944 2.57028 12.6801 2.91299C12.7657 3.17001 12.8514 3.51272 12.9371 4.19813C12.9371 4.96921 12.9371 5.14056 12.9371 7.11111C12.9371 9.08166 12.9371 9.25301 12.9371 10.0241C12.9371 10.7095 12.7657 11.0522 12.6801 11.3092C12.5087 11.6519 12.423 11.909 12.166 12.166C11.909 12.423 11.6519 12.5944 11.3092 12.6801C11.0522 12.7657 10.7095 12.8514 10.0241 12.9371C9.25301 12.9371 9.08166 12.9371 7.11111 12.9371C5.14056 12.9371 4.96921 12.9371 4.19813 12.9371C3.51272 12.9371 3.17001 12.7657 2.91299 12.6801C2.57028 12.5087 2.31325 12.423 2.05623 12.166C1.7992 11.909 1.62785 11.6519 1.54217 11.3092C1.45649 11.0522 1.37082 10.7095 1.28514 10.0241C1.28514 9.25301 1.28514 9.08166 1.28514 7.11111C1.28514 5.14056 1.28514 4.96921 1.28514 4.19813C1.28514 3.51272 1.45649 3.17001 1.54217 2.91299C1.71352 2.57028 1.7992 2.31325 2.05623 2.05623C2.31325 1.7992 2.57028 1.62785 2.91299 1.54217C3.17001 1.45649 3.51272 1.37082 4.19813 1.28514C4.96921 1.28514 5.22624 1.28514 7.11111 1.28514ZM7.11111 0C5.14056 0 4.96921 0 4.19813 0C3.42704 0 2.91299 0.171353 2.48461 0.342705C2.05623 0.514057 1.62785 0.771085 1.19947 1.19947C0.771085 1.62785 0.599733 1.97055 0.342705 2.48461C0.171353 2.91299 0.085676 3.42704 0 4.19813C0 4.96921 0 5.22624 0 7.11111C0 9.08166 0 9.25301 0 10.0241C0 10.7952 0.171353 11.3092 0.342705 11.7376C0.514057 12.166 0.771085 12.5944 1.19947 13.0228C1.62785 13.4511 1.97055 13.6225 2.48461 13.8795C2.91299 14.0509 3.42704 14.1365 4.19813 14.2222C4.96921 14.2222 5.22624 14.2222 7.11111 14.2222C8.99599 14.2222 9.25301 14.2222 10.0241 14.2222C10.7952 14.2222 11.3092 14.0509 11.7376 13.8795C12.166 13.7082 12.5944 13.4511 13.0228 13.0228C13.4511 12.5944 13.6225 12.2517 13.8795 11.7376C14.0509 11.3092 14.1365 10.7952 14.2222 10.0241C14.2222 9.25301 14.2222 8.99599 14.2222 7.11111C14.2222 5.22624 14.2222 4.96921 14.2222 4.19813C14.2222 3.42704 14.0509 2.91299 13.8795 2.48461C13.7082 2.05623 13.4511 1.62785 13.0228 1.19947C12.5944 0.771085 12.2517 0.599733 11.7376 0.342705C11.3092 0.171353 10.7952 0.085676 10.0241 0C9.25301 0 9.08166 0 7.11111 0Z'
-                  fill='white'
-                />
-                <path
-                  d='M7.11111 3.42704C5.05489 3.42704 3.42704 5.05489 3.42704 7.11111C3.42704 9.16734 5.05489 10.7952 7.11111 10.7952C9.16734 10.7952 10.7952 9.16734 10.7952 7.11111C10.7952 5.05489 9.16734 3.42704 7.11111 3.42704ZM7.11111 9.51004C5.82597 9.51004 4.71218 8.48193 4.71218 7.11111C4.71218 5.82597 5.7403 4.71218 7.11111 4.71218C8.39625 4.71218 9.51004 5.7403 9.51004 7.11111C9.51004 8.39625 8.39625 9.51004 7.11111 9.51004Z'
-                  fill='white'
-                />
-                <path
-                  d='M10.8809 4.19813C11.354 4.19813 11.7376 3.81454 11.7376 3.34137C11.7376 2.86819 11.354 2.48461 10.8809 2.48461C10.4077 2.48461 10.0241 2.86819 10.0241 3.34137C10.0241 3.81454 10.4077 4.19813 10.8809 4.19813Z'
-                  fill='white'
-                />
-              </svg>
+              <Image
+                src='/assets/svgs/twitter.svg'
+                alt='Twitter'
+                width={14.3}
+                height={14.3}
+                className='sm:w-[14.3px] w-[8.5px]'
+              />
             </a>
 
             <a
               href='#'
-              className='flex justify-center items-center w-11 h-11 rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
+              className='flex justify-center items-center sm:w-11 sm:h-11 w-[26.5px] h-[26.5px] rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
               aria-label='Instagram'
             >
-              <svg
-                width='15'
-                height='15'
-                viewBox='0 0 15 15'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  d='M7.11111 1.28514C8.99599 1.28514 9.25301 1.28514 10.0241 1.28514C10.7095 1.28514 11.0522 1.45649 11.3092 1.54217C11.6519 1.71352 11.909 1.7992 12.166 2.05623C12.423 2.31325 12.5944 2.57028 12.6801 2.91299C12.7657 3.17001 12.8514 3.51272 12.9371 4.19813C12.9371 4.96921 12.9371 5.14056 12.9371 7.11111C12.9371 9.08166 12.9371 9.25301 12.9371 10.0241C12.9371 10.7095 12.7657 11.0522 12.6801 11.3092C12.5087 11.6519 12.423 11.909 12.166 12.166C11.909 12.423 11.6519 12.5944 11.3092 12.6801C11.0522 12.7657 10.7095 12.8514 10.0241 12.9371C9.25301 12.9371 9.08166 12.9371 7.11111 12.9371C5.14056 12.9371 4.96921 12.9371 4.19813 12.9371C3.51272 12.9371 3.17001 12.7657 2.91299 12.6801C2.57028 12.5087 2.31325 12.423 2.05623 12.166C1.7992 11.909 1.62785 11.6519 1.54217 11.3092C1.45649 11.0522 1.37082 10.7095 1.28514 10.0241C1.28514 9.25301 1.28514 9.08166 1.28514 7.11111C1.28514 5.14056 1.28514 4.96921 1.28514 4.19813C1.28514 3.51272 1.45649 3.17001 1.54217 2.91299C1.71352 2.57028 1.7992 2.31325 2.05623 2.05623C2.31325 1.7992 2.57028 1.62785 2.91299 1.54217C3.17001 1.45649 3.51272 1.37082 4.19813 1.28514C4.96921 1.28514 5.22624 1.28514 7.11111 1.28514ZM7.11111 0C5.14056 0 4.96921 0 4.19813 0C3.42704 0 2.91299 0.171353 2.48461 0.342705C2.05623 0.514057 1.62785 0.771085 1.19947 1.19947C0.771085 1.62785 0.599733 1.97055 0.342705 2.48461C0.171353 2.91299 0.085676 3.42704 0 4.19813C0 4.96921 0 5.22624 0 7.11111C0 9.08166 0 9.25301 0 10.0241C0 10.7952 0.171353 11.3092 0.342705 11.7376C0.514057 12.166 0.771085 12.5944 1.19947 13.0228C1.62785 13.4511 1.97055 13.6225 2.48461 13.8795C2.91299 14.0509 3.42704 14.1365 4.19813 14.2222C4.96921 14.2222 5.22624 14.2222 7.11111 14.2222C8.99599 14.2222 9.25301 14.2222 10.0241 14.2222C10.7952 14.2222 11.3092 14.0509 11.7376 13.8795C12.166 13.7082 12.5944 13.4511 13.0228 13.0228C13.4511 12.5944 13.6225 12.2517 13.8795 11.7376C14.0509 11.3092 14.1365 10.7952 14.2222 10.0241C14.2222 9.25301 14.2222 8.99599 14.2222 7.11111C14.2222 5.22624 14.2222 4.96921 14.2222 4.19813C14.2222 3.42704 14.0509 2.91299 13.8795 2.48461C13.7082 2.05623 13.4511 1.62785 13.0228 1.19947C12.5944 0.771085 12.2517 0.599733 11.7376 0.342705C11.3092 0.171353 10.7952 0.085676 10.0241 0C9.25301 0 9.08166 0 7.11111 0Z'
-                  fill='white'
-                />
-                <path
-                  d='M7.11111 3.42704C5.05489 3.42704 3.42704 5.05489 3.42704 7.11111C3.42704 9.16734 5.05489 10.7952 7.11111 10.7952C9.16734 10.7952 10.7952 9.16734 10.7952 7.11111C10.7952 5.05489 9.16734 3.42704 7.11111 3.42704ZM7.11111 9.51004C5.82597 9.51004 4.71218 8.48193 4.71218 7.11111C4.71218 5.82597 5.7403 4.71218 7.11111 4.71218C8.39625 4.71218 9.51004 5.7403 9.51004 7.11111C9.51004 8.39625 8.39625 9.51004 7.11111 9.51004Z'
-                  fill='white'
-                />
-                <path
-                  d='M10.8809 4.19813C11.354 4.19813 11.7376 3.81454 11.7376 3.34137C11.7376 2.86819 11.354 2.48461 10.8809 2.48461C10.4077 2.48461 10.0241 2.86819 10.0241 3.34137C10.0241 3.81454 10.4077 4.19813 10.8809 4.19813Z'
-                  fill='white'
-                />
-              </svg>
+              <Image
+                src='/assets/svgs/instagram.svg'
+                alt='Instagram'
+                width={14.2}
+                height={14.2}
+                className='sm:w-[14.2px] w-[8.5px]'
+              />
             </a>
 
             <a
               href='#'
-              className='flex justify-center items-center w-11 h-11 rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
+              className='flex justify-center items-center sm:w-11 sm:h-11 w-[26.5px] h-[26.5px] rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
               aria-label='YouTube'
             >
-              <svg
-                width='20'
-                height='15'
-                viewBox='0 0 20 15'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  d='M19.0667 2.15873C18.8222 1.26984 18.2111 0.634921 17.3556 0.380953C15.8889 2.27065e-07 9.65555 0 9.65555 0C9.65555 0 3.54445 2.27065e-07 1.95556 0.380953C1.10001 0.634921 0.488885 1.26984 0.244441 2.15873C-3.73357e-06 3.80952 0 7.11111 0 7.11111C0 7.11111 3.71536e-06 10.4127 0.36667 12.0635C0.611115 12.9524 1.22222 13.5873 2.07777 13.8413C3.54444 14.2222 9.77778 14.2222 9.77778 14.2222C9.77778 14.2222 15.8889 14.2222 17.4778 13.8413C18.3333 13.5873 18.9445 12.9524 19.1889 12.0635C19.5556 10.4127 19.5556 7.11111 19.5556 7.11111C19.5556 7.11111 19.5556 3.80952 19.0667 2.15873ZM7.82221 10.1587V4.06349L12.9556 7.11111L7.82221 10.1587Z'
-                  fill='white'
-                />
-              </svg>
+              <Image
+                src='/assets/svgs/youtube.svg'
+                alt='YouTube'
+                width={19.5}
+                height={14.22}
+                className='sm:w-[19.5px] w-[11.2px]'
+              />
             </a>
 
             <a
               href='#'
-              className='flex justify-center items-center w-11 h-11 rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
+              className='flex justify-center items-center sm:w-11 sm:h-11 w-[26.5px] h-[26.5px] rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
               aria-label='Telegram'
             >
-              <svg
-                width='15'
-                height='12'
-                viewBox='0 0 15 12'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  d='M0.977704 4.97464C4.79544 3.34389 7.3412 2.26881 8.61498 1.74938C12.2519 0.266306 13.0076 0.00868013 13.5001 8.24728e-05C13.6085 -0.00169783 13.8507 0.0246246 14.0076 0.149448C14.1401 0.254847 14.1766 0.397226 14.194 0.497156C14.2114 0.597086 14.2332 0.824728 14.2159 1.0026C14.0188 3.03282 13.166 7.95961 12.7322 10.2335C12.5486 11.1957 12.1871 11.5183 11.8372 11.5498C11.0767 11.6184 10.4992 11.0571 9.76261 10.5837C8.60999 9.84294 7.95884 9.38182 6.84003 8.65898C5.54704 7.82362 6.38523 7.36449 7.1221 6.61414C7.31494 6.41777 10.6658 3.42966 10.7306 3.15859C10.7387 3.12469 10.7462 2.99832 10.6697 2.93159C10.5931 2.86486 10.4801 2.88768 10.3985 2.90583C10.2829 2.93155 8.4416 4.12475 4.87457 6.48543C4.35192 6.83729 3.87852 7.00873 3.45436 6.99975C2.98677 6.98984 2.08731 6.74054 1.41865 6.52745C0.598514 6.26608 -0.0533141 6.12789 0.00344547 5.684C0.0330093 5.45279 0.357762 5.21634 0.977704 4.97464Z'
-                  fill='white'
-                />
-              </svg>
+              <Image
+                src='/assets/svgs/telegram.svg'
+                alt='Telegram'
+                width={14.2}
+                height={11.56}
+                className='sm:w-[14.2px] w-[8.14px]'
+              />
             </a>
           </div>
         </div>
       </div>
 
-      <div className='flex absolute bottom-4 right-[108px] justify-end items-end'>
+      <div className='absolute bottom-4 right-[108px] justify-end items-end lg:flex hidden'>
         <div className='text-white font-dm-sans text-[14px] font-normal'>
-          ©2025 Gami Labs. All rights reserved.
+          ©2025 Gami. All rights reserved.
         </div>
       </div>
 
@@ -166,4 +125,3 @@ export default function Footer() {
     </footer>
   );
 }
-
