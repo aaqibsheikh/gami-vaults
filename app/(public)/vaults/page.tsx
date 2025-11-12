@@ -7,6 +7,8 @@ import { useVaults } from '@/hooks/useVaults';
 import { getSupportedNetworks, getNetworkConfig } from '@/lib/sdk';
 import { formatUsd, formatPercentage } from '@/lib/normalize';
 import VaultCard from './components/VaultCard';
+import VaultCardSkeleton from './components/VaultCardSkeleton';
+import VaultListSkeleton from './components/VaultListSkeleton';
 import { VaultDTO } from '@/lib/dto';
 
 const stats = [
@@ -161,8 +163,10 @@ export default function ExploreVaults() {
 
           <div className='mt-5'>
             {isLoading ? (
-              <div className='flex w-full flex-col items-center gap-[15px] py-8'>
-                <div className='text-white/50 font-dm-sans text-[14px]'>Loading vaults...</div>
+              <div className='grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3'>
+                {[1, 2, 3].map(i => (
+                  <VaultCardSkeleton key={i} />
+                ))}
               </div>
             ) : error ? (
               <div className='flex w-full flex-col items-center gap-[15px] py-8'>
@@ -267,9 +271,15 @@ export default function ExploreVaults() {
 
           <div className='mt-5'>
             {isLoading ? (
-              <div className='flex w-full flex-col items-center gap-[15px] py-8'>
-                <div className='text-white/50 font-dm-sans text-[14px]'>Loading vaults...</div>
-              </div>
+              activeViewType === 'list' ? (
+                <VaultListSkeleton />
+              ) : (
+                <div className='grid grid-cols-3 gap-5'>
+                  {[1, 2, 3, 4, 5, 6].map(i => (
+                    <VaultCardSkeleton key={i} />
+                  ))}
+                </div>
+              )
             ) : error ? (
               <div className='flex w-full flex-col items-center gap-[15px] py-8'>
                 <div className='text-red-400 font-dm-sans text-[14px]'>

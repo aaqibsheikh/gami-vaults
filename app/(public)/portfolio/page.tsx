@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { useVaults } from '@/hooks/useVaults';
-import { getNetworkConfig } from '@/lib/sdk';
 import { formatUsd } from '@/lib/normalize';
 import { PositionDTO } from '@/lib/dto';
 import Image from 'next/image';
@@ -301,6 +300,64 @@ export default function PortfolioPage() {
     }
   };
 
+  if (!mounted) {
+    return (
+      <>
+        <Image
+          src='/assets/images/vault-detail-glass.svg'
+          alt='Vault detail glass'
+          width={459}
+          height={362}
+          className='hidden absolute top-0 right-0 pointer-events-none sm:block'
+        />
+
+        <section className='sm:pt-[50px] pt-6 pb-10 relative z-10'>
+          <div className='space-y-1.5 mb-5 sm:mb-10'>
+            <div className='h-[28px] sm:h-[57px] w-48 bg-white/10 rounded-lg animate-pulse'></div>
+            <div className='h-[14px] sm:h-5 w-64 bg-white/5 rounded-lg animate-pulse'></div>
+          </div>
+
+          <div className='flex justify-between items-center w-full sm:flex-row flex-col sm:bg-[#FFFFFF0F] sm:py-[31px] sm:shadow-[0_0_0_0.4px_#ffffff47] sm:rounded-[33.43px] sm:px-[70px] sm:mt-10 mt-5 sm:backdrop-blur-lg gap-2.5'>
+            {[1, 2, 3].map(i => (
+              <div
+                key={i}
+                className='flex flex-col gap-1.5 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent w-full'
+              >
+                <div className='h-[30px] sm:h-[43px] w-24 bg-white/10 rounded animate-pulse'></div>
+                <div className='h-3 sm:h-[12px] w-20 bg-white/5 rounded animate-pulse'></div>
+              </div>
+            ))}
+          </div>
+
+          <div className='mt-5 sm:mt-10'>
+            <div className='h-6 sm:h-[30px] w-40 bg-white/10 rounded animate-pulse sm:mb-6 mb-4 sm:px-7'></div>
+
+            <div className='space-y-6'>
+              {[1, 2].map(i => (
+                <div
+                  key={i}
+                  className='shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[20.34px] p-2 animate-pulse'
+                >
+                  <div className='p-[14.36px] rounded-[15.46px] bg-[#141414]'>
+                    <div className='flex justify-between items-start mb-4'>
+                      <div className='w-32 h-5 rounded bg-white/10'></div>
+                      <div className='w-16 h-5 rounded bg-white/10'></div>
+                    </div>
+                    <div className='h-20 rounded bg-white/5'></div>
+                    <div className='flex gap-4 mt-3.5'>
+                      <div className='h-[31px] sm:h-[47px] flex-1 bg-white/10 rounded-[10px]'></div>
+                      <div className='h-[31px] sm:h-[47px] flex-1 bg-white/10 rounded-[10px]'></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
       <Image
@@ -308,20 +365,20 @@ export default function PortfolioPage() {
         alt='Vault detail glass'
         width={459}
         height={362}
-        className='absolute top-0 right-0 pointer-events-none'
+        className='hidden absolute top-0 right-0 pointer-events-none sm:block'
       />
 
-      <section className='pt-[76.33px] pb-10 relative z-10'>
-        <div className='space-y-1.5 font-bold px-7'>
-          <h1 className='font-modernist text-[57px] font-bold'>Portfolio</h1>
+      <section className='sm:pt-[50px] pt-6 pb-10 relative z-10'>
+        <div className='space-y-1.5'>
+          <h1 className='font-modernist sm:text-[57px] text-[28px]'>Portfolio</h1>
 
-          <p className='font-dm-sans text-xl font-[200] leading-[128%] tracking-[-0.4px] text-white'>
+          <p className='font-dm-sans sm:text-xl text-[14.34px] leading-[128%] tracking-[-0.4px] text-white font-extralight'>
             Track your positions and performance across all vaults
           </p>
         </div>
 
-        {!mounted || !isConnected ? (
-          <div className='flex flex-col items-center justify-center w-full bg-[#FFFFFF0F] py-[60px] shadow-[0_0_0_0.4px_#ffffff47] rounded-[33.43px] px-[70px] mt-10 backdrop-blur-lg'>
+        {!isConnected && !isLoading ? (
+          <div className='flex flex-col items-center justify-center w-full bg-[#FFFFFF0F] sm:py-[60px] py-6 shadow-[0_0_0_0.4px_#ffffff47] rounded-[33.43px] sm:px-[70px] px-8 sm:mt-10 mt-5 backdrop-blur-lg'>
             <div className='mb-6 text-gray-400'>
               <svg
                 className='mx-auto w-16 h-16'
@@ -344,41 +401,53 @@ export default function PortfolioPage() {
               Please connect your wallet using the button in the header to view your portfolio.
             </p>
           </div>
+        ) : isLoading ? (
+          <>
+            <div className='flex justify-between items-center w-full sm:flex-row flex-col sm:bg-[#FFFFFF0F] sm:py-[31px] sm:shadow-[0_0_0_0.4px_#ffffff47] sm:rounded-[33.43px] sm:px-[70px] sm:mt-10 mt-5 sm:backdrop-blur-lg gap-2.5'>
+              {[1, 2, 3].map(i => (
+                <div
+                  key={i}
+                  className='flex flex-col gap-1.5 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent w-full'
+                >
+                  <div className='h-[30px] sm:h-[43px] w-24 bg-white/10 rounded animate-pulse'></div>
+                  <div className='h-3 sm:h-[12px] w-20 bg-white/5 rounded animate-pulse mt-1.5'></div>
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <>
-            <div className='flex justify-between items-center w-full bg-[#FFFFFF0F] py-[31px] shadow-[0_0_0_0.4px_#ffffff47] rounded-[33.43px] px-[70px] mt-10 backdrop-blur-lg'>
-              <div className='flex flex-col gap-1.5 justify-center items-center'>
-                <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
-                  {isLoading ? '--' : summaryStats.activeVaults}
+            <div className='flex justify-between items-center w-full sm:flex-row flex-col sm:bg-[#FFFFFF0F] sm:py-[31px] sm:shadow-[0_0_0_0.4px_#ffffff47] sm:rounded-[33.43px] sm:px-[70px] sm:mt-10 mt-5 sm:backdrop-blur-lg gap-2.5'>
+              <div className='flex flex-col gap-1.5 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent w-full'>
+                <div className='text-white font-modernist sm:text-[43px] text-[30px] font-bold leading-[110%] tracking-[-0.866px]'>
+                  {summaryStats.activeVaults}
                 </div>
 
-                <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                <div className='text-white font-dm-sans sm:text-[12px] text-[10px] font-normal leading-[110%] tracking-[-0.244px]'>
                   ACTIVE VAULTS
                 </div>
               </div>
 
-              <div className='flex flex-col gap-1.5 justify-center items-center'>
-                <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
-                  {isLoading ? '--' : formatUsd(summaryStats.totalAssets.toString())}
+              <div className='flex flex-col gap-1.5 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent w-full'>
+                <div className='text-white font-modernist sm:text-[43px] text-[30px] font-bold leading-[110%] tracking-[-0.866px]'>
+                  {formatUsd(summaryStats.totalAssets.toString())}
                 </div>
 
-                <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                <div className='text-white font-dm-sans sm:text-[12px] text-[10px] font-normal leading-[110%] tracking-[-0.244px]'>
                   TOTAL ASSETS
                 </div>
               </div>
 
-              <div className='flex flex-col gap-1.5 justify-center items-center'>
+              <div className='flex flex-col gap-1.5 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent w-full'>
                 <div
-                  className={`font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px] ${
+                  className={`font-modernist sm:text-[43px] text-[30px] font-bold leading-[110%] tracking-[-0.866px] ${
                     summaryStats.totalPnl >= 0 ? 'text-[#00F792]' : 'text-red-400'
                   }`}
                 >
-                  {isLoading
-                    ? '--'
-                    : `${summaryStats.totalPnl >= 0 ? '+' : ''}${formatUsd(summaryStats.totalPnl.toString())}`}
+                  {`${summaryStats.totalPnl >= 0 ? '+' : ''}${formatUsd(summaryStats.totalPnl.toString())}`}
                 </div>
 
-                <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
+                <div className='text-white font-dm-sans sm:text-[12px] text-[10px] font-normal leading-[110%] tracking-[-0.244px]'>
                   TOTAL PNL
                 </div>
               </div>
@@ -392,19 +461,19 @@ export default function PortfolioPage() {
           </>
         )}
 
-        {mounted && isConnected && (
-          <div className='mt-10'>
-            <h2 className='font-modernist text-[30px] leading-[100%] tracking-[-0.64px] text-white mb-6 px-7'>
+        {isConnected && (
+          <div className='mt-5 sm:mt-10'>
+            <h2 className='font-modernist sm:text-[30px] text-2xl leading-[100%] tracking-[-0.64px] text-white sm:mb-6 mb-4 sm:px-7'>
               Active Positions
             </h2>
 
-            <div className='flex justify-between items-center px-7 mb-8'>
+            <div className='flex justify-between items-center mb-4 sm:mb-8 sm:px-7'>
               <div className='flex gap-3 items-center'>
                 {(['All Chains', 'Token'] as FilterTab[]).map(tab => (
                   <button
                     key={tab}
                     onClick={() => setActiveFilter(tab)}
-                    className={`flex h-10 px-2.5 justify-center items-center rounded-[20.78px] backdrop-blur-lg ${
+                    className={`flex h-10 px-2.5 justify-center items-center rounded-[20.78px] backdrop-blur-lg sm:w-fit w-[92px] ${
                       activeFilter === tab
                         ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
                         : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
@@ -417,7 +486,7 @@ export default function PortfolioPage() {
                 ))}
               </div>
 
-              <div className='relative'>
+              <div className='hidden relative sm:block'>
                 <button
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
                   className='flex items-center gap-2 px-3 py-2 rounded-[32px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg hover:bg-white/10 transition-colors'
@@ -458,20 +527,42 @@ export default function PortfolioPage() {
 
             {isLoading ? (
               <div className='space-y-6'>
-                {[1, 2].map(i => (
+                {[1, 2, 3].map(i => (
                   <div
                     key={i}
-                    className='shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[20.34px] p-2 animate-pulse'
+                    className='shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[20.34px] p-2'
                   >
                     <div className='p-[14.36px] rounded-[15.46px] bg-[#141414]'>
-                      <div className='mb-4 h-6 rounded bg-white/10'></div>
-                      <div className='h-20 rounded bg-white/10'></div>
+                      <div className='flex justify-between items-start mb-4'>
+                        <div className='space-y-2'>
+                          <div className='w-32 h-5 rounded animate-pulse bg-white/10'></div>
+                          <div className='w-20 h-3 rounded animate-pulse bg-white/5'></div>
+                        </div>
+                        <div className='w-16 h-5 rounded animate-pulse bg-white/10'></div>
+                      </div>
+
+                      <div className='flex justify-evenly items-center mt-3.5 sm:shadow-[0_0_0_0.4px_#ffffff47] sm:rounded-[18.77px] sm:py-[22px] sm:flex-row flex-col space-y-[7px] sm:space-y-0'>
+                        {[1, 2, 3].map(j => (
+                          <div
+                            key={j}
+                            className='text-center p-5 sm:p-0 rounded-[27.39px] shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(57,57,57,0.20)] sm:shadow-none w-full sm:w-fit space-y-2'
+                          >
+                            <div className='mx-auto w-16 h-3 rounded animate-pulse bg-white/5'></div>
+                            <div className='mx-auto w-20 h-6 rounded animate-pulse bg-white/10'></div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className='flex gap-4 mt-3.5'>
+                        <div className='h-[47px] sm:h-[31px] flex-1 bg-white/10 rounded-[10px] animate-pulse'></div>
+                        <div className='h-[47px] sm:h-[31px] flex-1 bg-white/10 rounded-[10px] animate-pulse'></div>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : filteredPositions.length === 0 ? (
-              <div className='p-12 text-center bg-[#FFFFFF0F] rounded-[20.34px] border border-white/10'>
+              <div className='sm:p-12 p-6 text-center bg-[#FFFFFF0F] rounded-[20.34px] border border-white/10'>
                 <div className='mb-4 text-gray-400'>
                   <svg
                     className='mx-auto w-12 h-12'
@@ -502,7 +593,7 @@ export default function PortfolioPage() {
                     <div className='p-[14.36px] rounded-[15.46px] bg-[#141414]'>
                       <div className='flex relative z-10 justify-between items-start'>
                         <div>
-                          <div className='font-bold text-xl leading-none tracking-[-0.358px] text-white'>
+                          <div className='font-bold text-lg sm:text-xl leading-none tracking-[-0.358px] text-white'>
                             {position.vaultName}
                           </div>
 
@@ -514,43 +605,43 @@ export default function PortfolioPage() {
                           </Link>
                         </div>
 
-                        <div className='text-[14.76px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px]'>
+                        <div className='sm:text-[14.76px] text-[10.68px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px]'>
                           {getProviderBadge(position.vaultProvider)}
                         </div>
                       </div>
 
-                      <div className='flex justify-evenly items-center mt-3.5 shadow-[0_0_0_0.4px_#ffffff47] rounded-[18.77px] py-[22px]'>
-                        <div className='text-center'>
-                          <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                      <div className='flex justify-evenly items-center mt-3.5 sm:shadow-[0_0_0_0.4px_#ffffff47] sm:rounded-[18.77px] sm:py-[22px] sm:flex-row flex-col space-y-[7px] sm:space-y-0'>
+                        <div className='text-center p-5 sm:p-0 rounded-[27.39px] shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(57,57,57,0.20)] sm:shadow-none w-full sm:w-fit sm:space-y-0 space-y-2 '>
+                          <div className='text-[11.28px] sm:text-[7.73px] font-medium text-white uppercase leading-none'>
                             DEPOSITED
                           </div>
 
-                          <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
+                          <div className='text-[30.24px] sm:text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
                             {formatUsd(position.entryUsd)}
                           </div>
                         </div>
 
-                        <div className='w-[1px] h-[9.48px] bg-white'></div>
+                        <div className='w-[1px] h-[9.48px] bg-white sm:block hidden'></div>
 
-                        <div className='text-center'>
-                          <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                        <div className='text-center p-5 sm:p-0 rounded-[27.39px] shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(57,57,57,0.20)] sm:shadow-none w-full sm:w-fit sm:space-y-0 space-y-2'>
+                          <div className='text-[11.28px] sm:text-[7.73px] font-medium text-white uppercase leading-none'>
                             CURRENT VALUE
                           </div>
 
-                          <div className='text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
+                          <div className='text-[30.24px] sm:text-[16.66px] font-bold text-white font-modernist tracking-[-0.333px] leading-none'>
                             {formatUsd(position.valueUsd)}
                           </div>
                         </div>
 
-                        <div className='w-[1px] h-[9.48px] bg-white'></div>
+                        <div className='w-[1px] h-[9.48px] bg-white sm:block hidden'></div>
 
-                        <div className='text-center'>
-                          <div className='text-[7.73px] font-medium text-white uppercase leading-none'>
+                        <div className='text-center p-5 sm:p-0 rounded-[27.39px] shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(57,57,57,0.20)] sm:shadow-none w-full sm:w-fit sm:space-y-0 space-y-2'>
+                          <div className='text-[11.28px] sm:text-[7.73px] font-medium text-white uppercase leading-none'>
                             EARNED
                           </div>
 
                           <div
-                            className={`text-[16.66px] font-bold font-modernist tracking-[-0.333px] leading-none ${
+                            className={`text-[30.24px] sm:text-[16.66px] font-bold font-modernist tracking-[-0.333px] leading-none ${
                               parseFloat(position.pnlUsd) >= 0 ? 'text-[#00F792]' : 'text-red-400'
                             }`}
                           >
@@ -563,14 +654,14 @@ export default function PortfolioPage() {
                       <div className='flex gap-4 mt-3.5'>
                         <Link
                           href={`/vaults/${position.chainId}/${position.vault}?action=deposit`}
-                          className='flex-1 h-[31.19px] px-6 rounded-[10px] bg-gradient-purple text-white font-dm-sans text-[10.99px] font-bold hover:opacity-90 transition-opacity flex items-center justify-center'
+                          className='flex-1 sm:h-[31.19px] h-[47px] px-6 rounded-[10px] bg-gradient-purple text-white font-dm-sans text-[16.04px] sm:text-[10.99px] font-bold hover:opacity-90 transition-opacity flex items-center justify-center'
                         >
-                          Add Funds
+                          Deposit
                         </Link>
 
                         <Link
                           href={`/vaults/${position.chainId}/${position.vault}?action=withdraw`}
-                          className='flex-1 h-[31.19px] px-6 rounded-[10px] glass-border bg-[#FFFFFF0D] text-white font-dm-sans text-[10.99px] font-normal hover:bg-white/10 transition-colors flex items-center justify-center'
+                          className='flex-1 sm:h-[31.19px] h-[47px] px-6 rounded-[10px] glass-border bg-[#FFFFFF0D] text-white font-dm-sans text-[16.04px] sm:text-[10.99px] font-normal hover:bg-white/10 transition-colors flex items-center justify-center'
                         >
                           Withdraw
                         </Link>
@@ -583,24 +674,41 @@ export default function PortfolioPage() {
           </div>
         )}
 
-        {mounted && isConnected && (
+        {isConnected && (
           <div className='bg-[#FFFFFF0F] rounded-[20.34px] p-5 mt-10'>
-            <div className='flex justify-between items-center mb-6'>
-              <h2 className='text-[17.54px] font-bold leading-[100%] tracking-[-0.64px] text-white'>
+            <div className='flex justify-between items-center mb-3 sm:mb-6'>
+              <h2 className='text-sm sm:text-[17.54px] font-bold leading-[100%] tracking-[-0.64px] text-white'>
                 Transaction History
               </h2>
 
-              <button
-                onClick={exportToCSV}
-                className='text-[10.38px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px] hover:bg-[#3A3737] transition-colors'
-              >
-                Export CSV
-              </button>
+              {filteredPositions.length > 0 && (
+                <button
+                  onClick={exportToCSV}
+                  className='sm:text-[10.38px] text-[6.47px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px] hover:bg-[#3A3737] transition-colors'
+                >
+                  Export CSV
+                </button>
+              )}
             </div>
 
-            <div className='overflow-x-auto px-[55px]'>
-              {filteredPositions.length === 0 ? (
-                <div className='py-12 text-center'>
+            <div className='overflow-x-auto md:px-[55px]'>
+              {isLoading ? (
+                <div className='py-3 space-y-3'>
+                  {[1, 2, 3].map(i => (
+                    <div
+                      key={i}
+                      className='flex justify-between items-center pb-3 border-b border-white/10'
+                    >
+                      <div className='w-24 h-4 rounded animate-pulse bg-white/10'></div>
+                      <div className='w-32 h-4 rounded animate-pulse bg-white/10'></div>
+                      <div className='w-20 h-4 rounded animate-pulse bg-white/10'></div>
+                      <div className='w-20 h-4 rounded animate-pulse bg-white/10'></div>
+                      <div className='w-16 h-4 rounded animate-pulse bg-white/10'></div>
+                    </div>
+                  ))}
+                </div>
+              ) : filteredPositions.length === 0 ? (
+                <div className='py-5 text-center sm:py-12'>
                   <p className='text-gray-400 font-dm-sans text-[13.24px]'>
                     No transaction history available. Transaction history will be available once
                     on-chain events are integrated.
@@ -610,23 +718,23 @@ export default function PortfolioPage() {
                 <table className='w-full'>
                   <thead>
                     <tr className='border-b border-white/20'>
-                      <th className='py-3 pl-5 text-white font-dm-sans text-[13.24px] font-bold uppercase text-left'>
-                        VAULT
+                      <th className='py-3 pl-5 text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase text-left'>
+                        Date
                       </th>
 
-                      <th className='py-3 text-center text-white font-dm-sans text-[13.24px] font-bold uppercase'>
-                        CHAIN
+                      <th className='py-3 px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
+                        Vault
                       </th>
 
-                      <th className='py-3 text-center text-white font-dm-sans text-[13.24px] font-bold uppercase'>
-                        CURRENT VALUE
+                      <th className='py-3 px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
+                        Action
                       </th>
 
-                      <th className='py-3 text-center text-white font-dm-sans text-[13.24px] font-bold uppercase'>
-                        P&L
+                      <th className='py-3 px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
+                        Amount
                       </th>
 
-                      <th className='py-3 text-right pr-3 text-white font-dm-sans text-[13.24px] font-bold uppercase'>
+                      <th className='py-3 pl-3 text-right text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
                         STATUS
                       </th>
                     </tr>
@@ -638,20 +746,20 @@ export default function PortfolioPage() {
                         key={`${position.chainId}-${position.vault}`}
                         className='border-b border-white/10 last:border-0'
                       >
-                        <td className='py-3 text-white font-dm-sans text-[13.24px] font-normal'>
+                        <td className='py-3 text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal whitespace-nowrap'>
+                          Oct 12, 2025
+                        </td>
+
+                        <td className='py-3 text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal text-center whitespace-nowrap px-3'>
                           {position.vaultName}
                         </td>
 
-                        <td className='py-3 text-white font-dm-sans text-[13.24px] font-normal text-center'>
-                          {getNetworkConfig(position.chainId)?.name || `Chain ${position.chainId}`}
-                        </td>
-
-                        <td className='py-3 text-white font-dm-sans text-[13.24px] font-bold text-center'>
-                          {formatUsd(position.valueUsd)}
+                        <td className='py-3 text-white font-dm-sans text-[10px] sm:text-[13.24px] text-center whitespace-nowrap px-4'>
+                          Deposit
                         </td>
 
                         <td
-                          className={`py-3 font-dm-sans text-[13.24px] font-bold text-center ${
+                          className={`py-3 font-dm-sans text-[10px] sm:text-[13.24px] text-center whitespace-nowrap px-4 ${
                             parseFloat(position.pnlUsd) >= 0 ? 'text-[#00F792]' : 'text-red-400'
                           }`}
                         >
@@ -659,7 +767,7 @@ export default function PortfolioPage() {
                           {formatUsd(position.pnlUsd)}
                         </td>
 
-                        <td className='py-3 text-[#00F792] font-dm-sans text-[13.24px] font-normal text-right'>
+                        <td className='py-3 text-[#00F792] font-dm-sans text-[10px] sm:text-[13.24px] font-normal text-right'>
                           Active
                         </td>
                       </tr>
