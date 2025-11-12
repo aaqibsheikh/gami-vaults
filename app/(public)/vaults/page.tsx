@@ -9,8 +9,15 @@ import { formatUsd, formatPercentage } from '@/lib/normalize';
 import VaultCard from './components/VaultCard';
 import { VaultDTO } from '@/lib/dto';
 
+const stats = [
+  { value: '2', label: 'ACTIVE VAULTS' },
+  { value: '$15,798', label: 'TOTAL ASSETS' },
+  { value: '+$558', label: 'TOTAL PNL', textColor: '!text-[#00F792]' },
+];
+
 export default function ExploreVaults() {
-  const tabs = ['Assets', 'USD', 'BTC', 'ETH', 'AVAX', 'Partner'];
+  const tabs = ['Assets', 'USD'];
+  // const tabs = ['Assets', 'USD', 'BTC', 'ETH', 'AVAX', 'Partner'];
   const [activeViewType, setActiveViewType] = useState<'grid' | 'list'>('list');
   const viewTypes: { icon: string; value: 'grid' | 'list' }[] = [
     {
@@ -63,23 +70,44 @@ export default function ExploreVaults() {
         alt='Vault detail glass'
         width={459}
         height={362}
-        className='absolute top-0 right-0 pointer-events-none'
+        className='hidden absolute top-0 right-0 pointer-events-none md:block'
       />
 
-      <section id='vaults' className='pt-20 pb-14 w-full'>
+      <section id='vaults' className='pt-6 pb-14 w-full sm:pt-10 md:pt-20'>
         <div className='space-y-1.5'>
-          <h1 className='font-modernist text-[57px] font-normal'>
-            Explore <span className='font-bold'>Vaults</span>
+          <h1 className='font-modernist sm:text-[57px] text-[28px] font-normal'>
+            Explore <span className='sm:font-bold'>Vaults</span>
           </h1>
 
-          <p className='font-dm-sans text-xl font-light leading-[128%] tracking-[-0.4px] text-white'>
+          <p className='font-dm-sans sm:text-xl text-[14.34px] font-light leading-[128%] tracking-[-0.4px] text-white'>
             Discover and deposit into professionally managed DeFi Vaults
           </p>
         </div>
 
-        <div className='bg-[#141414] rounded-[21.93px] p-[20.37px] mt-10'>
+        <div className='mt-5 sm:hidden'>
+          <div className='flex flex-col flex-wrap gap-4 sm:items-center sm:justify-between sm:flex-row'>
+            {stats.map((stat, index) => (
+              <div
+                key={index}
+                className='flex flex-col gap-1 items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-4 bg-[#FFFFFF0F]'
+              >
+                <h3
+                  className={`font-modernist sm:text-[43.5px] text-[30px] font-bold leading-[110%] tracking-[-0.87px] text-white ${stat?.textColor}`}
+                >
+                  {stat.value}
+                </h3>
+
+                <p className='font-dm-sans sm:text-[12.2px] text-[10px] font-normal leading-[110%] tracking-[-0.245px] text-white uppercase'>
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className='sm:bg-[#141414] bg-[#090909] rounded-[21.93px] sm:p-[20.37px] p-2 md:mt-10 mt-5'>
           <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-[14.32px]'>
+            <div className='flex items-center gap-[10px]'>
               {tabs.map((tab, index) => (
                 <button
                   key={tab}
@@ -94,6 +122,40 @@ export default function ExploreVaults() {
                   </div>
                 </button>
               ))}
+            </div>
+
+            <div className='block relative sm:hidden'>
+              <input
+                type='text'
+                placeholder='Search by chain...'
+                className='bg-white text-black placeholder:text-black text-[14px] font-light font-dm-sans outline-none h-[40px] max-w-[268px] w-full rounded-[19.09px] pr-2 pl-[32.21px] shadow-[0_0_0_0.4px_#ffffff47] backdrop-blur-lg'
+              />
+
+              <svg
+                width='13'
+                height='15'
+                viewBox='0 0 13 15'
+                fill='none'
+                xmlns='http://www.w3.org/2000/svg'
+                className='absolute top-1/2 left-[14.55px] -translate-y-1/2 pointer-events-none'
+              >
+                <circle
+                  cx='7.95438'
+                  cy='4.71219'
+                  r='4.10417'
+                  stroke='black'
+                  strokeWidth='1.21605'
+                />
+                <rect
+                  x='4.91602'
+                  y='7.60031'
+                  width='1.41547'
+                  height='7.82305'
+                  rx='0.608025'
+                  transform='rotate(38.9421 4.91602 7.60031)'
+                  fill='black'
+                />
+              </svg>
             </div>
           </div>
 
@@ -113,7 +175,7 @@ export default function ExploreVaults() {
                 <div className='text-white/50 font-dm-sans text-[14px]'>No featured vaults</div>
               </div>
             ) : (
-              <div className='grid grid-cols-3 gap-5'>
+              <div className='grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3'>
                 {featuredVaults.map((vault, index) => (
                   <VaultCard
                     key={`${vault.chainId}-${vault.vaultId}-featured-${index}`}
@@ -131,7 +193,7 @@ export default function ExploreVaults() {
           </div>
         </div>
 
-        <div className='bg-[#141414] rounded-[21.93px] p-[20.37px] mt-10'>
+        <div className='bg-[#141414] rounded-[21.93px] p-[20.37px] mt-10 sm:block hidden'>
           <div className='flex justify-between items-center'>
             <div className='flex items-center gap-[14.32px]'>
               {tabs.map((tab, index) => (

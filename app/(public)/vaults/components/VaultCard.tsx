@@ -12,8 +12,8 @@ interface VaultCardProps {
 
 const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: VaultCardProps) => {
   return (
-    <div className='w-[337px] min-h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
-      <div className='w-full h-full bg-black rounded-[22.37px] p-[22.37px] relative overflow-hidden'>
+    <div className='xl:w-[337px] w-full sm:min-w-[337px] min-h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
+      <div className='w-full h-full bg-black rounded-[22.37px] sm:px-[22.37px] py-[22.37px] px-3 relative overflow-hidden'>
         <div
           className='absolute top-0 left-0 z-0 w-full'
           style={{
@@ -24,7 +24,9 @@ const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: Vaul
 
         <div className='flex relative z-10 justify-between items-start'>
           <div>
-            <div className='font-bold text-[17.9px] leading-none tracking-[-0.358px]'>{name}</div>
+            <div className='sm:font-bold sm:text-[17.9px] leading-none tracking-[-0.358px]'>
+              {name}
+            </div>
 
             <Link
               href={`/vaults/${chainId}/${vaultId}`}
@@ -46,7 +48,7 @@ const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: Vaul
           </div>
         </div>
 
-        <div className='shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(0,0,0,0.20)] rounded-[27.17px] w-full px-[21.13px] h-[121px] backdrop-blur-sm bg-[#FFFFFF0F] mt-5 relative flex items-center justify-between'>
+        <div className='shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(0,0,0,0.20)] rounded-[27.17px] w-full sm:px-[21.13px] px-3 h-[121px] backdrop-blur-sm bg-[#FFFFFF0F] mt-5 relative flex items-center justify-between'>
           <div>
             <div className='text-[11.19px] leading-none ml-1'>APY</div>
 
