@@ -31,7 +31,7 @@ export default function Hero() {
 
             <Link
               href='/about'
-              className='sm:px-[28.44px] px-2.5 min-w-[64px] sm:h-[40.89px] h-[30px] sm:rounded-[10px] rounded-[4px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] text-white sm:text-[14px] text-[10.2px] font-medium font-dm-sans hover:bg-white/10 transition-colors'
+              className='flex items-center justify-center sm:px-[28.44px] px-2.5 min-w-[64px] sm:h-[40.89px] h-[30px] sm:rounded-[10px] rounded-[4px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] text-white sm:text-[14px] text-[10.2px] font-medium font-dm-sans hover:bg-white/10 transition-colors'
             >
               About
             </Link>
