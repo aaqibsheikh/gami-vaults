@@ -1,21 +1,24 @@
-import Header from '@/components/Header';
 import AboutHero from './components/AboutHero';
 import DeFiProtocols from '@/components/DeFiProtocols';
-import Footer from '@/components/Footer';
 import AboutSection from './components/AboutSection';
+import Image from 'next/image';
 
 export default function Index() {
   return (
-    <div className='min-h-screen bg-black'>
-      <Header />
+    <>
+      <div className='absolute top-0 right-0'>
+        <Image
+          src='/assets/images/about-hero.png'
+          alt='Gradient glass vault visualization'
+          width={680}
+          height={515}
+          className='animate-float'
+        />
+      </div>
 
-      <main>
-        <AboutHero />
-        <DeFiProtocols />
-        <AboutSection />
-      </main>
-
-      <Footer />
-    </div>
+      <AboutHero />
+      <DeFiProtocols />
+      <AboutSection />
+    </>
   );
 }

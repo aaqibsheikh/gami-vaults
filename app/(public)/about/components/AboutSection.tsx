@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const AboutSection = () => {
   return (
-    <div className='max-w-[1280px] mx-auto px-[84px] pt-[73px] pb-[100px] grid grid-cols-2 gap-[30px]'>
+    <section className='pt-[73px] pb-[100px] grid grid-cols-2 gap-[30px]'>
       <div className='space-y-6'>
         <div className='w-full h-[184px] bg-gradient-to-r from-[#23262A] to-[#121212] rounded-[50.89px] flex gap-14 justify-center items-center p-3'>
           <div>
@@ -175,7 +175,7 @@ const AboutSection = () => {
           </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

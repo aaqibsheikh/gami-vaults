@@ -362,7 +362,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
   };
 
   return (
-    <div className='p-[11px] rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] bg-[#090909e0] backdrop-blur-lg'>
+    <div className='p-[11px] rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] bg-[#090909e0] backdrop-blur-lg w-full'>
       <div className='w-full h-full p-5 rounded-[20px] bg-[#FFFFFF0F]'>
         <h2 className='text-white font-dm-sans text-[17px] font-bold leading-[128%] tracking-[-0.344px] mb-[30px]'>
           Deposit
@@ -512,10 +512,14 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
           className='w-full px-[28.44px] h-[40px] rounded-[10px] bg-gradient-purple text-white text-[15px] font-medium font-dm-sans hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed'
         >
           {isApproving || isDepositing || isTxPending
-            ? (needsApproval ? 'Approving...' : 'Processing...')
+            ? needsApproval
+              ? 'Approving...'
+              : 'Processing...'
             : isWrongChain
               ? `Switch to ${requiredChainName} to ${needsApproval ? 'Approve' : 'Deposit'}`
-              : (needsApproval ? 'Approve' : 'Deposit')}
+              : needsApproval
+                ? 'Approve'
+                : 'Deposit'}
         </button>
       </div>
     </div>
