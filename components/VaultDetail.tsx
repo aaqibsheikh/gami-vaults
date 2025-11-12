@@ -67,35 +67,28 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
           </div>
         </div>
 
+
         <div className='flex flex-col gap-2 justify-center items-center'>
-          <div className='text-white font-modernist text-[18px] font-bold leading-[110%] tracking-[-0.4px]'>
-            Net APR
+          <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+          {aprAll}
           </div>
+
           <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-            ALL: {aprAll}
-          </div>
-          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-            30D: {apr30d}
-          </div>
-          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-            7D: {apr7d}
+          Net APR
           </div>
         </div>
 
         <div className='flex flex-col gap-2 justify-center items-center'>
-          <div className='text-white font-modernist text-[18px] font-bold leading-[110%] tracking-[-0.4px]'>
-            Net APY
+          <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+          {apyAll}
           </div>
+
           <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-            ALL: {apyAll}
-          </div>
-          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-            30D: {apy30d}
-          </div>
-          <div className='text-white font-dm-sans text-[12px] font-normal leading-[110%] tracking-[-0.244px]'>
-            7D: {apy7d}
+          REALIZED APY
           </div>
         </div>
+
+
 {/* 
         <div className='flex flex-col gap-2 justify-center items-center'>
           <div className='text-white font-modernist text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
