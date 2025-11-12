@@ -21,6 +21,7 @@ export default function ExploreVaults() {
   const tabs = ['Assets', 'USD'];
   // const tabs = ['Assets', 'USD', 'BTC', 'ETH', 'AVAX', 'Partner'];
   const [activeViewType, setActiveViewType] = useState<'grid' | 'list'>('list');
+  const [searchQuery, setSearchQuery] = useState('');
   const viewTypes: { icon: string; value: 'grid' | 'list' }[] = [
     {
       icon: '/assets/svgs/grid-icon.svg',
@@ -45,6 +46,7 @@ export default function ExploreVaults() {
   const { featuredVaults, otherVaults } = useMemo(() => {
     if (!vaults) return { transformedVaults: [], featuredVaults: [], otherVaults: [] };
 
+    const normalizedQuery = searchQuery.trim().toLowerCase();
     const toDisplay = (v: VaultDTO) => ({
       name: v.name,
       apy: v.apyNet ? formatPercentage(v.apyNet) : 'N/A',
@@ -61,9 +63,19 @@ export default function ExploreVaults() {
     const featuredIds = new Set(featuredRaw.map((v: VaultDTO) => v.id));
     const featured = featuredRaw.map(toDisplay);
     const others = all.filter(v => !featuredIds.has(v.vaultId));
+    if (!normalizedQuery) {
+      return { transformedVaults: all, featuredVaults: featured, otherVaults: others };
+    }
 
-    return { transformedVaults: all, featuredVaults: featured, otherVaults: others };
-  }, [vaults]);
+    const matchesQuery = (vault: ReturnType<typeof toDisplay>) =>
+      vault.name.toLowerCase().includes(normalizedQuery);
+
+    return {
+      transformedVaults: all,
+      featuredVaults: featured,
+      otherVaults: others.filter(matchesQuery),
+    };
+  }, [vaults, searchQuery]);
 
   return (
     <>
@@ -129,7 +141,9 @@ export default function ExploreVaults() {
             <div className='block relative sm:hidden'>
               <input
                 type='text'
-                placeholder='Search by chain...'
+                placeholder='Search by vault name...'
+                value={searchQuery}
+                onChange={event => setSearchQuery(event.target.value)}
                 className='bg-white text-black placeholder:text-black text-[14px] font-light font-dm-sans outline-none h-[40px] max-w-[268px] w-full rounded-[19.09px] pr-2 pl-[32.21px] shadow-[0_0_0_0.4px_#ffffff47] backdrop-blur-lg'
               />
 
@@ -220,7 +234,9 @@ export default function ExploreVaults() {
               <div className='relative'>
                 <input
                   type='text'
-                  placeholder='Search by chain...'
+                  placeholder='Search by vault name...'
+                  value={searchQuery}
+                  onChange={event => setSearchQuery(event.target.value)}
                   className='bg-[#FFFFFF0F] text-white placeholder:text-white text-[14px] font-light font-dm-sans outline-none h-[40px] w-[268px] rounded-[19.09px] pr-2 pl-[32.21px] shadow-[0_0_0_0.4px_#ffffff47] backdrop-blur-lg'
                 />
 
