@@ -1,15 +1,41 @@
+'use client';
+
+import { useMemo } from 'react';
+import { useVaults } from '@/hooks/useVaults';
+import { formatUsd, safeParseNumber } from '@/lib/normalize';
+import { CURATED_VAULTS } from '@/lib/curated-vaults';
+import { getSupportedNetworks } from '@/lib/sdk';
+
+const SUPPORTED_NETWORKS = getSupportedNetworks();
+const TOTAL_CURATED_VAULTS =
+  SUPPORTED_NETWORKS.length === 0
+    ? CURATED_VAULTS.length
+    : CURATED_VAULTS.filter(vault => SUPPORTED_NETWORKS.includes(vault.chainId)).length;
+
 export default function Stats() {
+  // const { data: vaults, isLoading, error } = useVaults({
+  //   chainIds: SUPPORTED_NETWORKS,
+  // });
+
+  // const totalTvlDisplay = useMemo(() => {
+  //   if (isLoading) return 'Loading...';
+  //   console.log(vaults);
+  //   console.log(error);
+  //   if (error) return '--';
+
+  //   const totalTvl = vaults?.reduce((sum, vault) => sum + safeParseNumber(vault.tvlUsd), 0) ?? 0;
+  //   return formatUsd(totalTvl.toString());
+  // }, [vaults, isLoading, error]);
+
   const stats = [
-    { value: '$10.2M+', label: 'TOTAL TVL' },
-    { value: '35K', label: 'USERS' },
-    { value: '8', label: 'ACTIVE VAULTS' },
-    { value: '2', label: 'REWARDS PROGRAM' },
+    { value: '$2.32M', label: 'TOTAL TVL' },
+    { value: TOTAL_CURATED_VAULTS.toString(), label: 'ACTIVE VAULTS' },
   ];
 
   return (
     <section className='pt-[29px] z-10 relative'>
       <div className='sm:rounded-[20px] sm:shadow-[0_0_0_0.5px_#ffffff47] sm:px-10 sm:py-8 sm:bg-[#FFFFFF0F]'>
-        <div className='flex flex-col flex-wrap gap-4 sm:items-center sm:justify-between sm:flex-row'>
+        <div className='flex flex-col flex-wrap gap-4 sm:items-center sm:justify-between sm:px-40 sm:flex-row'>
           {stats.map((stat, index) => (
             <div
               key={index}
