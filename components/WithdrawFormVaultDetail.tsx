@@ -33,6 +33,12 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
 
   // Users input SHARES to withdraw
   const [sharesAmount, setSharesAmount] = useState('');
+  const formatWithCommas = (value: string) => {
+    if (value === '') return '';
+    const [intPart, decimalPart] = value.split('.');
+    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return decimalPart !== undefined ? `${formattedInt}.${decimalPart}` : formattedInt;
+  };
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isSwitchingChain, setIsSwitchingChain] = useState(false);
 
@@ -58,19 +64,20 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
 
   // Calculate assets received = shares * sharePrice
   const assetsToReceive = sharesAmount && sharePrice
-    ? (parseFloat(sharesAmount) * parseFloat(sharePrice)).toFixed(4)
+    ? (parseFloat(sharesAmount) * parseFloat(sharePrice.replace(/,/g, ''))).toFixed(4)
     : '0.00';
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setSharesAmount(value);
+    const sanitized = value.replace(/,/g, '');
+    if (sanitized === '' || /^\d*\.?\d*$/.test(sanitized)) {
+      setSharesAmount(sanitized);
     }
   };
 
   const handleMaxAmount = () => {
     if (position?.shares) {
-      setSharesAmount(position.shares);
+      setSharesAmount(position.shares.replace(/,/g, ''));
     }
   };
 
@@ -215,7 +222,7 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
         <div>
           <input
             type='text'
-            value={sharesAmount}
+            value={formatWithCommas(sharesAmount)}
             onChange={handleAmountChange}
             placeholder='0.00'
             className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
@@ -264,7 +271,7 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
           </span>
 
           <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-            <span>{assetsToReceive}</span>
+            <span>{assetsToReceive ? formatWithCommas(assetsToReceive) : '0.00'}</span>
             <span>{vault?.underlying.symbol || '--'}</span>
           </span>
         </div>
@@ -288,7 +295,7 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
           </span>
 
           <span className='text-[#00F792] font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
-            {sharesAmount || '0.00'} {vault?.symbol}
+            {sharesAmount ? formatWithCommas(sharesAmount) : '0.00'} {vault?.symbol}
           </span>
         </div>
       </div>

@@ -35,6 +35,12 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
   const { switchChainAsync } = useSwitchChain();
   const { sendTransaction, sendTransactionAsync, isPending: isTxPending } = useSendTransaction();
   const [amount, setAmount] = useState('');
+  const formatWithCommas = (value: string) => {
+    if (value === '') return '';
+    const [intPart, decimalPart] = value.split('.');
+    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return decimalPart !== undefined ? `${formattedInt}.${decimalPart}` : formattedInt;
+  };
   const [selectedAsset, setSelectedAsset] = useState(vault?.underlying.symbol || '');
   const [isDepositing, setIsDepositing] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -75,7 +81,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
 
   // Calculate shares to receive
   const sharesToReceive =
-    amount && sharePrice ? (parseFloat(amount) / parseFloat(sharePrice)).toFixed(4) : '0.00';
+    amount && sharePrice ? (parseFloat(amount) / parseFloat(sharePrice.replace(/,/g, ''))).toFixed(4) : '0.00';
 
   // Available assets for deposit
   const availableAssets = vault
@@ -87,15 +93,16 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    const sanitized = value.replace(/,/g, '');
     // Allow only numbers and decimal point
-    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setAmount(value);
+    if (sanitized === '' || /^\d*\.?\d*$/.test(sanitized)) {
+      setAmount(sanitized);
     }
   };
 
   const handleMaxAmount = () => {
     if (balanceFormatted) {
-      setAmount(balanceFormatted);
+      setAmount(balanceFormatted.replace(/,/g, ''));
     }
   };
 
@@ -434,7 +441,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
         <div>
           <input
             type='text'
-            value={amount}
+            value={formatWithCommas(amount)}
             onChange={handleAmountChange}
             placeholder='0.00'
             className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
@@ -479,7 +486,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
           </span>
 
           <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-            <span>{sharesToReceive}</span>
+            <span>{sharesToReceive ? formatWithCommas(sharesToReceive) : '0.00'}</span>
             <span>{vault?.symbol || '--'}</span>
           </span>
         </div>
@@ -490,7 +497,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
           </span>
 
           <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-            {isLoadingSharePrice ? '...' : sharePrice || '1.00'}
+            {isLoadingSharePrice ? '...' : sharePrice ? formatWithCommas(sharePrice) : '1.00'}
             <span>{vault?.underlying.symbol || '--'}</span>
           </span>
         </div>
@@ -503,7 +510,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
           </span>
 
           <span className='text-[#00F792] font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
-            {amount || '0.00'} {selectedAsset}
+            {amount ? formatWithCommas(amount) : '0.00'} {selectedAsset}
           </span>
         </div>
       </div>
