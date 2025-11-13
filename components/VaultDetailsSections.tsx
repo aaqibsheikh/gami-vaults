@@ -437,10 +437,10 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
               data={historicalData}
               period={apiPeriod}
               type={selectedMetric}
-              className='w-full h-full'
+              className='flex-1 w-full h-full'
             />
           ) : (
-            <div className='flex-1 text-white text-center font-modernist text-[16px] font-normal leading-[162%] tracking-[-0.32px]'>
+            <div className='flex-1 text-white text-center font-modernist text-[16px] font-normal leading-[162%] tracking-[-0.32px] flex items-center justify-center'>
               No historical data available
             </div>
           )}
