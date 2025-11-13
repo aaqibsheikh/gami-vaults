@@ -5,6 +5,7 @@ import { useVault } from '@/hooks/useVault';
 import VaultDetail from '@/components/VaultDetail';
 import VaultDetailsSections from '@/components/VaultDetailsSections';
 import VaultTransparency from '@/components/VaultTransparency';
+import VaultActivity from '@/components/VaultActivity';
 import VaultDetailSkeleton from '@/components/VaultDetailSkeleton';
 import Image from 'next/image';
 import VaultActionTabs from '@/components/VaultActionTabs';
@@ -116,6 +117,8 @@ export default function VaultDetailClient({
                 <VaultActionTabs vault={vault} />
               </div>
             </div>
+
+            <VaultActivity vault={vault} />
 
             <VaultTransparency vault={vault} />
           </>
