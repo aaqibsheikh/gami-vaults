@@ -41,7 +41,8 @@ export default function DeFiProtocols() {
             <p className='font-dm-sans sm:text-xl text-base font-light leading-[128%] sm:tracking-[-0.4px] text-white text-center'>
               We are forming strategic partnerships with leading protocols in the industry to
               provide yields that meet institutional standards, ensuring that our clients benefit
-              from top-tier financial opportunities and infrastructures.
+              from top-tier financial opportunities <span className='hidden sm:inline'>and</span>{' '}
+              <span className='sm:hidden'>&</span> infrastructures.
             </p>
           </div>
 
