@@ -125,7 +125,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
             <div className='relative'>
               <button
                 onClick={() => setIsMetricDropdownOpen(!isMetricDropdownOpen)}
-                className='flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
+                className='flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
               >
                 <span>
                   {selectedMetric === 'apy'
@@ -155,7 +155,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                     className='fixed inset-0 z-10'
                     onClick={() => setIsMetricDropdownOpen(false)}
                   />
-                  <div className='absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-white/20 rounded-lg shadow-lg z-20 py-1'>
+                  <div className='absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-white/20 rounded-[10px] shadow-lg z-20 py-1'>
                     <button
                       onClick={() => {
                         setSelectedMetric('price');
@@ -230,7 +230,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
             <div className='relative'>
               <button
                 onClick={() => setIsPeriodDropdownOpen(!isPeriodDropdownOpen)}
-                className='flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
+                className='flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
               >
                 <span>
                   {selectedPeriod === '7d'
@@ -262,7 +262,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                     className='fixed inset-0 z-10'
                     onClick={() => setIsPeriodDropdownOpen(false)}
                   />
-                  <div className='absolute right-0 mt-2 w-40 bg-[#1a1a1a] border border-white/20 rounded-lg shadow-lg z-20 py-1'>
+                  <div className='absolute right-0 mt-2 w-40 bg-[#1a1a1a] border border-white/20 rounded-[10px] shadow-lg z-20 py-1'>
                     <button
                       onClick={() => {
                         setSelectedPeriod('7d');
