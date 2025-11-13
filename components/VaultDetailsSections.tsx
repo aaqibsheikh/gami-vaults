@@ -482,7 +482,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
 
       <div className='rounded-[20.78px] border border-[#FF9C4680] bg-[#FF9C460F] md:py-[30px] md:px-[20px] py-5 px-5 space-y-3.5'>
         <div className='text-white font-dm-sans md:text-[20px] text-[15.91px] font-bold flex items-center gap-0.5'>
-          <span className='md:mt-1.5 -mt-1'>⚠️</span>
+          <span className='md:-mt-1.5 -mt-1'>⚠️</span>
           <span>Risk Disclosure</span>
         </div>
 
