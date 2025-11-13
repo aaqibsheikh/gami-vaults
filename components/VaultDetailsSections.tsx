@@ -37,7 +37,7 @@ interface VaultDetailsSectionsProps {
 
 export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProps) {
   const [copied, setCopied] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '365d' | 'all'>('30d');
+  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '365d' | 'all'>('all');
   const [selectedMetric, setSelectedMetric] = useState<'apy' | 'tvl' | 'price'>('price');
   const [isMetricDropdownOpen, setIsMetricDropdownOpen] = useState(false);
   const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
@@ -116,7 +116,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
       </div>
 
       <div className='md:space-y-5 space-y-2.5 w-full'>
-        <div className='flex justify-between items-center'>
+        {/* <div className='flex justify-between items-center'>
           <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px]'>
             Chart
           </div>
@@ -405,11 +405,31 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
               )}
             </div>
           </div>
-        )}
+        )} */}
 
-        <div className='flex h-[237px] px-3 py-3 justify-center items-center gap-2 shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[30px]'>
+        <div className='flex min-h-[304px] px-3 py-3 justify-center items-center gap-2 shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[30px] flex-col'>
+          <div className='w-full bg-[#FFFFFF0F] rounded-[30px] md:py-2.5 py-[5.38px] md:px-3 px-1.5 grid grid-cols-2'>
+            <button
+              onClick={() => setSelectedMetric('price')}
+              className={`text-white font-dm-sans md:text-[14px] text-[13px] font-medium leading-[128%] tracking-[-0.32px] md:h-[36px] h-[26px] md:rounded-[17.4px] rounded-[9.36px] transition-colors ${
+                selectedMetric === 'price' ? 'bg-[#0F0F0F]' : 'hover:bg-[#0f0f0f]'
+              }`}
+            >
+              Price per share
+            </button>
+
+            <button
+              onClick={() => setSelectedMetric('tvl')}
+              className={`text-white font-dm-sans md:text-[14px] text-[13px] font-medium leading-[128%] tracking-[-0.32px] md:h-[36px] h-[26px] md:rounded-[17.4px] rounded-[9.36px] transition-colors ${
+                selectedMetric === 'tvl' ? 'bg-[#0F0F0F]' : 'hover:bg-[#0f0f0f]'
+              }`}
+            >
+              TVL
+            </button>
+          </div>
+
           {isLoadingHistorical ? (
-            <div className='flex-1 text-white text-center font-modernist text-[16px] font-normal leading-[162%] tracking-[-0.32px]'>
+            <div className='flex-1 text-white text-center font-modernist text-[16px] font-normal leading-[162%] tracking-[-0.32px] flex items-center justify-center'>
               Loading historical data...
             </div>
           ) : historicalData && historicalData.length > 0 ? (

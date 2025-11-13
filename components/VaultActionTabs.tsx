@@ -36,7 +36,7 @@ export default function VaultActionTabs({ vault }: VaultActionTabsProps) {
             key={tab}
             className={`flex md:h-10 h-[36px] px-2.5 justify-center items-center rounded-[21.27px] backdrop-blur-lg ${
               activeTab === tab.toLowerCase()
-                ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
+                ? 'shadow-[0_0_0_0.5px_#A100FF] bg-[#A100FF2E]'
                 : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
             } transition-colors`}
             onClick={() => setActiveTab(tab.toLowerCase() as 'deposit' | 'withdraw')}
