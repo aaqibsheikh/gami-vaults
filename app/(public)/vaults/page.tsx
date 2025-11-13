@@ -216,15 +216,15 @@ export default function ExploreVaults() {
 
         <div className='bg-[#141414] rounded-[21.93px] p-[20.37px] mt-10 sm:block hidden'>
           <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-[14.32px] overflow-x-auto'>
+            <div className='flex items-center gap-[14.32px]'>
               {tokenTabs.map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveToken(tab)}
                   className={`flex h-10 px-3 justify-center items-center rounded-[20.78px] backdrop-blur-lg transition-colors ${
                     tab === activeToken
-                      ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
-                      : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
+                      ? 'shadow-[0_0_0_0.5px_#A100FF] bg-[#A100FF2E]'
+                      : 'shadow-[0_0_0_0.5px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
                   }`}
                 >
                   <div className='whitespace-nowrap text-white font-dm-sans text-[13.58px] font-light leading-none'>
