@@ -202,6 +202,7 @@ export default function ExploreVaults() {
                     key={`${vault.chainId}-${vault.vaultId}-featured-${index}`}
                     name={vault.name}
                     apy={vault.apy}
+                    provider={vault.provider}
                     tvl={vault.tvl}
                     assets={vault.assets}
                     chainId={vault.chainId}
@@ -372,6 +373,7 @@ export default function ExploreVaults() {
                     key={`${vault.chainId}-${vault.vaultId}-${index}`}
                     name={vault.name}
                     apy={vault.apy}
+                    provider={vault.provider}
                     tvl={vault.tvl}
                     assets={vault.assets}
                     chainId={vault.chainId}

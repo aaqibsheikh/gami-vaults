@@ -32,7 +32,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
         case 'upshift':
           return { text: 'Upshift', bgColor: 'bg-[#2C2929]' };
       default:
-        return { text: 'Flagship', bgColor: 'bg-[#2C2929]' };
+        return { text: '--', bgColor: 'bg-[#2C2929]' };
     }
   };
 

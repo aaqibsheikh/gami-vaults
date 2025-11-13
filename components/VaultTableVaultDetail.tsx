@@ -29,8 +29,12 @@ function VaultRow({ name, apy, tvl, assets, chainId, vaultId, provider }: VaultR
   } else if (provider === 'lagoon') {
     badgeText = 'Lagoon';
     badgeClass = 'bg-[#6B73FF]';
-  } else {
-    badgeText = 'Flagship';
+  } else if (provider === 'upshift') {
+    badgeText = 'Upshift';
+    badgeClass = 'bg-[#2C2929]';
+  } 
+  else {
+    badgeText = '--';
     badgeClass = 'bg-[#2C2929]';
   }
 

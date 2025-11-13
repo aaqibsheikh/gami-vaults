@@ -76,7 +76,7 @@ export default function PortfolioPage() {
       const enrichedPos = {
         ...position,
         vaultName: metadata?.name || `${position.vault.slice(0, 6)}...${position.vault.slice(-4)}`,
-        vaultProvider: metadata?.provider || 'flagship',
+        vaultProvider: metadata?.provider || '--',
         underlyingSymbol: metadata?.underlyingSymbol || 'Unknown',
       };
       return enrichedPos;
@@ -266,9 +266,9 @@ export default function PortfolioPage() {
       case 'lagoon':
         return 'Lagoon';
       case 'upshift':
-        return 'Flagship';
+        return 'Upshift';
       default:
-        return 'Flagship';
+        return '--';
     }
   };
 
