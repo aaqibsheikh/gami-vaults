@@ -7,12 +7,13 @@ import { getUsdValue } from '@/lib/oracles';
 import { LAGOON_MAINNET_SUBGRAPH } from '@/lib/lagoon-sdk';
 
 const VAULT_ACTIVITY_QUERY = `
-  query VaultActivity($vault: Bytes!) {
+  query VaultActivity($vault: Bytes!, $first: Int!, $skip: Int!) {
     deposits(
       where: { vault: $vault }
       orderBy: blockTimestamp
       orderDirection: desc
-      first: 50
+      first: $first
+      skip: $skip
     ) {
       id
       owner
@@ -26,7 +27,8 @@ const VAULT_ACTIVITY_QUERY = `
       where: { vault: $vault }
       orderBy: blockTimestamp
       orderDirection: desc
-      first: 50
+      first: $first
+      skip: $skip
     ) {
       id
       owner
@@ -36,11 +38,27 @@ const VAULT_ACTIVITY_QUERY = `
       transactionHash
     }
 
+    depositRequests(
+      where: { vault: $vault }
+      orderBy: blockTimestamp
+      orderDirection: desc
+      first: $first
+      skip: $skip
+    ) {
+      id
+      owner
+      sender
+      assets
+      blockTimestamp
+      transactionHash
+    }
+
     totalAssetsUpdateds(
       where: { vault: $vault }
       orderBy: blockTimestamp
       orderDirection: desc
-      first: 50
+      first: $first
+      skip: $skip
     ) {
       id
       totalAssets
@@ -52,7 +70,8 @@ const VAULT_ACTIVITY_QUERY = `
       where: { vault: $vault }
       orderBy: blockTimestamp
       orderDirection: desc
-      first: 50
+      first: $first
+      skip: $skip
     ) {
       id
       totalAssets
@@ -65,7 +84,8 @@ const VAULT_ACTIVITY_QUERY = `
       where: { vault: $vault }
       orderBy: blockTimestamp
       orderDirection: desc
-      first: 50
+      first: $first
+      skip: $skip
     ) {
       id
       totalAssets
@@ -87,6 +107,15 @@ type GraphDeposit = {
 
 type GraphWithdraw = GraphDeposit;
 
+type GraphDepositRequest = {
+  id: string;
+  owner: string;
+  sender: string;
+  assets: string;
+  blockTimestamp: string;
+  transactionHash: string;
+};
+
 type GraphTotalAssetsUpdated = {
   id: string;
   totalAssets: string;
@@ -105,6 +134,7 @@ type GraphSettle = {
 type VaultActivityResponse = {
   deposits: GraphDeposit[];
   withdraws: GraphWithdraw[];
+  depositRequests: GraphDepositRequest[];
   totalAssetsUpdateds: GraphTotalAssetsUpdated[];
   settleDeposits: GraphSettle[];
   settleRedeems: GraphSettle[];
@@ -139,7 +169,24 @@ export interface UseVaultActivityOptions {
   underlyingDecimals: number;
   provider?: 'upshift' | 'ipor' | 'lagoon';
   enabled?: boolean;
+  first?: number;
 }
+
+interface JsonRpcResponse {
+  id: number;
+  jsonrpc: string;
+  result?: {
+    from?: string;
+  };
+  error?: {
+    code: number;
+    message?: string;
+  };
+}
+
+const DEFAULT_RPC_BY_CHAIN: Record<number, string> = {
+  1: 'https://eth.llamarpc.com',
+};
 
 function shortenAddress(address?: string): string {
   if (!address) return 'Unknown';
@@ -190,33 +237,13 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
     underlyingDecimals,
     underlyingSymbol,
     underlyingAddress,
+    first = 100,
   } = options;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 12_000);
 
   try {
-    const response = await fetch(LAGOON_MAINNET_SUBGRAPH, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        query: VAULT_ACTIVITY_QUERY,
-        variables: { vault: vaultAddress.toLowerCase() },
-      }),
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} ${response.statusText}`);
-    }
-
-    const json = await response.json();
-    if (json?.errors?.length) {
-      throw new Error(json.errors[0]?.message || 'GraphQL error');
-    }
-
-    const data: VaultActivityResponse = json.data;
-
     let pricePerToken: number | null = null;
     try {
       const priceStr = await getUsdValue(
@@ -237,10 +264,6 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
     }
 
     const items: VaultActivityItem[] = [];
-
-    const addItem = (item: VaultActivityItem) => {
-      items.push(item);
-    };
 
     const formatAmount = (raw: string | undefined) => {
       const decimal = formatUnits(toBigInt(raw), underlyingDecimals);
@@ -264,97 +287,185 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
       };
     };
 
-    data.deposits?.forEach((entry) => {
-      const amount = formatAmount(entry.assets);
-      const usd = withUsd(amount.numeric);
-      addItem({
-        id: `deposit-${entry.id}`,
-        type: 'deposit',
-        label: 'Deposit',
-        address: entry.owner,
-        addressLabel: shortenAddress(entry.owner),
-        amountToken: amount.decimal,
-        amountTokenFormatted: amount.formatted,
-        amountUsd: usd.usd,
-        amountUsdFormatted: usd.formatted,
-        timestamp: toTimestampMs(entry.blockTimestamp),
-        txHash: entry.transactionHash,
-        source: 'deposit',
-      });
-    });
+    let fetched = 0;
+    let hasMore = true;
 
-    data.withdraws?.forEach((entry) => {
-      const amount = formatAmount(entry.assets);
-      const usd = withUsd(amount.numeric);
-      addItem({
-        id: `withdraw-${entry.id}`,
-        type: 'withdraw',
-        label: 'Withdraw',
-        address: entry.owner,
-        addressLabel: shortenAddress(entry.owner),
-        amountToken: amount.decimal,
-        amountTokenFormatted: amount.formatted,
-        amountUsd: usd.usd,
-        amountUsdFormatted: usd.formatted,
-        timestamp: toTimestampMs(entry.blockTimestamp),
-        txHash: entry.transactionHash,
-        source: 'withdraw',
+    while (hasMore) {
+      const response = await fetch(LAGOON_MAINNET_SUBGRAPH, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          query: VAULT_ACTIVITY_QUERY,
+          variables: {
+            vault: vaultAddress.toLowerCase(),
+            first,
+            skip: fetched,
+          },
+        }),
+        signal: controller.signal,
       });
-    });
 
-    data.totalAssetsUpdateds?.forEach((entry) => {
-      const amount = formatAmount(entry.totalAssets);
-      const usd = withUsd(amount.numeric);
-      addItem({
-        id: `valuation-${entry.id}`,
-        type: 'valuation',
-        label: 'Valuation',
-        addressLabel: 'Price Oracle',
-        amountToken: amount.decimal,
-        amountTokenFormatted: amount.formatted,
-        amountUsd: usd.usd,
-        amountUsdFormatted: usd.formatted,
-        timestamp: toTimestampMs(entry.blockTimestamp),
-        txHash: entry.transactionHash,
-        source: 'totalAssetsUpdated',
-      });
-    });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
 
-    data.settleDeposits?.forEach((entry) => {
-      const amount = formatAmount(entry.totalAssets);
-      const usd = withUsd(amount.numeric);
-      addItem({
-        id: `settle-deposit-${entry.id}`,
-        type: 'settlement',
-        label: 'Settlement',
-        addressLabel: 'Curator',
-        amountToken: amount.decimal,
-        amountTokenFormatted: amount.formatted,
-        amountUsd: usd.usd,
-        amountUsdFormatted: usd.formatted,
-        timestamp: toTimestampMs(entry.blockTimestamp),
-        txHash: entry.transactionHash,
-        source: 'settleDeposit',
-      });
-    });
+      const json = await response.json();
+      if (json?.errors?.length) {
+        throw new Error(json.errors[0]?.message || 'GraphQL error');
+      }
 
-    data.settleRedeems?.forEach((entry) => {
-      const amount = formatAmount(entry.totalAssets);
-      const usd = withUsd(amount.numeric);
-      addItem({
-        id: `settle-redeem-${entry.id}`,
-        type: 'settlement',
-        label: 'Settlement',
-        addressLabel: 'Curator',
-        amountToken: amount.decimal,
-        amountTokenFormatted: amount.formatted,
-        amountUsd: usd.usd,
-        amountUsdFormatted: usd.formatted,
-        timestamp: toTimestampMs(entry.blockTimestamp),
-        txHash: entry.transactionHash,
-        source: 'settleRedeem',
+      const data: VaultActivityResponse = json.data;
+      const chunkBefore = items.length;
+
+      data.deposits?.forEach((entry) => {
+        const amount = formatAmount(entry.assets);
+        const usd = withUsd(amount.numeric);
+        items.push({
+          id: `deposit-${entry.id}`,
+          type: 'deposit',
+          label: 'Deposit',
+          address: entry.owner,
+          addressLabel: shortenAddress(entry.owner),
+          amountToken: amount.decimal,
+          amountTokenFormatted: amount.formatted,
+          amountUsd: usd.usd,
+          amountUsdFormatted: usd.formatted,
+          timestamp: toTimestampMs(entry.blockTimestamp),
+          txHash: entry.transactionHash,
+          source: 'deposit',
+        });
       });
-    });
+
+      data.withdraws?.forEach((entry) => {
+        const amount = formatAmount(entry.assets);
+        const usd = withUsd(amount.numeric);
+        items.push({
+          id: `withdraw-${entry.id}`,
+          type: 'withdraw',
+          label: 'Withdraw',
+          address: entry.owner,
+          addressLabel: shortenAddress(entry.owner),
+          amountToken: amount.decimal,
+          amountTokenFormatted: amount.formatted,
+          amountUsd: usd.usd,
+          amountUsdFormatted: usd.formatted,
+          timestamp: toTimestampMs(entry.blockTimestamp),
+          txHash: entry.transactionHash,
+          source: 'withdraw',
+        });
+      });
+
+      data.depositRequests?.forEach((entry) => {
+        const amount = formatAmount(entry.assets);
+        const usd = withUsd(amount.numeric);
+        const address = entry.sender || entry.owner;
+        items.push({
+          id: `deposit-request-${entry.id}`,
+          type: 'deposit',
+          label: 'Deposit Request',
+          address,
+          addressLabel: shortenAddress(address),
+          amountToken: amount.decimal,
+          amountTokenFormatted: amount.formatted,
+          amountUsd: usd.usd,
+          amountUsdFormatted: usd.formatted,
+          timestamp: toTimestampMs(entry.blockTimestamp),
+          txHash: entry.transactionHash,
+          source: 'deposit',
+        });
+      });
+
+      data.totalAssetsUpdateds?.forEach((entry) => {
+        const amount = formatAmount(entry.totalAssets);
+        const usd = withUsd(amount.numeric);
+        items.push({
+          id: `valuation-${entry.id}`,
+          type: 'valuation',
+          label: 'Valuation',
+          address: undefined,
+          addressLabel: 'Unknown',
+          amountToken: amount.decimal,
+          amountTokenFormatted: amount.formatted,
+          amountUsd: usd.usd,
+          amountUsdFormatted: usd.formatted,
+          timestamp: toTimestampMs(entry.blockTimestamp),
+          txHash: entry.transactionHash,
+          source: 'totalAssetsUpdated',
+        });
+      });
+
+      data.settleDeposits?.forEach((entry) => {
+        const amount = formatAmount(entry.totalAssets);
+        const usd = withUsd(amount.numeric);
+        items.push({
+          id: `settle-deposit-${entry.id}`,
+          type: 'settlement',
+          label: 'Settlement',
+          address: undefined,
+          addressLabel: 'Unknown',
+          amountToken: amount.decimal,
+          amountTokenFormatted: amount.formatted,
+          amountUsd: usd.usd,
+          amountUsdFormatted: usd.formatted,
+          timestamp: toTimestampMs(entry.blockTimestamp),
+          txHash: entry.transactionHash,
+          source: 'settleDeposit',
+        });
+      });
+
+      data.settleRedeems?.forEach((entry) => {
+        const amount = formatAmount(entry.totalAssets);
+        const usd = withUsd(amount.numeric);
+        items.push({
+          id: `settle-redeem-${entry.id}`,
+          type: 'settlement',
+          label: 'Settlement',
+          address: undefined,
+          addressLabel: 'Unknown',
+          amountToken: amount.decimal,
+          amountTokenFormatted: amount.formatted,
+          amountUsd: usd.usd,
+          amountUsdFormatted: usd.formatted,
+          timestamp: toTimestampMs(entry.blockTimestamp),
+          txHash: entry.transactionHash,
+          source: 'settleRedeem',
+        });
+      });
+
+      const chunkSize = items.length - chunkBefore;
+      fetched += first;
+
+      hasMore =
+        data.deposits.length === first ||
+        data.withdraws.length === first ||
+        data.depositRequests.length === first ||
+        data.totalAssetsUpdateds.length === first ||
+        data.settleDeposits.length === first ||
+        data.settleRedeems.length === first;
+
+      if (chunkSize === 0) {
+        hasMore = false;
+      }
+    }
+
+    const itemsMissingAddress = items.filter((item) => !item.address);
+    if (itemsMissingAddress.length && chainId === 1) {
+      try {
+        const uniqueHashes = Array.from(
+          new Set(itemsMissingAddress.map((item) => item.txHash.toLowerCase()))
+        );
+        const senderMap = await fetchTransactionSenders(uniqueHashes, chainId);
+        itemsMissingAddress.forEach((item) => {
+          const sender = senderMap[item.txHash.toLowerCase()];
+          if (sender) {
+            item.address = sender;
+            item.addressLabel = shortenAddress(sender);
+          }
+        });
+      } catch (error) {
+        console.warn('[VaultActivity] Failed to fetch transaction senders:', error);
+      }
+    }
 
     return items
       .filter((item) => item.timestamp > 0)
@@ -362,6 +473,60 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+async function fetchTransactionSenders(
+  hashes: string[],
+  chainId: number
+): Promise<Record<string, string>> {
+  const envKey = `NEXT_PUBLIC_RPC_${chainId}` as keyof NodeJS.ProcessEnv;
+  const rpcUrl =
+    (typeof process !== 'undefined' ? (process.env?.[envKey] as string | undefined) : undefined) ||
+    DEFAULT_RPC_BY_CHAIN[chainId];
+
+  if (!rpcUrl || !hashes.length) {
+    return {};
+  }
+
+  const batchSize = 10;
+  const results: Record<string, string> = {};
+
+  for (let i = 0; i < hashes.length; i += batchSize) {
+    const batch = hashes.slice(i, i + batchSize);
+    const payload = batch.map((hash, idx) => ({
+      jsonrpc: '2.0',
+      id: i + idx + 1,
+      method: 'eth_getTransactionByHash',
+      params: [hash],
+    }));
+
+    try {
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`RPC HTTP ${response.status}`);
+      }
+
+      const json = (await response.json()) as JsonRpcResponse | JsonRpcResponse[];
+      const responses = Array.isArray(json) ? json : [json];
+
+      responses.forEach((entry, index) => {
+        const txHash = batch[index];
+        const sender = entry?.result?.from;
+        if (sender) {
+          results[txHash] = sender.toLowerCase();
+        }
+      });
+    } catch (error) {
+      console.warn('[VaultActivity] RPC batch failed:', error);
+    }
+  }
+
+  return results;
 }
 
 export function useVaultActivity(options: UseVaultActivityOptions) {
