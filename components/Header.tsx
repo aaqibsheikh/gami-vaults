@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,6 +13,9 @@ export default function Header() {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+
+  const walletMenuRef = useRef<HTMLDivElement>(null);
+  const mobileWalletMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -40,6 +43,29 @@ export default function Header() {
       document.body.style.overflow = 'unset';
     };
   }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      const isInsideDesktop = walletMenuRef.current?.contains(target);
+      const isInsideMobile = mobileWalletMenuRef.current?.contains(target);
+
+      if (!isInsideDesktop && !isInsideMobile) {
+        setIsWalletMenuOpen(false);
+      }
+    };
+
+    if (isWalletMenuOpen) {
+      setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 0);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isWalletMenuOpen]);
 
   const handleConnect = () => {
     if (connectors[0]) {
@@ -119,7 +145,7 @@ export default function Header() {
           <div className='flex items-center gap-[14px]'>
             {mounted && isConnected ? (
               <>
-                <div className='relative leading-none h-fit'>
+                <div className='relative leading-none h-fit' ref={walletMenuRef}>
                   <button
                     onClick={() => setIsWalletMenuOpen(!isWalletMenuOpen)}
                     className='sm:px-[20.67px] px-2 sm:h-[40.89px] h-[18.5px] sm:rounded-[10px] rounded-[4px] bg-gradient-purple text-white sm:text-[14.22px] text-[6.39px] font-medium font-dm-sans hover:opacity-90 transition-opacity'
@@ -128,7 +154,7 @@ export default function Header() {
                   </button>
 
                   {isWalletMenuOpen && (
-                    <div className='absolute right-0 z-50 mt-2 sm:w-48 w-[100px] bg-gray-800 rounded-lg border border-gray-700 shadow-lg'>
+                    <div className='absolute right-0 z-50 mt-2 sm:w-48 w-[100px] bg-gray-800 border border-gray-700 shadow-lg rounded-[6px]'>
                       <div className='py-1'>
                         <button
                           onClick={handleDisconnect}
@@ -235,7 +261,7 @@ export default function Header() {
 
             {mounted && isConnected ? (
               <>
-                <div className='relative leading-none h-fit'>
+                <div className='relative leading-none h-fit' ref={mobileWalletMenuRef}>
                   <button
                     onClick={() => setIsWalletMenuOpen(!isWalletMenuOpen)}
                     className='px-[28.44px] h-[29.48px] rounded-[10px] bg-gradient-purple text-white text-[14.26px] font-medium font-dm-sans hover:opacity-90 transition-opacity w-full'
@@ -244,7 +270,7 @@ export default function Header() {
                   </button>
 
                   {isWalletMenuOpen && (
-                    <div className='absolute right-0 z-50 mt-2 w-full bg-gray-800 rounded-lg border border-gray-700 shadow-lg sm:w-48'>
+                    <div className='absolute right-0 z-50 mt-2 w-full bg-gray-800 rounded-[6px] border border-gray-700 shadow-lg sm:w-48'>
                       <div className='py-1'>
                         <button
                           onClick={handleDisconnect}
