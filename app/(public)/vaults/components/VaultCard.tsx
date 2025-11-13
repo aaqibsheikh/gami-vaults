@@ -49,21 +49,23 @@ const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: Vaul
           </div>
         </div>
 
-        <div className='shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(0,0,0,0.20)] rounded-[27.17px] w-full sm:px-[21.13px] px-3 h-[121px] backdrop-blur-sm bg-[#FFFFFF0F] mt-5 relative flex items-center justify-between'>
-          <div>
-            <div className='text-[11.19px] leading-none ml-1'>APY</div>
+        <div className='shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(0,0,0,0.20)] rounded-[27.17px] w-full sm:px-[21.13px] px-3 h-[121px] backdrop-blur-sm bg-[#FFFFFF0F] mt-5 relative flex items-center'>
+          <div className='flex flex-1 justify-between'>
+            <div>
+              <div className='text-[11.19px] leading-none ml-1'>APY</div>
 
-            <div className='font-modernist font-bold text-[30px] leading-none mb-1.5'>{apy}</div>
+              <div className='font-modernist font-bold text-[30px] leading-none mb-1.5'>{apy}</div>
 
-            <div className='text-[#FFFFFFB2] text-[10px] leading-none'>Target : {apy}</div>
-          </div>
+              <div className='text-[#FFFFFFB2] text-[10px] leading-none'>Target : {apy}</div>
+            </div>
 
-          <div className='h-[56px] border-l-[1.12px] border-white w-fit'></div>
+            <div className='h-[56px] border-l-[1.12px] border-white w-fit'></div>
 
-          <div className='text-center'>
-            <div className='text-[11.19px] leading-none ml-1'>TVL</div>
+            <div className='text-center'>
+              <div className='text-[11.19px] leading-none ml-1'>TVL</div>
 
-            <div className='font-modernist font-bold text-[30px] leading-none mb-1.5'>{tvl}</div>
+              <div className='font-modernist font-bold text-[30px] leading-none mb-1.5'>{tvl}</div>
+            </div>
           </div>
         </div>
 
