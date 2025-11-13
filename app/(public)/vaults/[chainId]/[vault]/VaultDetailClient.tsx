@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { useVault } from '@/hooks/useVault';
-import { Loader } from '@/components/Loader';
 import VaultDetail from '@/components/VaultDetail';
 import VaultDetailsSections from '@/components/VaultDetailsSections';
 import VaultTransparency from '@/components/VaultTransparency';
+import VaultDetailSkeleton from '@/components/VaultDetailSkeleton';
 import Image from 'next/image';
 import DepositFormVaultDetail from '@/components/DepositFormVaultDetail';
 interface VaultDetailClientProps {
@@ -57,15 +57,11 @@ export default function VaultDetailClient({
         alt='Vault detail glass'
         width={459}
         height={362}
-        className='absolute top-0 right-0 pointer-events-none'
+        className='hidden absolute top-0 right-0 pointer-events-none md:block'
       />
 
-      <section id='vaults' className='pt-12 pb-12'>
-        {isLoading && (
-          <div className='space-y-8'>
-            <Loader label='Fetching vault details' />
-          </div>
-        )}
+      <section id='vaults' className='pt-6 pb-12 sm:pt-12'>
+        {isLoading && <VaultDetailSkeleton />}
 
         {error && !isLoading && (
           <div className='py-12 text-center'>
@@ -111,10 +107,14 @@ export default function VaultDetailClient({
           <>
             <VaultDetail vault={vault} />
 
-            <div className='flex gap-16 items-start w-full mt-[68px]'>
-              <VaultDetailsSections vault={vault} />
+            <div className='flex lg:gap-16 gap-6 items-start w-full md:mt-[68px] mt-5'>
+              <div className='lg:min-w-[58.89%] md:w-[55%]'>
+                <VaultDetailsSections vault={vault} />
+              </div>
 
-              <DepositFormVaultDetail vault={vault} />
+              <div className='hidden w-full md:block'>
+                <DepositFormVaultDetail vault={vault} />
+              </div>
             </div>
 
             <VaultTransparency vault={vault} />
