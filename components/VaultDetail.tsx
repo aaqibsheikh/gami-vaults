@@ -9,7 +9,7 @@ interface VaultDetailProps {
 
 export default function VaultDetail({ vault }: VaultDetailProps) {
   const vaultName = vault?.name || '--';
-  const strategistName = vault?.strategist?.name || '--';
+  const strategistName = vault?.strategist?.name || vault?.provider;
   const tvl = vault?.tvlUsd ? formatUsd(vault.tvlUsd) : '--';
   // Net APR windows (Lagoon)
   const aprAll = vault?.metadata?.aprNetAll ? formatPercentage(vault.metadata.aprNetAll) : '--';
@@ -21,7 +21,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
   const apy30d = vault?.metadata?.apyNet30d ? formatPercentage(vault.metadata.apyNet30d) : '--';
   const apy7d = vault?.metadata?.apyNet7d ? formatPercentage(vault.metadata.apyNet7d) : '--';
   const vaultAge = vault?.metadata?.vaultAge || '--';
-  const provider = vault?.provider || 'flagship';
+  const provider = vault?.provider || '';
 
   const getProviderBadge = () => {
     switch (provider) {
@@ -29,8 +29,10 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
         return { text: 'Advanced', bgColor: 'bg-[#C4511F]' };
       case 'lagoon':
         return { text: 'Lagoon', bgColor: 'bg-[#6B73FF]' };
+      case 'upshift':
+        return { text: 'Upshift', bgColor: 'bg-[#2C2929]' };
       default:
-        return { text: 'Flagship', bgColor: 'bg-[#2C2929]' };
+        return { text: '--', bgColor: 'bg-[#2C2929]' };
     }
   };
 
@@ -45,7 +47,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
           </div>
 
           <div className='text-white font-dm-sans sm:text-[12.51px] text-[8.76px] font-light leading-[128%] tracking-[-0.25px] mt-1.5'>
-            by {strategistName}
+            by <span className='capitalize'>{strategistName}</span>
           </div>
         </div>
 

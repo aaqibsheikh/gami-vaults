@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, http, formatUnits } from 'viem';
 import { mainnet, arbitrum, optimism, base, avalanche } from 'viem/chains';
 
 interface TokenBalance {
@@ -103,8 +103,8 @@ export function useTokenBalance(options: UseTokenBalanceOptions): TokenBalanceRe
         args: [address as `0x${string}`],
       }) as bigint;
 
-      // Format balance
-      const balanceFormatted = (Number(balance) / Math.pow(10, decimals)).toFixed(2);
+      // Format balance using token decimals
+      const balanceFormatted = formatUnits(balance, decimals);
 
       return {
         balance: balance.toString(),

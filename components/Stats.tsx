@@ -1,7 +1,35 @@
+'use client';
+
+import { useMemo } from 'react';
+import { useVaults } from '@/hooks/useVaults';
+import { formatUsd, safeParseNumber } from '@/lib/normalize';
+import { CURATED_VAULTS } from '@/lib/curated-vaults';
+import { getSupportedNetworks } from '@/lib/sdk';
+
+const SUPPORTED_NETWORKS = getSupportedNetworks();
+const TOTAL_CURATED_VAULTS =
+  SUPPORTED_NETWORKS.length === 0
+    ? CURATED_VAULTS.length
+    : CURATED_VAULTS.filter(vault => SUPPORTED_NETWORKS.includes(vault.chainId)).length;
+
 export default function Stats() {
+  // const { data: vaults, isLoading, error } = useVaults({
+  //   chainIds: SUPPORTED_NETWORKS,
+  // });
+
+  // const totalTvlDisplay = useMemo(() => {
+  //   if (isLoading) return 'Loading...';
+  //   console.log(vaults);
+  //   console.log(error);
+  //   if (error) return '--';
+
+  //   const totalTvl = vaults?.reduce((sum, vault) => sum + safeParseNumber(vault.tvlUsd), 0) ?? 0;
+  //   return formatUsd(totalTvl.toString());
+  // }, [vaults, isLoading, error]);
+
   const stats = [
-    { value: '$10.2M+', label: 'TOTAL TVL' },
-    { value: '8', label: 'ACTIVE VAULTS' },
+    { value: '$2.32M', label: 'TOTAL TVL' },
+    { value: TOTAL_CURATED_VAULTS.toString(), label: 'ACTIVE VAULTS' },
   ];
 
   return (
@@ -27,4 +55,3 @@ export default function Stats() {
     </section>
   );
 }
-

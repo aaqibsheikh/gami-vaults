@@ -8,9 +8,34 @@ interface VaultCardProps {
   chainId: number;
   vaultId: string;
   chainName?: string;
+  provider?: 'upshift' | 'ipor' | 'lagoon';
 }
 
-const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: VaultCardProps) => {
+const VaultCard = ({
+  name,
+  apy,
+  tvl,
+  assets,
+  chainId,
+  vaultId,
+  chainName,
+  provider,
+}: VaultCardProps) => {
+  let badgeText = '';
+  let badgeClass = '';
+  if (provider === 'ipor') {
+    badgeText = 'Advanced';
+    badgeClass = 'bg-[#C4511F]';
+  } else if (provider === 'lagoon') {
+    badgeText = 'Lagoon';
+    badgeClass = 'bg-[#6B73FF]';
+  } else if (provider === 'upshift') {
+    badgeText = 'Upshift';
+    badgeClass = 'bg-[#2C2929]';
+  } else {
+    badgeText = '--';
+    badgeClass = 'bg-[#2C2929]';
+  }
   return (
     <div className='w-full sm:min-w-[337px] min-h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
       <div className='w-full h-full bg-black rounded-[22.37px] sm:px-[22.37px] py-[22.37px] px-3 relative overflow-hidden'>
@@ -43,8 +68,10 @@ const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: Vaul
               </div>
             )}
 
-            <div className='text-[9.59px] font-medium leading-none text-white bg-[#2C2929] rounded-[7.49px] h-[17px] flex items-center justify-center px-[4.49px]'>
-              <span>Flagship</span>
+            <div
+              className={`text-[9.59px] font-medium leading-none text-white rounded-[7.49px] py-[2.4px] px-[4.49px] bg-[#2C2929]`}
+            >
+              {badgeText}
             </div>
           </div>
         </div>
