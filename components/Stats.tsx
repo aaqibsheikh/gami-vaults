@@ -35,7 +35,7 @@ export default function Stats() {
   return (
     <section className='pt-[29px] z-10 relative'>
       <div className='sm:rounded-[20px] sm:shadow-[0_0_0_0.5px_#ffffff47] sm:px-10 sm:py-8 sm:bg-[#FFFFFF0F]'>
-        <div className='flex flex-col flex-wrap gap-4 sm:items-center sm:justify-between sm:px-40 sm:flex-row'>
+        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
           {stats.map((stat, index) => (
             <div
               key={index}
@@ -55,4 +55,3 @@ export default function Stats() {
     </section>
   );
 }
-

@@ -52,7 +52,7 @@ export default function Footer() {
             <a
               href='#'
               className='flex justify-center items-center sm:w-11 sm:h-11 w-[26.5px] h-[26.5px] rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
-              aria-label='Instagram'
+              aria-label='Twitter'
             >
               <Image
                 src='/assets/svgs/twitter.svg'
@@ -64,6 +64,20 @@ export default function Footer() {
             </a>
 
             <a
+              href='#'
+              className='flex justify-center items-center sm:w-11 sm:h-11 w-[26.5px] h-[26.5px] rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
+              aria-label='Instagram'
+            >
+              <Image
+                src='/assets/svgs/email.svg'
+                alt='Twitter'
+                width={20.53}
+                height={14.7}
+                className='sm:w-[20.53px] w-[12.32px]'
+              />
+            </a>
+
+            {/* <a
               href='#'
               className='flex justify-center items-center sm:w-11 sm:h-11 w-[26.5px] h-[26.5px] rounded-full border transition-colors border-[#FFFFFF40] hover:bg-white/10'
               aria-label='Instagram'
@@ -103,7 +117,7 @@ export default function Footer() {
                 height={11.56}
                 className='sm:w-[14.2px] w-[8.14px]'
               />
-            </a>
+            </a> */}
           </div>
         </div>
       </div>
