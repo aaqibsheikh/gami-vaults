@@ -60,7 +60,7 @@ const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName, provid
               </div>
             )}
 
-            <div className={`text-[9.59px] font-medium leading-none text-white rounded-[7.49px] py-[2.4px] px-[4.49px] ${badgeClass}`}>
+            <div className={`text-[9.59px] font-medium leading-none text-white rounded-[7.49px] py-[2.4px] px-[4.49px] bg-[#2C2929]`}>
               {badgeText}
             </div>
           </div>
