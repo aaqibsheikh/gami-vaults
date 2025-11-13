@@ -11,8 +11,8 @@ const AboutHero = () => {
         </h1>
 
         <p className='font-dm-sans sm:text-xl font-light leading-[128%] tracking-[-0.4px] text-white sm:max-w-[546px] max-w-[300px] mx-auto sm:mx-0 sm:pt-0 pt-8'>
-          Gami provides on-chain asset management infrastructure with active curation & dynamic risk
-          management
+          Gami provides on-chain yield infrastructure infrastructure with active curation & dynamic
+          risk management
         </p>
 
         <div className='flex justify-center items-center pt-1 sm:pt-2 sm:justify-start'>
