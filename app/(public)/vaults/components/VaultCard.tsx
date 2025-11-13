@@ -12,7 +12,7 @@ interface VaultCardProps {
 
 const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: VaultCardProps) => {
   return (
-    <div className='xl:w-[337px] w-full sm:min-w-[337px] min-h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
+    <div className='w-full sm:min-w-[337px] min-h-[335px] rounded-[29.44px] shadow-[0_0_0_0.4px_#ffffff47] p-[11.9px] bg-[#FFFFFF0F] backdrop-blur-lg'>
       <div className='w-full h-full bg-black rounded-[22.37px] sm:px-[22.37px] py-[22.37px] px-3 relative overflow-hidden'>
         <div
           className='absolute top-0 left-0 z-0 w-full'
@@ -50,7 +50,7 @@ const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: Vaul
         </div>
 
         <div className='flex gap-[7px]'>
-          <div className='shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(0,0,0,0.20)] rounded-[20px] w-full sm:px-[21.13px] px-3 h-[121px] backdrop-blur-sm bg-[#FFFFFF0F] mt-5 relative flex items-center justify-center'>
+          <div className='shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(0,0,0,0.20)] rounded-[20px] w-full sm:px-[15px] px-3 h-[121px] backdrop-blur-sm bg-[#FFFFFF0F] mt-5 relative flex items-center justify-center'>
             <div className='text-[12px] leading-none absolute top-[11px] right-[9px]'>APY</div>
 
             <div className='text-center'>
@@ -60,7 +60,7 @@ const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: Vaul
             </div>
           </div>
 
-          <div className='shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(0,0,0,0.20)] rounded-[20px] w-full sm:px-[21.13px] px-3 h-[121px] backdrop-blur-sm bg-[#FFFFFF0F] mt-5 relative flex items-center justify-center'>
+          <div className='shadow-[0_0_0_0.5px_#ffffff47,inset_0_2px_8px_rgba(0,0,0,0.20)] rounded-[20px] w-full sm:px-[15px] px-3 h-[121px] backdrop-blur-sm bg-[#FFFFFF0F] mt-5 relative flex items-center justify-center'>
             <div className='text-[12px] leading-none absolute top-[11px] right-[9px]'>TVL</div>
 
             <div className='text-center'>
