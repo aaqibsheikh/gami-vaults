@@ -188,8 +188,7 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
 
       {!isLagoonMainnet && (
         <div className='text-white/60 font-dm-sans text-[14px]'>
-          Activity data is currently available for Lagoon vaults on Ethereum
-          mainnet.
+          Activity data is currently not available for Upshift vaults
         </div>
       )}
 
