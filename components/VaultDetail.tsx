@@ -58,7 +58,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
 
       <div className='grid grid-cols-2 gap-y-20 justify-between md:grid-cols-4'>
         <div className='flex flex-col gap-0.5 justify-center items-center sm:gap-2'>
-          <div className='text-white font-modernist text-[30.32px] sm:text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+          <div className='text-white font-modernist text-[30.32px] sm:text-[36px] font-bold leading-[110%] tracking-[-0.866px]'>
             {tvl}
           </div>
 
@@ -68,7 +68,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
         </div>
 
         <div className='flex flex-col gap-0.5 justify-center items-center sm:gap-2'>
-          <div className='text-white font-modernist text-[30.32px] sm:text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+          <div className='text-white font-modernist text-[30.32px] sm:text-[36px] font-bold leading-[110%] tracking-[-0.866px]'>
             {aprAll}
           </div>
 
@@ -78,7 +78,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
         </div>
 
         <div className='flex flex-col gap-0.5 justify-center items-center sm:gap-2'>
-          <div className='text-white font-modernist text-[30.32px] sm:text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+          <div className='text-white font-modernist text-[30.32px] sm:text-[36px] font-bold leading-[110%] tracking-[-0.866px]'>
             {apyAll}
           </div>
 
@@ -88,7 +88,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
         </div>
 
         <div className='flex flex-col gap-0.5 justify-center items-center sm:gap-2'>
-          <div className='text-[#00F792] font-modernist text-[30.32px] sm:text-[43px] font-bold leading-[110%] tracking-[-0.866px]'>
+          <div className='text-[#00F792] font-modernist text-[30.32px] sm:text-[36px] font-bold leading-[110%] tracking-[-0.866px]'>
             {vaultAge}
           </div>
 

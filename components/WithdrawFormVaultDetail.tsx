@@ -187,164 +187,162 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
   };
 
   return (
-    <div className='p-[11px] rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] bg-[#090909e0] backdrop-blur-lg'>
-      <div className='w-full h-full p-5 rounded-[20px] bg-[#FFFFFF0F]'>
-        <h2 className='text-white font-dm-sans text-[17px] font-bold leading-[128%] tracking-[-0.344px] mb-[30px]'>
-          Withdraw
-        </h2>
+    <div className='w-full h-full md:p-5 p-[18px] md:rounded-[20px] rounded-[18.12px] bg-[#141414]'>
+      {isWrongChain && (
+        <div className='p-3 space-y-2 w-full rounded-lg border bg-yellow-500/20 border-yellow-500/50'>
+          <div className='text-yellow-400 font-dm-sans text-[13px] font-medium leading-[120%]'>
+            ⚠️ Wrong Network Detected
+          </div>
+          <div className='text-white/80 font-dm-sans text-[12px] leading-[140%]'>
+            Your wallet is connected to <span className='font-semibold'>{currentChainName}</span>,
+            but this vault requires <span className='font-semibold'>{requiredChainName}</span>.
+          </div>
+          <button
+            onClick={handleSwitchChain}
+            disabled={isSwitchingChain || !switchChainAsync}
+            className='w-full bg-gradient-to-r from-[#A100FF] to-[#A100FF]/80 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-sm'
+          >
+            {isSwitchingChain ? 'Switching...' : `Switch to ${requiredChainName}`}
+          </button>
+        </div>
+      )}
 
-        {isWrongChain && (
-          <div className='p-3 space-y-2 w-full rounded-lg border bg-yellow-500/20 border-yellow-500/50'>
-            <div className='text-yellow-400 font-dm-sans text-[13px] font-medium leading-[120%]'>
-              ⚠️ Wrong Network Detected
-            </div>
-            <div className='text-white/80 font-dm-sans text-[12px] leading-[140%]'>
-              Your wallet is connected to <span className='font-semibold'>{currentChainName}</span>,
-              but this vault requires <span className='font-semibold'>{requiredChainName}</span>.
-            </div>
+      <div className='space-y-2.5 w-full md:mb-[17px] mb-[14px] md:py-3 py-2.5'>
+        <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+          AMOUNT (Shares)
+        </div>
+
+        <div>
+          <input
+            type='text'
+            value={sharesAmount}
+            onChange={handleAmountChange}
+            placeholder='0.00'
+            className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
+          />
+        </div>
+
+        {isLoadingPosition ? (
+          <div className='text-white/50 font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+            Loading balance...
+          </div>
+        ) : position?.shares ? (
+          <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+            Balance: {position.shares} {vault?.symbol}
             <button
-              onClick={handleSwitchChain}
-              disabled={isSwitchingChain || !switchChainAsync}
-              className='w-full bg-gradient-to-r from-[#A100FF] to-[#A100FF]/80 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-sm'
+              onClick={handleMaxAmount}
+              className='md:ml-2 ml-1 text-[#7E2BF5] underline underline-offset-2 hover:opacity-80'
             >
-              {isSwitchingChain ? 'Switching...' : `Switch to ${requiredChainName}`}
+              Max
             </button>
           </div>
-        )}
-
-        <div className='space-y-2.5 w-full mb-8'>
-          <div className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-            AMOUNT (Shares)
-          </div>
-
-          <div>
-            <input
-              type='text'
-              value={sharesAmount}
-              onChange={handleAmountChange}
-              placeholder='0.00'
-              className='h-[54px] w-full text-white font-dm-sans text-[19px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
-            />
-          </div>
-
-          {isLoadingPosition ? (
-            <div className='text-white/50 font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-              Loading balance...
-            </div>
-          ) : position?.shares ? (
-            <div className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-              Balance: {position.shares} {vault?.symbol}
-              <button
-                onClick={handleMaxAmount}
-                className='ml-2 text-[#7E2BF5] underline underline-offset-2 hover:opacity-80'
-              >
-                Max
-              </button>
-            </div>
-          ) : null}
-        </div>
-
-        <div className='space-y-2.5 w-full mb-[27px]'>
-          <div className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-            ASSET
-          </div>
-
-          <div>
-            <select
-              value={vault?.underlying.symbol}
-              disabled
-              className='h-[54px] w-full text-white font-dm-sans text-[19px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
-            >
-              <option value={vault?.underlying.symbol} className='bg-gray-800'>
-                {vault?.underlying.symbol}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div className='space-y-3 mb-[27px]'>
-          <div className='flex justify-between items-center'>
-            <span className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-              You will receive
-            </span>
-
-            <span className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-              <span>{assetsToReceive}</span>
-              <span>{vault?.underlying.symbol || '--'}</span>
-            </span>
-          </div>
-
-          <div className='flex justify-between items-center'>
-            <span className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-              Share price
-            </span>
-
-            <span className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-              {isLoadingSharePrice ? '...' : sharePrice || '1.00'}
-              <span>{vault?.underlying.symbol || '--'}</span>
-            </span>
-          </div>
-
-          <div className='w-full h-[1px] bg-white/50'></div>
-
-          <div className='flex justify-between items-center px-2'>
-            <span className='text-white font-dm-sans text-[13px] font-bold leading-none tracking-[-0.256px]'>
-              Total
-            </span>
-
-            <span className='text-[#00F792] font-dm-sans text-[13px] font-bold leading-none tracking-[-0.256px]'>
-              {sharesAmount || '0.00'} {vault?.symbol}
-            </span>
-          </div>
-        </div>
-
-        <div className='mb-5 w-full'>
-          <div className='text-white font-dm-sans text-[13px] font-normal tracking-[-0.256px] mb-4'>
-            QUICK STATS
-          </div>
-
-          <div className='space-y-1.5'>
-            <div className='flex justify-between items-center'>
-              <span className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-                Your holdings
-              </span>
-
-              <span className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-                {isLoadingPosition ? 'Loading...' : (position ? formatUsd(position.valueUsd) : '--')}
-              </span>
-            </div>
-
-            <div className='flex justify-between items-center'>
-              <span className='text-white font-dm-sans text-[13px] font-normal leading-none tracking-[-0.256px]'>
-                Expected APY
-              </span>
-
-              <span className='text-[#00F792] font-dm-sans text-[13px] font-bold leading-none tracking-[-0.256px]'>
-                {expectedApy}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={handleWithdraw}
-          disabled={
-            isWithdrawing ||
-            isTxPending ||
-            isWrongChain ||
-            !sharesAmount ||
-            parseFloat(sharesAmount) <= 0 ||
-            (position?.shares ? parseFloat(sharesAmount) > parseFloat(position.shares) : true)
-          }
-          className='w-full px-[28.44px] h-[40px] rounded-[10px] bg-gradient-purple text-white text-[15px] font-medium font-dm-sans hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed'
-        >
-          {isWithdrawing || isTxPending
-            ? 'Processing...'
-            : isWrongChain
-              ? `Switch to ${requiredChainName} to Withdraw`
-              : 'Withdraw'}
-        </button>
+        ) : null}
       </div>
+
+      <div className='space-y-2.5 w-full md:mb-[27px] mb-6 md:pt-3 pt-2.5'>
+        <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+          ASSET
+        </div>
+
+        <div>
+          <select
+            value={vault?.underlying.symbol}
+            disabled
+            className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
+          >
+            <option value={vault?.underlying.symbol} className='bg-gray-800'>
+              {vault?.underlying.symbol}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div className='space-y-3 md:mb-[27px] mb-6'>
+        <div className='flex justify-between items-center'>
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+            You will receive
+          </span>
+
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
+            <span>{assetsToReceive}</span>
+            <span>{vault?.underlying.symbol || '--'}</span>
+          </span>
+        </div>
+
+        <div className='flex justify-between items-center'>
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+            Share price
+          </span>
+
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
+            {isLoadingSharePrice ? '...' : sharePrice || '1.00'}
+            <span>{vault?.underlying.symbol || '--'}</span>
+          </span>
+        </div>
+
+        <div className='w-full h-[1px] bg-white/50'></div>
+
+        <div className='flex justify-between items-center px-2'>
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
+            Total
+          </span>
+
+          <span className='text-[#00F792] font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
+            {sharesAmount || '0.00'} {vault?.symbol}
+          </span>
+        </div>
+      </div>
+
+      <div className='mb-5 w-full'>
+        <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal tracking-[-0.256px] mb-4'>
+          QUICK STATS
+        </div>
+
+        <div className='space-y-1.5'>
+          <div className='flex justify-between items-center'>
+            <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+              Your holdings
+            </span>
+
+            <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+              {isLoadingPosition ? 'Loading...' : position ? formatUsd(position.valueUsd) : '--'}
+            </span>
+          </div>
+
+          <div className='flex justify-between items-center'>
+            <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+              Expected APY
+            </span>
+
+            <span className='text-[#00F792] font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
+              {expectedApy}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={handleWithdraw}
+        disabled={
+          isWithdrawing ||
+          isTxPending ||
+          isWrongChain ||
+          !sharesAmount ||
+          parseFloat(sharesAmount) <= 0 ||
+          (position?.shares ? parseFloat(sharesAmount) > parseFloat(position.shares) : true)
+        }
+        className='w-full px-[28.44px] h-[40px] rounded-[10px] bg-gradient-purple text-white text-[15px] font-medium font-dm-sans hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed'
+      >
+        {isWithdrawing || isTxPending
+          ? 'Processing...'
+          : isWrongChain
+            ? `Switch to ${requiredChainName} to Withdraw`
+            : 'Withdraw'}
+      </button>
+
+      <p className='md:mt-4 mt-2.5 text-xs text-center text-white/50 font-modernist'>
+        Expected settlement: 2 days
+      </p>
     </div>
   );
 }

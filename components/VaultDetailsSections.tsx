@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useHistoricalData } from '@/hooks/useHistoricalData';
 import PerformanceChart from './PerformanceChart';
-import DepositFormVaultDetail from './DepositFormVaultDetail';
 import { DepositFormVaultDetailProps } from './DepositFormVaultDetail';
+import VaultActionTabs from './VaultActionTabs';
 
 interface VaultDetailsSectionsProps {
   vault?: {
@@ -112,7 +112,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
       </div>
 
       <div className='md:hidden'>
-        <DepositFormVaultDetail vault={vault as DepositFormVaultDetailProps['vault']} />
+        <VaultActionTabs vault={vault as DepositFormVaultDetailProps['vault']} />
       </div>
 
       <div className='md:space-y-5 space-y-2.5 w-full'>

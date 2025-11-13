@@ -404,185 +404,166 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
   };
 
   return (
-    <div className='md:p-[11px] p-2.5 md:rounded-[20px] rounded-[18.12px] shadow-[0_0_0_0.5px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg w-full'>
-      <div className='flex items-center gap-3 mb-[8.7px]'>
-        {tabs.map((tab, index) => (
+    <div className='w-full h-full md:p-5 p-[18px] md:rounded-[20px] rounded-[18.12px] bg-[#141414]'>
+      {isWrongChain && (
+        <div className='p-3 space-y-2 w-full rounded-lg border bg-yellow-500/20 border-yellow-500/50'>
+          <div className='text-yellow-400 font-dm-sans text-[13px] font-medium leading-[120%]'>
+            ⚠️ Wrong Network Detected
+          </div>
+
+          <div className='text-white/80 font-dm-sans text-[12px] leading-[140%]'>
+            Your wallet is connected to <span className='font-semibold'>{currentChainName}</span>,
+            but this vault requires <span className='font-semibold'>{requiredChainName}</span>.
+          </div>
+
           <button
-            key={tab}
-            className={`flex md:h-10 h-[36px] px-2.5 justify-center items-center rounded-[21.27px] backdrop-blur-lg ${
-              index === 0
-                ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
-                : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
-            } transition-colors`}
+            onClick={handleSwitchChain}
+            disabled={isSwitchingChain || !switchChainAsync}
+            className='w-full bg-gradient-to-r from-[#A100FF] to-[#A100FF]/80 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-sm'
           >
-            <div className='text-white font-dm-sans md:text-[17px] font-medium leading-none'>
-              {tab}
-            </div>
+            {isSwitchingChain ? 'Switching...' : `Switch to ${requiredChainName}`}
           </button>
-        ))}
+        </div>
+      )}
+
+      <div className='space-y-2.5 w-full md:mb-[17px] mb-[14px] md:py-3 py-2.5'>
+        <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+          Enter Amount
+        </div>
+
+        <div>
+          <input
+            type='text'
+            value={amount}
+            onChange={handleAmountChange}
+            placeholder='0.00'
+            className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
+          />
+        </div>
+
+        {isLoadingBalance ? (
+          <div className='text-white/50 font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+            Loading balance...
+          </div>
+        ) : balanceFormatted ? (
+          <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+            Current Balance: {balanceFormatted} {selectedAsset}
+          </div>
+        ) : null}
       </div>
 
-      <div className='w-full h-full md:p-5 p-[18px] md:rounded-[20px] rounded-[18.12px] bg-[#141414]'>
-        {isWrongChain && (
-          <div className='p-3 space-y-2 w-full rounded-lg border bg-yellow-500/20 border-yellow-500/50'>
-            <div className='text-yellow-400 font-dm-sans text-[13px] font-medium leading-[120%]'>
-              ⚠️ Wrong Network Detected
-            </div>
-
-            <div className='text-white/80 font-dm-sans text-[12px] leading-[140%]'>
-              Your wallet is connected to <span className='font-semibold'>{currentChainName}</span>,
-              but this vault requires <span className='font-semibold'>{requiredChainName}</span>.
-            </div>
-
-            <button
-              onClick={handleSwitchChain}
-              disabled={isSwitchingChain || !switchChainAsync}
-              className='w-full bg-gradient-to-r from-[#A100FF] to-[#A100FF]/80 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-sm'
-            >
-              {isSwitchingChain ? 'Switching...' : `Switch to ${requiredChainName}`}
-            </button>
-          </div>
-        )}
-
-        <div className='space-y-2.5 w-full md:mb-[17px] mb-[14px] md:py-3 py-2.5'>
-          <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-            Enter Amount
-          </div>
-
-          <div>
-            <input
-              type='text'
-              value={amount}
-              onChange={handleAmountChange}
-              placeholder='0.00'
-              className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
-            />
-          </div>
-
-          {isLoadingBalance ? (
-            <div className='text-white/50 font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-              Loading balance...
-            </div>
-          ) : balanceFormatted ? (
-            <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-              Current Balance: {balanceFormatted} {selectedAsset}
-            </div>
-          ) : null}
+      <div className='space-y-2.5 w-full md:mb-[27px] mb-6 md:pt-3 pt-2.5'>
+        <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+          Asset Type
         </div>
 
-        <div className='space-y-2.5 w-full md:mb-[27px] mb-6 md:pt-3 pt-2.5'>
-          <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-            Asset Type
-          </div>
+        <div>
+          <select
+            value={selectedAsset}
+            onChange={e => setSelectedAsset(e.target.value)}
+            className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
+          >
+            {availableAssets.map(asset => (
+              <option key={asset.symbol} value={asset.symbol} className='bg-gray-800'>
+                {asset.symbol}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
-          <div>
-            <select
-              value={selectedAsset}
-              onChange={e => setSelectedAsset(e.target.value)}
-              className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
-            >
-              {availableAssets.map(asset => (
-                <option key={asset.symbol} value={asset.symbol} className='bg-gray-800'>
-                  {asset.symbol}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className='space-y-3 md:mb-[27px] mb-6'>
+        <div className='flex justify-between items-center'>
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+            You will receive
+          </span>
+
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
+            <span>{sharesToReceive}</span>
+            <span>{vault?.symbol || '--'}</span>
+          </span>
         </div>
 
-        <div className='space-y-3 md:mb-[27px] mb-6'>
+        <div className='flex justify-between items-center'>
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+            Share price
+          </span>
+
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
+            {isLoadingSharePrice ? '...' : sharePrice || '1.00'}
+            <span>{vault?.underlying.symbol || '--'}</span>
+          </span>
+        </div>
+
+        <div className='w-full h-[1px] bg-white/50'></div>
+
+        <div className='flex justify-between items-center px-2'>
+          <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
+            Total
+          </span>
+
+          <span className='text-[#00F792] font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
+            {amount || '0.00'} {selectedAsset}
+          </span>
+        </div>
+      </div>
+
+      <div className='mb-5 w-full'>
+        <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal tracking-[-0.256px] mb-4'>
+          QUICK STATS
+        </div>
+
+        <div className='space-y-1.5'>
           <div className='flex justify-between items-center'>
             <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-              You will receive
+              Your position
             </span>
 
-            <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-              <span>{sharesToReceive}</span>
-              <span>{vault?.symbol || '--'}</span>
+            <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
+              {isLoadingPosition ? 'Loading...' : userPosition}
             </span>
           </div>
 
           <div className='flex justify-between items-center'>
             <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-              Share price
-            </span>
-
-            <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-              {isLoadingSharePrice ? '...' : sharePrice || '1.00'}
-              <span>{vault?.underlying.symbol || '--'}</span>
-            </span>
-          </div>
-
-          <div className='w-full h-[1px] bg-white/50'></div>
-
-          <div className='flex justify-between items-center px-2'>
-            <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
-              Total
+              Expected Annual Percentage Yield (APY)
             </span>
 
             <span className='text-[#00F792] font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
-              {amount || '0.00'} {selectedAsset}
+              {expectedApy}
             </span>
           </div>
         </div>
-
-        <div className='mb-5 w-full'>
-          <div className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal tracking-[-0.256px] mb-4'>
-            QUICK STATS
-          </div>
-
-          <div className='space-y-1.5'>
-            <div className='flex justify-between items-center'>
-              <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-                Your position
-              </span>
-
-              <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-                {isLoadingPosition ? 'Loading...' : userPosition}
-              </span>
-            </div>
-
-            <div className='flex justify-between items-center'>
-              <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px]'>
-                Expected Annual Percentage Yield (APY)
-              </span>
-
-              <span className='text-[#00F792] font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
-                {expectedApy}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={needsApproval ? handleApprove : handleDeposit}
-          disabled={
-            isApproving ||
-            isDepositing ||
-            isTxPending ||
-            isWrongChain ||
-            !amount ||
-            parseFloat(amount) <= 0 ||
-            !balanceFormatted ||
-            parseFloat(amount) > parseFloat(balanceFormatted)
-          }
-          className='w-full px-[28.44px] md:h-[40px] h-[28.08px] rounded-[10px] bg-gradient-purple text-white md:text-[15px] text-sm font-medium font-dm-sans hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed'
-        >
-          {isApproving || isDepositing || isTxPending
-            ? needsApproval
-              ? 'Approving...'
-              : 'Processing...'
-            : isWrongChain
-              ? `Switch to ${requiredChainName} to ${needsApproval ? 'Approve' : 'Deposit'}`
-              : needsApproval
-                ? 'Approve'
-                : 'Deposit'}
-        </button>
-
-        <p className='md:mt-5 mt-2.5 text-xs text-center text-white/50 font-modernist'>
-          Expected settlement: 2 days
-        </p>
       </div>
+
+      <button
+        onClick={needsApproval ? handleApprove : handleDeposit}
+        disabled={
+          isApproving ||
+          isDepositing ||
+          isTxPending ||
+          isWrongChain ||
+          !amount ||
+          parseFloat(amount) <= 0 ||
+          !balanceFormatted ||
+          parseFloat(amount) > parseFloat(balanceFormatted)
+        }
+        className='w-full px-[28.44px] md:h-[40px] h-[28.08px] rounded-[10px] bg-gradient-purple text-white md:text-[15px] text-sm font-medium font-dm-sans hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed'
+      >
+        {isApproving || isDepositing || isTxPending
+          ? needsApproval
+            ? 'Approving...'
+            : 'Processing...'
+          : isWrongChain
+            ? `Switch to ${requiredChainName} to ${needsApproval ? 'Approve' : 'Deposit'}`
+            : needsApproval
+              ? 'Approve'
+              : 'Deposit'}
+      </button>
+
+      <p className='md:mt-4 mt-2.5 text-xs text-center text-white/50 font-modernist'>
+        Expected settlement: 2 days
+      </p>
     </div>
   );
 }
