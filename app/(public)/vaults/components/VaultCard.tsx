@@ -47,7 +47,7 @@ const VaultCard = ({
           }}
         />
 
-        <div className='flex relative z-10 justify-between items-start'>
+        <div className='flex relative z-10 justify-between items-start gap-1.5'>
           <div>
             <div className='sm:font-bold sm:text-[17.9px] leading-none tracking-[-0.358px]'>
               {name}
@@ -117,7 +117,7 @@ const VaultCard = ({
 
           <Link
             href={`/vaults/${chainId}/${vaultId}`}
-            className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors w-full max-w-[122px] flex items-center justify-center'
+            className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors w-full flex items-center justify-center'
           >
             Details
           </Link>
