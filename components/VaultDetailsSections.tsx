@@ -501,8 +501,33 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
       </div>
 
       <div className='rounded-[20.78px] border border-[#FF9C4680] bg-[#FF9C460F] md:py-[30px] md:px-[20px] py-5 px-5 space-y-3.5'>
-        <div className='text-white font-dm-sans md:text-[20px] text-[15.91px] font-bold flex items-center gap-0.5'>
-          <span className='md:-mt-1.5 -mt-1'>⚠️</span>
+        <div className='text-white font-dm-sans md:text-[20px] text-[15.91px] font-bold flex items-end gap-1 leading-none'>
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            viewBox='0 0 64 64'
+            role='img'
+            aria-labelledby='warnTitle warnDesc'
+            className='w-4 h-4 md:w-5 md:h-5'
+          >
+            <title id='warnTitle'>Warning</title>
+            <desc id='warnDesc'>Rounded yellow triangular warning sign with exclamation mark.</desc>
+
+            <path
+              d='M32 6
+           C33 6 34 6.6 34.5 7.5
+           L60 54
+           C60.5 55 60 56 59 56
+           H5
+           C4 56 3.5 55 4 54
+           L29.5 7.5
+           C30 6.6 31 6 32 6Z'
+              fill='#FFCC00'
+            />
+
+            <rect x='30' y='18' width='4' height='18' rx='2' ry='2' fill='#000000' />
+
+            <circle cx='32' cy='44.5' r='3.5' fill='#000000' />
+          </svg>
           <span>Risk Disclosure</span>
         </div>
 
