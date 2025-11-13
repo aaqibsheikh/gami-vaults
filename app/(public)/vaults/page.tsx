@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useVaults } from '@/hooks/useVaults';
 import { getSupportedNetworks, getNetworkConfig } from '@/lib/sdk';
 import { formatUsd, formatPercentage } from '@/lib/normalize';
@@ -18,9 +18,9 @@ const stats = [
 ];
 
 export default function ExploreVaults() {
-  const tabs = ['Assets', 'USD'];
-  // const tabs = ['Assets', 'USD', 'BTC', 'ETH', 'AVAX', 'Partner'];
   const [activeViewType, setActiveViewType] = useState<'grid' | 'list'>('list');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeToken, setActiveToken] = useState('All');
   const viewTypes: { icon: string; value: 'grid' | 'list' }[] = [
     {
       icon: '/assets/svgs/grid-icon.svg',
@@ -41,10 +41,26 @@ export default function ExploreVaults() {
     chainIds: supportedNetworks,
   });
 
+  const tokenTabs = useMemo(() => {
+    if (!vaults || vaults.length === 0) return ['All'];
+
+    const uniqueTokens = Array.from(new Set(vaults.map(v => v.underlying.symbol)));
+    uniqueTokens.sort((a, b) => a.localeCompare(b));
+
+    return ['All', ...uniqueTokens];
+  }, [vaults]);
+
+  useEffect(() => {
+    if (!tokenTabs.includes(activeToken)) {
+      setActiveToken('All');
+    }
+  }, [tokenTabs, activeToken]);
+
   // Transform vaults for display and compute featured (Upshift top 3)
   const { featuredVaults, otherVaults } = useMemo(() => {
     if (!vaults) return { transformedVaults: [], featuredVaults: [], otherVaults: [] };
 
+    const normalizedQuery = searchQuery.trim().toLowerCase();
     const toDisplay = (v: VaultDTO) => ({
       name: v.name,
       apy: v.apyNet ? formatPercentage(v.apyNet) : 'N/A',
@@ -59,11 +75,27 @@ export default function ExploreVaults() {
     const all = vaults.map(toDisplay);
     const featuredRaw = vaults.filter((v: VaultDTO) => v.provider === 'upshift').slice(0, 3);
     const featuredIds = new Set(featuredRaw.map((v: VaultDTO) => v.id));
-    const featured = featuredRaw.map(toDisplay);
-    const others = all.filter(v => !featuredIds.has(v.vaultId));
+    let featured = featuredRaw.map(toDisplay);
+    let others = all.filter(v => !featuredIds.has(v.vaultId));
 
-    return { transformedVaults: all, featuredVaults: featured, otherVaults: others };
-  }, [vaults]);
+    if (activeToken !== 'All') {
+      const matchesToken = (vault: ReturnType<typeof toDisplay>) => vault.assets.includes(activeToken);
+      others = others.filter(matchesToken);
+    }
+
+    if (!normalizedQuery) {
+      return { transformedVaults: all, featuredVaults: featured, otherVaults: others };
+    }
+
+    const matchesQuery = (vault: ReturnType<typeof toDisplay>) =>
+      vault.name.toLowerCase().includes(normalizedQuery);
+
+    return {
+      transformedVaults: all,
+      featuredVaults: featured,
+      otherVaults: others.filter(matchesQuery),
+    };
+  }, [vaults, searchQuery, activeToken]);
 
   return (
     <>
@@ -108,28 +140,13 @@ export default function ExploreVaults() {
         </div>
 
         <div className='sm:bg-[#141414] bg-[#090909] rounded-[21.93px] sm:p-[20.37px] p-2 md:mt-10 mt-5'>
-          <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-[10px]'>
-              {tabs.map((tab, index) => (
-                <button
-                  key={tab}
-                  className={`flex h-10 px-2.5 justify-center items-center rounded-[20.78px] backdrop-blur-lg ${
-                    index === 0
-                      ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
-                      : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
-                  } transition-colors`}
-                >
-                  <div className='text-white font-dm-sans text-[13.58px] font-light leading-none'>
-                    {tab}
-                  </div>
-                </button>
-              ))}
-            </div>
-
+          <div className='flex justify-end items-center'>
             <div className='block relative sm:hidden'>
               <input
                 type='text'
-                placeholder='Search by chain...'
+                placeholder='Search by vault name...'
+                value={searchQuery}
+                onChange={event => setSearchQuery(event.target.value)}
                 className='bg-white text-black placeholder:text-black text-[14px] font-light font-dm-sans outline-none h-[40px] max-w-[268px] w-full rounded-[19.09px] pr-2 pl-[32.21px] shadow-[0_0_0_0.4px_#ffffff47] backdrop-blur-lg'
               />
 
@@ -199,17 +216,18 @@ export default function ExploreVaults() {
 
         <div className='bg-[#141414] rounded-[21.93px] p-[20.37px] mt-10 sm:block hidden'>
           <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-[14.32px]'>
-              {tabs.map((tab, index) => (
+            <div className='flex items-center gap-[14.32px] overflow-x-auto'>
+              {tokenTabs.map(tab => (
                 <button
                   key={tab}
-                  className={`flex h-10 px-2.5 justify-center items-center rounded-[20.78px] backdrop-blur-lg ${
-                    index === 0
+                  onClick={() => setActiveToken(tab)}
+                  className={`flex h-10 px-3 justify-center items-center rounded-[20.78px] backdrop-blur-lg transition-colors ${
+                    tab === activeToken
                       ? 'shadow-[0_0_0_1px_#A100FF] bg-[#A100FF2E]'
                       : 'shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
-                  } transition-colors`}
+                  }`}
                 >
-                  <div className='text-white font-dm-sans text-[13.58px] font-light leading-none'>
+                  <div className='whitespace-nowrap text-white font-dm-sans text-[13.58px] font-light leading-none'>
                     {tab}
                   </div>
                 </button>
@@ -220,7 +238,9 @@ export default function ExploreVaults() {
               <div className='relative'>
                 <input
                   type='text'
-                  placeholder='Search by chain...'
+                  placeholder='Search by vault name...'
+                  value={searchQuery}
+                  onChange={event => setSearchQuery(event.target.value)}
                   className='bg-[#FFFFFF0F] text-white placeholder:text-white text-[14px] font-light font-dm-sans outline-none h-[40px] w-[268px] rounded-[19.09px] pr-2 pl-[32.21px] shadow-[0_0_0_0.4px_#ffffff47] backdrop-blur-lg'
                 />
 

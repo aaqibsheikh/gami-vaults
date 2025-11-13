@@ -117,14 +117,6 @@ export default function Header() {
           </nav>
 
           <div className='flex items-center gap-[14px]'>
-            <div className='hidden lg:block'>
-              <input
-                type='text'
-                placeholder='Search vaults...'
-                className='bg-[#FFFFFF0F] text-white placeholder:text-white text-[14px] font-light font-dm-sans outline-none h-[41px] w-[268px] rounded-[10px] px-6 shadow-[0_0_0_0.4px_#ffffff47] backdrop-blur-lg'
-              />
-            </div>
-
             {mounted && isConnected ? (
               <>
                 <div className='relative leading-none h-fit'>
@@ -213,22 +205,6 @@ export default function Header() {
                   />
                 </svg>
               </button>
-            </div>
-
-            <div className='space-y-4'>
-              <div>
-                <input
-                  type='text'
-                  placeholder='Search vaults...'
-                  className='h-[51px] w-full text-white font-dm-sans text-[17.98px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[22.6px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
-                />
-              </div>
-
-              {/* <div>
-              <select className='h-[51px] w-full text-white font-dm-sans text-[17.98px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[22.6px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'>
-                <option value='all'>All</option>
-              </select>
-            </div> */}
             </div>
 
             <nav className='flex flex-col gap-y-[19px] justify-center items-center text-center'>
