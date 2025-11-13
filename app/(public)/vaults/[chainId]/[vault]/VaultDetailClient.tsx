@@ -7,7 +7,6 @@ import VaultDetailsSections from '@/components/VaultDetailsSections';
 import VaultTransparency from '@/components/VaultTransparency';
 import VaultDetailSkeleton from '@/components/VaultDetailSkeleton';
 import Image from 'next/image';
-import DepositFormVaultDetail from '@/components/DepositFormVaultDetail';
 import VaultActionTabs from '@/components/VaultActionTabs';
 interface VaultDetailClientProps {
   chainId: string;

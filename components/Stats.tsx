@@ -1,15 +1,13 @@
 export default function Stats() {
   const stats = [
     { value: '$10.2M+', label: 'TOTAL TVL' },
-    { value: '35K', label: 'USERS' },
     { value: '8', label: 'ACTIVE VAULTS' },
-    { value: '2', label: 'REWARDS PROGRAM' },
   ];
 
   return (
     <section className='pt-[29px] z-10 relative'>
       <div className='sm:rounded-[20px] sm:shadow-[0_0_0_0.5px_#ffffff47] sm:px-10 sm:py-8 sm:bg-[#FFFFFF0F]'>
-        <div className='flex flex-col flex-wrap gap-4 sm:items-center sm:justify-between sm:flex-row'>
+        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
           {stats.map((stat, index) => (
             <div
               key={index}

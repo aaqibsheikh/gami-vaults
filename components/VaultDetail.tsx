@@ -50,7 +50,7 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
         </div>
 
         <div
-          className={`sm:rounded-[10px] rounded-[7px] text-white font-dm-sans sm:text-[15px] text-[10.78px] font-light leading-none ${badge.bgColor} p-[5.40px]`}
+          className={`sm:rounded-[10px] rounded-[7px] text-white font-dm-sans sm:text-[15px] text-[10.78px] font-light leading-none ${badge.bgColor} px-[5.40px] md:h-[25px] h-[18px] flex items-center justify-center`}
         >
           {badge.text}
         </div>

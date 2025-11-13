@@ -38,13 +38,13 @@ const VaultCard = ({ name, apy, tvl, assets, chainId, vaultId, chainName }: Vaul
 
           <div className='flex items-center gap-[6px]'>
             {chainName && (
-              <div className='text-[9.59px] font-medium leading-none text-white bg-[#2C2929] rounded-[7.49px] py-[2.4px] px-[4.49px]'>
-                {chainName}
+              <div className='text-[9.59px] font-medium leading-none text-white bg-[#2C2929] rounded-[7.49px] h-[17px] flex items-center justify-center px-[4.49px]'>
+                <span>{chainName}</span>
               </div>
             )}
 
-            <div className='text-[9.59px] font-medium leading-none text-white bg-[#2C2929] rounded-[7.49px] py-[2.4px] px-[4.49px]'>
-              Flagship
+            <div className='text-[9.59px] font-medium leading-none text-white bg-[#2C2929] rounded-[7.49px] h-[17px] flex items-center justify-center px-[4.49px]'>
+              <span>Flagship</span>
             </div>
           </div>
         </div>
