@@ -8,6 +8,12 @@ import { useVaultPosition } from '@/hooks/useVaultPosition';
 import { useVaultSharePrice } from '@/hooks/useVaultSharePrice';
 import { getNetworkConfig } from '@/lib/sdk';
 import toast from 'react-hot-toast';
+import {
+  formatNumberInput,
+  sanitizeNumberInput,
+  parseFormattedNumber,
+  formatNumberDisplay,
+} from '@/lib/numberFormat';
 
 interface WithdrawFormVaultDetailProps {
   vault?: {
@@ -33,12 +39,6 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
 
   // Users input SHARES to withdraw
   const [sharesAmount, setSharesAmount] = useState('');
-  const formatWithCommas = (value: string) => {
-    if (value === '') return '';
-    const [intPart, decimalPart] = value.split('.');
-    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return decimalPart !== undefined ? `${formattedInt}.${decimalPart}` : formattedInt;
-  };
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isSwitchingChain, setIsSwitchingChain] = useState(false);
 
@@ -62,22 +62,26 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
 
   const expectedApy = vault?.apyNet ? formatPercentage(vault.apyNet) : '0.0%';
 
+  const sharePriceValue = parseFormattedNumber(sharePrice);
+  const sharesAmountValue = sharesAmount ? parseFloat(sharesAmount) : undefined;
+  const underlyingDecimals = Math.max(vault?.underlying.decimals ?? 6, 0);
+
   // Calculate assets received = shares * sharePrice
-  const assetsToReceive = sharesAmount && sharePrice
-    ? (parseFloat(sharesAmount) * parseFloat(sharePrice.replace(/,/g, ''))).toFixed(4)
-    : '0.00';
+  const assetsToReceiveValue =
+    sharePriceValue !== undefined && sharesAmountValue !== undefined
+      ? sharesAmountValue * sharePriceValue
+      : undefined;
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const sanitized = value.replace(/,/g, '');
-    if (sanitized === '' || /^\d*\.?\d*$/.test(sanitized)) {
-      setSharesAmount(sanitized);
+    const value = sanitizeNumberInput(e.target.value);
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setSharesAmount(value);
     }
   };
 
   const handleMaxAmount = () => {
     if (position?.shares) {
-      setSharesAmount(position.shares.replace(/,/g, ''));
+      setSharesAmount(sanitizeNumberInput(position.shares));
     }
   };
 
@@ -222,7 +226,7 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
         <div>
           <input
             type='text'
-            value={formatWithCommas(sharesAmount)}
+            value={formatNumberInput(sharesAmount)}
             onChange={handleAmountChange}
             placeholder='0.00'
             className='md:h-[54px] h-[49.5px] w-full text-white font-dm-sans md:text-[19px] text-[17px] font-semibold outline-none placeholder-[#FFFFFF80] px-[15px] rounded-[23.77px] bg-[#FFFFFF0D] shadow-[0_0_0_0.6px_#ffffff47]'
@@ -271,7 +275,11 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
           </span>
 
           <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-            <span>{assetsToReceive ? formatWithCommas(assetsToReceive) : '0.00'}</span>
+            <span>
+              {formatNumberDisplay(assetsToReceiveValue, {
+                maximumFractionDigits: Math.min(underlyingDecimals, 20),
+              })}
+            </span>
             <span>{vault?.underlying.symbol || '--'}</span>
           </span>
         </div>
@@ -282,7 +290,13 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
           </span>
 
           <span className='text-white font-dm-sans md:text-[13px] text-[12px] font-normal leading-none tracking-[-0.256px] space-x-1'>
-            {isLoadingSharePrice ? '...' : sharePrice || '1.00'}
+            {isLoadingSharePrice
+              ? '...'
+              : sharePriceValue !== undefined && sharePriceValue > 0
+                ? formatNumberDisplay(sharePriceValue, {
+                    maximumFractionDigits: Math.min(underlyingDecimals, 20),
+                  })
+                : '--'}
             <span>{vault?.underlying.symbol || '--'}</span>
           </span>
         </div>
@@ -295,7 +309,7 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
           </span>
 
           <span className='text-[#00F792] font-dm-sans md:text-[13px] text-[12px] font-bold leading-none tracking-[-0.256px]'>
-            {sharesAmount ? formatWithCommas(sharesAmount) : '0.00'} {vault?.symbol}
+            {sharesAmount ? formatNumberInput(sharesAmount) : '0.00'} {vault?.symbol}
           </span>
         </div>
       </div>
