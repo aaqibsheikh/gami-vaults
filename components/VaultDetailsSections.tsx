@@ -115,8 +115,8 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
         <DepositFormVaultDetail vault={vault as DepositFormVaultDetailProps['vault']} />
       </div>
 
-      <div className='space-y-5 w-full'>
-        {/* <div className='flex justify-between items-center'>
+      <div className='md:space-y-5 space-y-2.5 w-full'>
+        <div className='flex justify-between items-center'>
           <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px]'>
             Chart
           </div>
@@ -405,7 +405,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
               )}
             </div>
           </div>
-        )} */}
+        )}
 
         <div className='flex h-[237px] px-3 py-3 justify-center items-center gap-2 shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] rounded-[30px]'>
           {isLoadingHistorical ? (
