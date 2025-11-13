@@ -3,28 +3,25 @@ import Link from 'next/link';
 
 const AboutHero = () => {
   return (
-    <section className='pb-[50px]'>
-      <div className='pt-[309px] pl-[21px] space-y-7'>
-        <h1 className='font-modernist text-[57.48px] font-normal leading-[100%] tracking-[-1.5px] text-white'>
-          About <span className='gradient-text'>Gami Vaults</span>
+    <section className='sm:pb-[50px] pb-2'>
+      <div className='md:pt-[309px] sm:pt-[70px] pt-[100px] sm:pl-[21px] space-y-7 sm:text-left text-center'>
+        <h1 className='font-modernist sm:text-[57.48px] text-[41.21px] font-normal leading-[100%] tracking-[-1.5px] text-white'>
+          About <br className='sm:hidden' />
+          <span className='gradient-text'>Gami Vaults</span>
         </h1>
 
-        <p className='font-dm-sans text-xl font-light leading-[128%] tracking-[-0.4px] text-white max-w-[546px]'>
-          Gami provides on-chain asset management infrastructure with active curation & dynamic risk
-          management
+        <p className='font-dm-sans sm:text-xl font-light leading-[128%] tracking-[-0.4px] text-white sm:max-w-[546px] max-w-[300px] mx-auto sm:mx-0 sm:pt-0 pt-8'>
+          Gami provides on-chain yield infrastructure infrastructure with active curation & dynamic
+          risk management
         </p>
 
-        <div className='flex gap-7 items-center pt-2'>
+        <div className='flex justify-center items-center pt-1 sm:pt-2 sm:justify-start'>
           <Link
             href='/vaults'
-            className='px-[28.44px] h-[40.89px] rounded-[10px] bg-gradient-purple text-white text-[14.22px] font-medium font-dm-sans hover:opacity-90 transition-opacity flex items-center justify-center'
+            className='sm:px-[28.44px] px-2.5 sm:h-[40.89px] h-[30px] sm:rounded-[10px] rounded-[4px] bg-gradient-purple text-white sm:text-[14.22px] text-[10.2px] font-medium font-dm-sans hover:opacity-90 transition-opacity flex items-center justify-center'
           >
             Explore Vaults →
           </Link>
-
-          <button className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors'>
-            About
-          </button>
         </div>
       </div>
     </section>

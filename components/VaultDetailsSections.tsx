@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useHistoricalData } from '@/hooks/useHistoricalData';
 import PerformanceChart from './PerformanceChart';
+import DepositFormVaultDetail from './DepositFormVaultDetail';
+import { DepositFormVaultDetailProps } from './DepositFormVaultDetail';
 
 interface VaultDetailsSectionsProps {
   vault?: {
@@ -42,14 +44,19 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
 
   // Fetch historical data
   // Map period to API format: '7d' | '30d' | '365d' | 'all'
-  const apiPeriod = selectedPeriod === '7d' ? '7d' : 
-                    selectedPeriod === '30d' ? '30d' : 
-                    selectedPeriod === '365d' ? '365d' : 'all';
+  const apiPeriod =
+    selectedPeriod === '7d'
+      ? '7d'
+      : selectedPeriod === '30d'
+        ? '30d'
+        : selectedPeriod === '365d'
+          ? '365d'
+          : 'all';
   const { data: historicalData, isLoading: isLoadingHistorical } = useHistoricalData({
     chainId: vault?.chainId || 1,
     vaultId: vault?.id || '',
     period: apiPeriod,
-    enabled: !!vault?.id && !!vault?.chainId
+    enabled: !!vault?.id && !!vault?.chainId,
   });
 
   // Protocol allocation data - this would ideally come from vault strategy data
@@ -60,9 +67,13 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
   ];
 
   // Fee structure from vault data or defaults
-  const managementFee = vault?.fees?.mgmtBps ? `${(parseFloat(vault.fees.mgmtBps) / 100).toFixed(2)}% annually` : '2.0% annually';
-  const performanceFee = vault?.fees?.perfBps ? `${(parseFloat(vault.fees.perfBps) / 100).toFixed(2)}% on profits` : '20% on profits';
-  
+  const managementFee = vault?.fees?.mgmtBps
+    ? `${(parseFloat(vault.fees.mgmtBps) / 100).toFixed(2)}% annually`
+    : '2.0% annually';
+  const performanceFee = vault?.fees?.perfBps
+    ? `${(parseFloat(vault.fees.perfBps) / 100).toFixed(2)}% on profits`
+    : '20% on profits';
+
   const fees = [
     { label: 'Management Fee', value: managementFee },
     { label: 'Performance Fee', value: performanceFee },
@@ -70,9 +81,10 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
     { label: 'Withdrawal Fee', value: '0.1%' },
   ];
 
-  // Strategy description from vault data or default
-  const strategyDescription = vault?.strategy?.description || vault?.metadata?.description || 
-    'This vault employs a delta-neutral strategy across leading DeFi protocols, combining yield farming with automated rebalancing. The strategy focuses on ETH and stablecoin pairs to generate consistent returns while minimizing impermanent loss.\n\nPositions are actively managed by Gami Capital\'s algorithmic system with daily rebalancing to optimize APY based on market conditions & protocol incentives.';
+  const strategyDescription =
+    vault?.strategy?.description ||
+    vault?.metadata?.description ||
+    "This vault employs a delta-neutral strategy across leading DeFi protocols, combining yield farming with automated rebalancing. The strategy focuses on ETH and stablecoin pairs to generate consistent returns while minimizing impermanent loss.\n\nPositions are actively managed by Gami Capital's algorithmic system with daily rebalancing to optimize APY based on market conditions & protocol incentives.";
 
   // Contract address from vault data or default
   const contractAddress = vault?.id || '0xb742435C6634005329254308448b9759135af1';
@@ -88,32 +100,39 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
   };
 
   return (
-    <div className='space-y-[30px] w-[58.89%]'>
+    <div className='md:space-y-[30px] space-y-[22px] w-full'>
       <div className='space-y-4'>
         <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px]'>
           Strategy Overview
         </div>
 
-        <div className='w-full text-white font-dm-sans text-[20px] font-light leading-[128%] tracking-[-0.4px] whitespace-pre-line'>
+        <div className='w-full text-white font-dm-sans md:text-[20px] font-light leading-[128%] tracking-[-0.4px] whitespace-pre-line'>
           {strategyDescription}
         </div>
       </div>
 
-      <div className='space-y-5 w-full'>
+      <div className='md:hidden'>
+        <DepositFormVaultDetail vault={vault as DepositFormVaultDetailProps['vault']} />
+      </div>
+
+      <div className='md:space-y-5 space-y-2.5 w-full'>
         <div className='flex justify-between items-center'>
           <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px]'>
             Chart
           </div>
 
           <div className='flex gap-2 items-center'>
-            {/* Metric Selector Dropdown */}
             <div className='relative'>
               <button
                 onClick={() => setIsMetricDropdownOpen(!isMetricDropdownOpen)}
-                className='flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
+                className='flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
               >
                 <span>
-                  {selectedMetric === 'apy' ? 'APY' : selectedMetric === 'tvl' ? 'TVL' : 'Price per share'}
+                  {selectedMetric === 'apy'
+                    ? 'APY'
+                    : selectedMetric === 'tvl'
+                      ? 'TVL'
+                      : 'Price per share'}
                 </span>
                 <svg
                   className={`w-4 h-4 transition-transform ${isMetricDropdownOpen ? 'rotate-180' : ''}`}
@@ -121,28 +140,41 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                   stroke='currentColor'
                   viewBox='0 0 24 24'
                 >
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 9l-7 7-7-7'
+                  />
                 </svg>
               </button>
-              
+
               {isMetricDropdownOpen && (
                 <>
                   <div
                     className='fixed inset-0 z-10'
                     onClick={() => setIsMetricDropdownOpen(false)}
                   />
-                  <div className='absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-white/20 rounded-lg shadow-lg z-20 py-1'>
+                  <div className='absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-white/20 rounded-[10px] shadow-lg z-20 py-1'>
                     <button
                       onClick={() => {
                         setSelectedMetric('price');
                         setIsMetricDropdownOpen(false);
                       }}
-                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                      className='flex justify-between items-center px-4 py-2 w-full text-left text-white transition-colors hover:bg-white/10'
                     >
                       <span>Price per share</span>
                       {selectedMetric === 'price' && (
-                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
-                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        <svg
+                          className='w-4 h-4 text-blue-400'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                            clipRule='evenodd'
+                          />
                         </svg>
                       )}
                     </button>
@@ -151,12 +183,20 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                         setSelectedMetric('tvl');
                         setIsMetricDropdownOpen(false);
                       }}
-                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                      className='flex justify-between items-center px-4 py-2 w-full text-left text-white transition-colors hover:bg-white/10'
                     >
                       <span>TVL</span>
                       {selectedMetric === 'tvl' && (
-                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
-                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        <svg
+                          className='w-4 h-4 text-blue-400'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                            clipRule='evenodd'
+                          />
                         </svg>
                       )}
                     </button>
@@ -165,12 +205,20 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                         setSelectedMetric('apy');
                         setIsMetricDropdownOpen(false);
                       }}
-                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                      className='flex justify-between items-center px-4 py-2 w-full text-left text-white transition-colors hover:bg-white/10'
                     >
                       <span>APY</span>
                       {selectedMetric === 'apy' && (
-                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
-                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        <svg
+                          className='w-4 h-4 text-blue-400'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                            clipRule='evenodd'
+                          />
                         </svg>
                       )}
                     </button>
@@ -179,17 +227,19 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
               )}
             </div>
 
-            {/* Period Selector Dropdown */}
             <div className='relative'>
               <button
                 onClick={() => setIsPeriodDropdownOpen(!isPeriodDropdownOpen)}
-                className='flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
+                className='flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors'
               >
                 <span>
-                  {selectedPeriod === '7d' ? '1 Week' : 
-                   selectedPeriod === '30d' ? '1 Month' : 
-                   selectedPeriod === '365d' ? '1 Year' : 
-                   'All'}
+                  {selectedPeriod === '7d'
+                    ? '1 Week'
+                    : selectedPeriod === '30d'
+                      ? '1 Month'
+                      : selectedPeriod === '365d'
+                        ? '1 Year'
+                        : 'All'}
                 </span>
                 <svg
                   className={`w-4 h-4 transition-transform ${isPeriodDropdownOpen ? 'rotate-180' : ''}`}
@@ -197,28 +247,41 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                   stroke='currentColor'
                   viewBox='0 0 24 24'
                 >
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 9l-7 7-7-7'
+                  />
                 </svg>
               </button>
-              
+
               {isPeriodDropdownOpen && (
                 <>
                   <div
                     className='fixed inset-0 z-10'
                     onClick={() => setIsPeriodDropdownOpen(false)}
                   />
-                  <div className='absolute right-0 mt-2 w-40 bg-[#1a1a1a] border border-white/20 rounded-lg shadow-lg z-20 py-1'>
+                  <div className='absolute right-0 mt-2 w-40 bg-[#1a1a1a] border border-white/20 rounded-[10px] shadow-lg z-20 py-1'>
                     <button
                       onClick={() => {
                         setSelectedPeriod('7d');
                         setIsPeriodDropdownOpen(false);
                       }}
-                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                      className='flex justify-between items-center px-4 py-2 w-full text-left text-white transition-colors hover:bg-white/10'
                     >
                       <span>1 Week</span>
                       {selectedPeriod === '7d' && (
-                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
-                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        <svg
+                          className='w-4 h-4 text-blue-400'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                            clipRule='evenodd'
+                          />
                         </svg>
                       )}
                     </button>
@@ -227,12 +290,20 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                         setSelectedPeriod('30d');
                         setIsPeriodDropdownOpen(false);
                       }}
-                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                      className='flex justify-between items-center px-4 py-2 w-full text-left text-white transition-colors hover:bg-white/10'
                     >
                       <span>1 Month</span>
                       {selectedPeriod === '30d' && (
-                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
-                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        <svg
+                          className='w-4 h-4 text-blue-400'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                            clipRule='evenodd'
+                          />
                         </svg>
                       )}
                     </button>
@@ -241,12 +312,20 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                         setSelectedPeriod('365d');
                         setIsPeriodDropdownOpen(false);
                       }}
-                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                      className='flex justify-between items-center px-4 py-2 w-full text-left text-white transition-colors hover:bg-white/10'
                     >
                       <span>1 Year</span>
                       {selectedPeriod === '365d' && (
-                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
-                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        <svg
+                          className='w-4 h-4 text-blue-400'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                            clipRule='evenodd'
+                          />
                         </svg>
                       )}
                     </button>
@@ -255,12 +334,20 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                         setSelectedPeriod('all');
                         setIsPeriodDropdownOpen(false);
                       }}
-                      className='w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center justify-between'
+                      className='flex justify-between items-center px-4 py-2 w-full text-left text-white transition-colors hover:bg-white/10'
                     >
                       <span>All</span>
                       {selectedPeriod === 'all' && (
-                        <svg className='w-4 h-4 text-blue-400' fill='currentColor' viewBox='0 0 20 20'>
-                          <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                        <svg
+                          className='w-4 h-4 text-blue-400'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                            clipRule='evenodd'
+                          />
                         </svg>
                       )}
                     </button>
@@ -271,29 +358,31 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
           </div>
         </div>
 
-        {/* Current Value Display */}
         {historicalData && historicalData.length > 0 && (
-          <div className='flex items-center gap-3 px-3 py-2'>
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              selectedMetric === 'price' 
-                ? 'bg-gradient-to-br from-blue-400 to-cyan-400'
-                : selectedMetric === 'tvl'
-                ? 'bg-gradient-to-br from-orange-400 to-amber-400'
-                : 'bg-gradient-to-br from-green-400 to-emerald-400'
-            }`}>
-              <span className='text-white font-bold text-lg'>
+          <div className='flex gap-3 items-center px-3 py-2'>
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                selectedMetric === 'price'
+                  ? 'bg-gradient-to-br from-blue-400 to-cyan-400'
+                  : selectedMetric === 'tvl'
+                    ? 'bg-gradient-to-br from-orange-400 to-amber-400'
+                    : 'bg-gradient-to-br from-green-400 to-emerald-400'
+              }`}
+            >
+              <span className='text-lg font-bold text-white'>
                 {selectedMetric === 'price' ? '$' : selectedMetric === 'tvl' ? '$' : '%'}
               </span>
             </div>
             <div>
-              <div className='text-white/70 font-dm-sans text-sm'>
-                {selectedMetric === 'price' 
+              <div className='text-sm text-white/70 font-dm-sans'>
+                {selectedMetric === 'price'
                   ? `1 ${vault?.symbol || vault?.underlying?.symbol || 'share'}`
                   : selectedMetric === 'tvl'
-                  ? 'Total Value Locked'
-                  : 'Annual Percentage Yield'}
+                    ? 'Total Value Locked'
+                    : 'Annual Percentage Yield'}
               </div>
-              <div className='text-white font-dm-sans text-lg font-medium'>
+
+              <div className='text-lg font-medium text-white font-dm-sans'>
                 {(() => {
                   const latestData = historicalData[historicalData.length - 1];
                   if (selectedMetric === 'price') {
@@ -310,7 +399,7 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
                 })()}
               </div>
               {selectedMetric === 'price' && historicalData && historicalData.length > 0 && (
-                <div className='text-white/50 font-dm-sans text-sm'>
+                <div className='text-sm text-white/50 font-dm-sans'>
                   ${parseFloat(historicalData[historicalData.length - 1].price).toFixed(2)}
                 </div>
               )}
@@ -338,29 +427,29 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
         </div>
       </div>
 
-      <div className='rounded-[20px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] px-3 py-[30px] space-y-5'>
-        <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px] px-3'>
+      <div className='rounded-[20px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] md:px-3 px-2.5 md:py-[30px] py-4 md:space-y-5 space-y-2.5'>
+        <div className='text-white font-modernist md:text-xl font-bold leading-[162%] tracking-[-0.4px] md:px-3 px-2'>
           Protocol Allocation
         </div>
 
-        <div className='space-y-[18px]'>
+        <div className='md:space-y-[18px] space-y-2.5'>
           {protocols.map((protocol, index) => (
             <div
               key={index}
-              className='rounded-[16px] bg-[#141414] flex justify-between items-center p-[14.97px]'
+              className='md:rounded-[16px] rounded-[8.66px] bg-[#141414] flex justify-between items-center md:p-[14.97px] p-2'
             >
               <div className='flex gap-2 items-center'>
                 <div
-                  className='w-[15px] h-[15px] rounded-full'
+                  className='md:w-[15px] w-2 md:h-[15px] h-2 rounded-full'
                   style={{ backgroundColor: protocol.color }}
                 ></div>
 
-                <div className='text-white font-dm-sans text-xl font-medium leading-[128%] tracking-[-0.4px]'>
+                <div className='text-white font-dm-sans md:text-xl text-[13px] font-medium leading-[128%] tracking-[-0.4px]'>
                   {protocol.name}
                 </div>
               </div>
 
-              <div className='text-white font-dm-sans text-base font-medium leading-[128%] tracking-[-0.32px]'>
+              <div className='text-white font-dm-sans md:text-base text-[8.6px] font-medium leading-[128%] tracking-[-0.32px]'>
                 {protocol.percentage}
               </div>
             </div>
@@ -368,22 +457,22 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
         </div>
       </div>
 
-      <div className='rounded-[20px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] px-3 py-[30px] space-y-5'>
-        <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px] px-3'>
+      <div className='rounded-[20px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] md:px-3 px-2.5 md:py-[30px] py-4 md:space-y-5 space-y-2.5'>
+        <div className='text-white font-modernist md:text-xl font-bold leading-[162%] tracking-[-0.4px] md:px-3 px-2'>
           Fee Structure
         </div>
 
-        <div className='space-y-[18px]'>
+        <div className='md:space-y-[18px] space-y-2.5'>
           {fees.map((fee, index) => (
             <div
               key={index}
-              className='rounded-[16px] bg-[#141414] flex justify-between items-center py-[14.97px] px-[13px]'
+              className='md:rounded-[16px] rounded-[8.66px] bg-[#141414] flex justify-between items-center md:py-[14.97px] py-2 md:px-[13px] px-2'
             >
-              <div className='text-white font-dm-sans text-[17px] font-medium leading-[128%] tracking-[-0.4px]'>
+              <div className='text-white font-dm-sans md:text-[17px] text-[13px] font-medium leading-[128%] tracking-[-0.4px]'>
                 {fee.label}
               </div>
 
-              <div className='text-white font-dm-sans text-[17px] font-medium leading-[128%] tracking-[-0.32px]'>
+              <div className='text-white font-dm-sans md:text-[17px] text-[8.6px] font-medium leading-[128%] tracking-[-0.32px]'>
                 {fee.value}
               </div>
             </div>
@@ -391,13 +480,13 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
         </div>
       </div>
 
-      <div className='rounded-[20.78px] border border-[#FF9C4680] bg-[#FF9C460F] py-[30px] px-[20px] space-y-3.5'>
-        <div className='text-white font-dm-sans text-[20px] font-bold flex items-center gap-0.5'>
-          <span className='-mt-1.5'>⚠️</span>
+      <div className='rounded-[20.78px] border border-[#FF9C4680] bg-[#FF9C460F] md:py-[30px] md:px-[20px] py-5 px-5 space-y-3.5'>
+        <div className='text-white font-dm-sans md:text-[20px] text-[15.91px] font-bold flex items-center gap-0.5'>
+          <span className='md:mt-1.5 -mt-1'>⚠️</span>
           <span>Risk Disclosure</span>
         </div>
 
-        <ul className='pl-1.5 space-y-0.5 list-disc list-inside'>
+        <ul className='md:pl-1.5 pl-3 space-y-0.5 list-disc list-inside'>
           <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
             Smart contract risk across multiple DeFi protocols
           </li>
@@ -420,19 +509,19 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
         </ul>
       </div>
 
-      <div className='space-y-5'>
-        <div className='text-white font-modernist text-xl font-bold leading-[162%] tracking-[-0.4px] px-3'>
+      <div className='space-y-1 md:space-y-5'>
+        <div className='text-white font-modernist md:text-xl font-bold leading-[162%] tracking-[-0.4px] md:px-3'>
           Contract Information
         </div>
 
-        <div className='rounded-[21px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] px-[9.5px] py-5 flex justify-between items-center'>
-          <div className='w-[558px] text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+        <div className='rounded-[21px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] md:px-[9.5px] px-[14px] py-5 flex justify-between items-center gap-3'>
+          <div className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px] break-all  '>
             {contractAddress}
           </div>
 
           <button
             onClick={handleCopyAddress}
-            className='rounded-[10px] border border-white/40 hover:bg-white/10 transition-colors h-[30px] px-2.5'
+            className='rounded-[10px] border border-white/40 hover:bg-white/10 transition-colors h-[30px] px-2.5 flex-shrink-0'
           >
             <div className='text-[#FFFFFF80] font-dm-sans text-sm font-light leading-[128%] tracking-[-0.28px]'>
               {copied ? 'Copied!' : 'Copy'}
