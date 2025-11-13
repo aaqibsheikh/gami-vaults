@@ -108,7 +108,7 @@ export default function VaultDetailClient({
             <VaultDetail vault={vault} />
 
             <div className='flex lg:gap-16 gap-6 items-start w-full md:mt-[68px] mt-5'>
-              <div className='lg:min-w-[58.89%] md:w-[55%]'>
+              <div className='lg:min-w-[58.89%] md:min-w-[55%]'>
                 <VaultDetailsSections vault={vault} />
               </div>
 

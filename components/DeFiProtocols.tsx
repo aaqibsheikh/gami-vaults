@@ -4,6 +4,7 @@ export default function DeFiProtocols() {
   const structure = [
     {
       title: 'Protocols',
+      classes: 'xl:-mr-[90px]',
       items: [
         { name: 'Morpho', logo: '/assets/images/morpho.svg' },
         { name: 'Curve Finance', logo: '/assets/images/curve-finance.svg' },
@@ -12,15 +13,9 @@ export default function DeFiProtocols() {
       ],
     },
     {
-      title: 'Partners',
-      items: [
-        { name: 'Maven11', logo: '/assets/images/maven11.svg' },
-        { name: 'Mev Capital', logo: '/assets/images/mev-capital.svg' },
-      ],
-    },
-    {
       title: 'Infrastructure',
       items: [
+        { name: 'Lagoon', logo: '/assets/images/lagoon.svg' },
         { name: 'Upshift', logo: '/assets/images/upshift.svg' },
         { name: 'Hypernative', logo: '/assets/svgs/hypernative.svg' },
         { name: 'Nexus Mutual', logo: '/assets/svgs/nexus-mutual.svg' },
@@ -38,7 +33,7 @@ export default function DeFiProtocols() {
               Powered by leading <br className='sm:hidden' /> DeFi Protocols
             </h2>
 
-            <p className='font-dm-sans sm:text-xl text-base font-light leading-[128%] sm:tracking-[-0.4px] text-white text-center'>
+            <p className='font-dm-sans sm:text-lg text-base font-light leading-[128%] sm:tracking-[-0.4px] text-white text-center'>
               We are forming strategic partnerships with leading protocols in the industry to
               provide yields that meet institutional standards, ensuring that our clients benefit
               from top-tier financial opportunities <span className='hidden sm:inline'>and</span>{' '}
@@ -46,14 +41,17 @@ export default function DeFiProtocols() {
             </p>
           </div>
 
-          <div className='flex flex-col gap-5 justify-between w-full lg:flex-row xl:gap-8'>
+          <div className='grid grid-cols-1 gap-y-5 items-center w-full lg:grid-cols-2'>
             {structure.map(section => (
-              <div key={section.title} className='flex flex-col sm:gap-5 gap-3.5 items-center'>
+              <div
+                key={section.title}
+                className={`flex flex-col sm:gap-5 gap-3.5 items-center ${section.classes}`}
+              >
                 <h3 className='text-sm text-white capitalize sm:text-xl font-dm-sans'>
                   {section.title}
                 </h3>
 
-                <div className='flex gap-3.5 justify-center items-center xl:gap-5'>
+                <div className={`flex gap-3.5 justify-center items-center xl:gap-5`}>
                   {section.items.map(item => (
                     <div
                       key={item.name}
