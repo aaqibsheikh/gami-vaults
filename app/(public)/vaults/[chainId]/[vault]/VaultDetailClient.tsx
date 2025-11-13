@@ -8,6 +8,7 @@ import VaultTransparency from '@/components/VaultTransparency';
 import VaultDetailSkeleton from '@/components/VaultDetailSkeleton';
 import Image from 'next/image';
 import DepositFormVaultDetail from '@/components/DepositFormVaultDetail';
+import VaultActionTabs from '@/components/VaultActionTabs';
 interface VaultDetailClientProps {
   chainId: string;
   vault: string;
@@ -113,7 +114,7 @@ export default function VaultDetailClient({
               </div>
 
               <div className='hidden w-full md:block'>
-                <DepositFormVaultDetail vault={vault} />
+                <VaultActionTabs vault={vault} />
               </div>
             </div>
 
