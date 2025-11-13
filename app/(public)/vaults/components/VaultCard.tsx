@@ -47,7 +47,7 @@ const VaultCard = ({
           }}
         />
 
-        <div className='flex relative z-10 justify-between items-start'>
+        <div className='flex relative z-10 justify-between items-start gap-1.5'>
           <div>
             <div className='sm:font-bold sm:text-[17.9px] leading-none tracking-[-0.358px]'>
               {name}
