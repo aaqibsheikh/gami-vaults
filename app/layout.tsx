@@ -21,6 +21,14 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Gami Capital Team' }],
   robots: 'index, follow',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.ico',
+        type: 'image/x-icon',
+      },
+    ],
+  },
   openGraph: {
     title: 'Gami Capital - Institutional DeFi Vaults',
     description:

@@ -196,7 +196,7 @@ export default function ExploreVaults() {
                 <div className='text-white/50 font-dm-sans text-[14px]'>No featured vaults</div>
               </div>
             ) : (
-              <div className='grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3'>
+              <div className='grid grid-cols-1 gap-[7px] md:grid-cols-2 xl:grid-cols-3'>
                 {featuredVaults.map((vault, index) => (
                   <VaultCard
                     key={`${vault.chainId}-${vault.vaultId}-featured-${index}`}
