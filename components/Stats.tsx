@@ -24,11 +24,12 @@ export default function Stats() {
   //   if (error) return '--';
 
   //   const totalTvl = vaults?.reduce((sum, vault) => sum + safeParseNumber(vault.tvlUsd), 0) ?? 0;
+  //   console.log('formatUsd(totalTvl.toString())',formatUsd(totalTvl.toString()));
   //   return formatUsd(totalTvl.toString());
   // }, [vaults, isLoading, error]);
 
   const stats = [
-    { value: '$2.32M', label: 'TOTAL TVL' },
+    { value: '$2.30M', label: 'TOTAL TVL' },
     { value: TOTAL_CURATED_VAULTS.toString(), label: 'ACTIVE VAULTS' },
   ];
 

@@ -44,15 +44,15 @@ export const CURATED_VAULTS: CuratedVault[] = [
   },
 
   // Upshift USDC Vault 2
-  {
-    address: '0x0985C88929A776a2E059615137a48bA5A473E25D',
-    chainId: 1, // Ethereum mainnet
-    name: 'Upshift USDC Vault',
-    underlyingSymbol: 'USDC',
-    provider: 'upshift',
-    externalUrl: 'https://app.upshift.finance/pools/1/0x0985C88929A776a2E059615137a48bA5A473E25D',
-    note: 'Funds in subaccounts - TVL from getVaultSummary() includes all subaccounts',
-  },
+  // {
+  //   address: '0x0985C88929A776a2E059615137a48bA5A473E25D',
+  //   chainId: 1, // Ethereum mainnet
+  //   name: 'Upshift USDC Vault',
+  //   underlyingSymbol: 'USDC',
+  //   provider: 'upshift',
+  //   externalUrl: 'https://app.upshift.finance/pools/1/0x0985C88929A776a2E059615137a48bA5A473E25D',
+  //   note: 'Funds in subaccounts - TVL from getVaultSummary() includes all subaccounts',
+  // },
 
   // Upshift BTC Vault
   {
