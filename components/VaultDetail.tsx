@@ -9,7 +9,7 @@ interface VaultDetailProps {
 
 export default function VaultDetail({ vault }: VaultDetailProps) {
   const vaultName = vault?.name || '--';
-  const strategistName = vault?.strategist?.name || vault?.provider;
+  const strategistName = vault?.strategist?.name || 'Gami';
   const tvl = vault?.tvlUsd ? formatUsd(vault.tvlUsd) : '--';
   // Net APR windows (Lagoon)
   const aprAll = vault?.metadata?.aprNetAll ? formatPercentage(vault.metadata.aprNetAll) : '--';
@@ -26,11 +26,12 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
   const getProviderBadge = () => {
     switch (provider) {
       case 'ipor':
-        return { text: 'Advanced', bgColor: 'bg-[#C4511F]' };
+        return { text: 'Advanced', bgColor: 'bg-[#2C2929]' };
       case 'lagoon':
-        return { text: 'Lagoon', bgColor: 'bg-[#6B73FF]' };
-      case 'upshift':
-        return { text: 'Upshift', bgColor: 'bg-[#2C2929]' };
+        return { text: 'Lagoon', bgColor: 'bg-[#2C2929]' };
+        case 'upshift':
+          return { text: 'Upshift', bgColor: 'bg-[#2C2929]' };
+
       default:
         return { text: '--', bgColor: 'bg-[#2C2929]' };
     }

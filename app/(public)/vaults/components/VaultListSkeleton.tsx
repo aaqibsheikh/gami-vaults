@@ -5,7 +5,7 @@ export default function VaultListSkeleton() {
         <div>VAULT</div>
         <div>APY</div>
         <div>TVL</div>
-        <div>ASSETS EXPOSITION</div>
+        <div>ASSET EXPOSURE</div>
         <div>ACTIONS</div>
       </div>
 

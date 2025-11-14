@@ -73,10 +73,11 @@ export default function ExploreVaults() {
     });
 
     const all = vaults.map(toDisplay);
-    const featuredRaw = vaults.filter((v: VaultDTO) => v.provider === 'upshift').slice(0, 3);
+    const featuredRaw = vaults.filter((v: VaultDTO) => v.provider === 'lagoon').slice(0, 3);
     const featuredIds = new Set(featuredRaw.map((v: VaultDTO) => v.id));
     let featured = featuredRaw.map(toDisplay);
-    let others = all.filter(v => !featuredIds.has(v.vaultId));
+    // let others = all.filter(v => !featuredIds.has(v.vaultId));
+    let others = all;
 
     if (activeToken !== 'All') {
       const matchesToken = (vault: ReturnType<typeof toDisplay>) => vault.assets.includes(activeToken);
@@ -84,7 +85,7 @@ export default function ExploreVaults() {
     }
 
     if (!normalizedQuery) {
-      return { transformedVaults: all, featuredVaults: featured, otherVaults: others };
+      return { transformedVaults: all, featuredVaults: featured, otherVaults: all };
     }
 
     const matchesQuery = (vault: ReturnType<typeof toDisplay>) =>
@@ -317,7 +318,7 @@ export default function ExploreVaults() {
                   <div>VAULT</div>
                   <div>APY</div>
                   <div>TVL</div>
-                  <div>ASSETS EXPOSITION</div>
+                  <div>ASSET EXPOSURE</div>
                   <div>ACTIONS</div>
                 </div>
 
