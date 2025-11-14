@@ -6,7 +6,14 @@ import { formatUsd } from '@/lib/normalize';
 import { getUsdValue } from '@/lib/oracles';
 import { LAGOON_MAINNET_SUBGRAPH } from '@/lib/lagoon-sdk';
 
-const VAULT_ACTIVITY_QUERY = `
+// August Digital subgraph endpoints
+// Based on: https://docs.augustdigital.io/developers/subgraphs
+// Subgraph URL: https://api.studio.thegraph.com/query/85409/august-eth-lending-pools/version/latest
+const AUGUST_ETHEREUM_SUBGRAPH =
+  process.env.NEXT_PUBLIC_AUGUST_ETHEREUM_SUBGRAPH ??
+  'https://api.studio.thegraph.com/query/85409/august-eth-lending-pools/version/latest';
+
+const LAGOON_VAULT_ACTIVITY_QUERY = `
   query VaultActivity($vault: Bytes!, $first: Int!, $skip: Int!) {
     deposits(
       where: { vault: $vault }
@@ -96,6 +103,59 @@ const VAULT_ACTIVITY_QUERY = `
   }
 `;
 
+// August Digital subgraph query for Upshift vaults
+// Uses "pool" field instead of "vault" per their schema
+// Note: Uses "withdrawalProcesseds" for completed withdrawals (not "withdraws")
+const AUGUST_VAULT_ACTIVITY_QUERY = `
+  query UpshiftVaultActivity($pool: Bytes!, $first: Int!, $skip: Int!) {
+    deposits(
+      where: { pool: $pool }
+      orderBy: timestamp
+      orderDirection: desc
+      first: $first
+      skip: $skip
+    ) {
+      id
+      sender
+      owner
+      assets
+      shares
+      timestamp
+      transactionHash
+    }
+
+    withdrawalProcesseds(
+      where: { pool: $pool }
+      orderBy: timestamp
+      orderDirection: desc
+      first: $first
+      skip: $skip
+    ) {
+      id
+      receiver
+      amount
+      timestamp
+      transactionHash
+    }
+
+    withdrawalRequests(
+      where: { pool: $pool }
+      orderBy: timestamp
+      orderDirection: desc
+      first: $first
+      skip: $skip
+    ) {
+      id
+      receiver
+      owner
+      assets
+      shares
+      timestamp
+      transactionHash
+    }
+  }
+`;
+
 type GraphDeposit = {
   id: string;
   owner: string;
@@ -131,6 +191,35 @@ type GraphSettle = {
   transactionHash: string;
 };
 
+// August Digital subgraph types
+type AugustDeposit = {
+  id: string;
+  sender: string;
+  owner: string;
+  assets: string;
+  shares: string;
+  timestamp: string;
+  transactionHash: string;
+};
+
+type AugustWithdrawalProcessed = {
+  id: string;
+  receiver: string;
+  amount: string;
+  timestamp: string;
+  transactionHash: string;
+};
+
+type AugustWithdrawalRequest = {
+  id: string;
+  receiver: string;
+  owner: string;
+  assets: string;
+  shares: string;
+  timestamp: string;
+  transactionHash: string;
+};
+
 type VaultActivityResponse = {
   deposits: GraphDeposit[];
   withdraws: GraphWithdraw[];
@@ -138,6 +227,12 @@ type VaultActivityResponse = {
   totalAssetsUpdateds: GraphTotalAssetsUpdated[];
   settleDeposits: GraphSettle[];
   settleRedeems: GraphSettle[];
+};
+
+type AugustVaultActivityResponse = {
+  deposits: AugustDeposit[];
+  withdrawalProcesseds: AugustWithdrawalProcessed[];
+  withdrawalRequests: AugustWithdrawalRequest[];
 };
 
 export type VaultActivityType =
@@ -158,7 +253,7 @@ export interface VaultActivityItem {
   amountUsdFormatted?: string;
   timestamp: number;
   txHash: string;
-  source: 'deposit' | 'withdraw' | 'totalAssetsUpdated' | 'settleDeposit' | 'settleRedeem';
+  source: 'deposit' | 'withdraw' | 'totalAssetsUpdated' | 'settleDeposit' | 'settleRedeem' | 'withdrawalRequest';
 }
 
 export interface UseVaultActivityOptions {
@@ -230,6 +325,11 @@ function formatTokenAmount(amount: number): string {
   });
 }
 
+function getAugustSubgraphUrl(chainId: number): string | null {
+  if (chainId === 1) return AUGUST_ETHEREUM_SUBGRAPH;
+  return null;
+}
+
 async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise<VaultActivityItem[]> {
   const {
     vaultAddress,
@@ -237,6 +337,7 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
     underlyingDecimals,
     underlyingSymbol,
     underlyingAddress,
+    provider,
     first = 100,
   } = options;
 
@@ -287,6 +388,140 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
       };
     };
 
+    // Handle Upshift vaults using August Digital subgraph
+    if (provider === 'upshift') {
+      const subgraphUrl = getAugustSubgraphUrl(chainId);
+      if (!subgraphUrl) {
+        console.warn(`[VaultActivity] August subgraph not available for chain ${chainId}`);
+        return [];
+      }
+
+      let fetched = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        const queryBody = {
+          query: AUGUST_VAULT_ACTIVITY_QUERY,
+          variables: {
+            pool: vaultAddress.toLowerCase(),
+            first,
+            skip: fetched,
+          },
+        };
+
+        console.log(`[VaultActivity] Fetching Upshift activity from ${subgraphUrl}`, {
+          vault: vaultAddress,
+          variables: queryBody.variables,
+        });
+
+        const response = await fetch(subgraphUrl, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(queryBody),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`[VaultActivity] HTTP ${response.status}:`, errorText);
+          throw new Error(`HTTP ${response.status} ${response.statusText}: ${errorText}`);
+        }
+
+        const json = await response.json();
+        
+        if (json?.errors?.length) {
+          console.error(`[VaultActivity] GraphQL errors:`, json.errors);
+          throw new Error(json.errors[0]?.message || 'GraphQL error');
+        }
+
+        if (!json.data) {
+          console.warn(`[VaultActivity] No data in response:`, json);
+          // Return empty array if no data instead of throwing
+          return [];
+        }
+
+        const data: AugustVaultActivityResponse = json.data;
+        const chunkBefore = items.length;
+
+        // Process deposits
+        (data.deposits || []).forEach((entry) => {
+          const amount = formatAmount(entry.assets);
+          const usd = withUsd(amount.numeric);
+          items.push({
+            id: `upshift-deposit-${entry.id}`,
+            type: 'deposit',
+            label: 'Deposit',
+            address: entry.owner || entry.sender,
+            addressLabel: shortenAddress(entry.owner || entry.sender),
+            amountToken: amount.decimal,
+            amountTokenFormatted: amount.formatted,
+            amountUsd: usd.usd,
+            amountUsdFormatted: usd.formatted,
+            timestamp: toTimestampMs(entry.timestamp),
+            txHash: entry.transactionHash,
+            source: 'deposit',
+          });
+        });
+
+        // Process withdrawal processed (completed withdrawals)
+        (data.withdrawalProcesseds || []).forEach((entry) => {
+          const amount = formatAmount(entry.amount);
+          const usd = withUsd(amount.numeric);
+          items.push({
+            id: `upshift-withdrawal-processed-${entry.id}`,
+            type: 'withdraw',
+            label: 'Withdraw',
+            address: entry.receiver,
+            addressLabel: shortenAddress(entry.receiver),
+            amountToken: amount.decimal,
+            amountTokenFormatted: amount.formatted,
+            amountUsd: usd.usd,
+            amountUsdFormatted: usd.formatted,
+            timestamp: toTimestampMs(entry.timestamp),
+            txHash: entry.transactionHash,
+            source: 'withdraw',
+          });
+        });
+
+        // Process withdrawal requests
+        (data.withdrawalRequests || []).forEach((entry) => {
+          const amount = formatAmount(entry.assets);
+          const usd = withUsd(amount.numeric);
+          items.push({
+            id: `upshift-withdrawal-request-${entry.id}`,
+            type: 'withdraw',
+            label: 'Withdrawal Request',
+            address: entry.owner || entry.receiver,
+            addressLabel: shortenAddress(entry.owner || entry.receiver),
+            amountToken: amount.decimal,
+            amountTokenFormatted: amount.formatted,
+            amountUsd: usd.usd,
+            amountUsdFormatted: usd.formatted,
+            timestamp: toTimestampMs(entry.timestamp),
+            txHash: entry.transactionHash,
+            source: 'withdrawalRequest',
+          });
+        });
+
+        const chunkSize = items.length - chunkBefore;
+        fetched += first;
+
+        hasMore =
+          (data.deposits?.length || 0) === first ||
+          (data.withdrawalProcesseds?.length || 0) === first ||
+          (data.withdrawalRequests?.length || 0) === first;
+
+        if (chunkSize === 0) {
+          hasMore = false;
+        }
+      }
+
+      return items
+        .filter((item) => item.timestamp > 0)
+        .sort((a, b) => b.timestamp - a.timestamp);
+    }
+
+    // Handle Lagoon vaults (existing logic)
     let fetched = 0;
     let hasMore = true;
 
@@ -295,7 +530,7 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          query: VAULT_ACTIVITY_QUERY,
+          query: LAGOON_VAULT_ACTIVITY_QUERY,
           variables: {
             vault: vaultAddress.toLowerCase(),
             first,
@@ -314,10 +549,10 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
         throw new Error(json.errors[0]?.message || 'GraphQL error');
       }
 
-      const data: VaultActivityResponse = json.data;
+      const data: VaultActivityResponse = json.data || {};
       const chunkBefore = items.length;
 
-      data.deposits?.forEach((entry) => {
+      (data.deposits || []).forEach((entry) => {
         const amount = formatAmount(entry.assets);
         const usd = withUsd(amount.numeric);
         items.push({
@@ -336,7 +571,7 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
         });
       });
 
-      data.withdraws?.forEach((entry) => {
+      (data.withdraws || []).forEach((entry) => {
         const amount = formatAmount(entry.assets);
         const usd = withUsd(amount.numeric);
         items.push({
@@ -355,7 +590,7 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
         });
       });
 
-      data.depositRequests?.forEach((entry) => {
+      (data.depositRequests || []).forEach((entry) => {
         const amount = formatAmount(entry.assets);
         const usd = withUsd(amount.numeric);
         const address = entry.sender || entry.owner;
@@ -375,7 +610,7 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
         });
       });
 
-      data.totalAssetsUpdateds?.forEach((entry) => {
+      (data.totalAssetsUpdateds || []).forEach((entry) => {
         const amount = formatAmount(entry.totalAssets);
         const usd = withUsd(amount.numeric);
         items.push({
@@ -394,7 +629,7 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
         });
       });
 
-      data.settleDeposits?.forEach((entry) => {
+      (data.settleDeposits || []).forEach((entry) => {
         const amount = formatAmount(entry.totalAssets);
         const usd = withUsd(amount.numeric);
         items.push({
@@ -413,7 +648,7 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
         });
       });
 
-      data.settleRedeems?.forEach((entry) => {
+      (data.settleRedeems || []).forEach((entry) => {
         const amount = formatAmount(entry.totalAssets);
         const usd = withUsd(amount.numeric);
         items.push({
@@ -436,12 +671,12 @@ async function fetchVaultActivityData(options: UseVaultActivityOptions): Promise
       fetched += first;
 
       hasMore =
-        data.deposits.length === first ||
-        data.withdraws.length === first ||
-        data.depositRequests.length === first ||
-        data.totalAssetsUpdateds.length === first ||
-        data.settleDeposits.length === first ||
-        data.settleRedeems.length === first;
+        (data.deposits?.length || 0) === first ||
+        (data.withdraws?.length || 0) === first ||
+        (data.depositRequests?.length || 0) === first ||
+        (data.totalAssetsUpdateds?.length || 0) === first ||
+        (data.settleDeposits?.length || 0) === first ||
+        (data.settleRedeems?.length || 0) === first;
 
       if (chunkSize === 0) {
         hasMore = false;
@@ -537,11 +772,10 @@ export function useVaultActivity(options: UseVaultActivityOptions) {
     enabled = true,
   } = options;
 
-  const shouldFetch =
-    enabled &&
-    !!vaultAddress &&
-    provider === 'lagoon' &&
-    chainId === 1;
+  const isLagoon = provider === 'lagoon' && chainId === 1;
+  const isUpshift = provider === 'upshift' && chainId === 1;
+  
+  const shouldFetch = enabled && !!vaultAddress && (isLagoon || isUpshift);
 
   return useQuery({
     queryKey: [

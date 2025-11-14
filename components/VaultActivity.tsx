@@ -96,8 +96,10 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
   }
 
   const isLagoonVault = vault.provider === 'lagoon';
-  const isLagoonMainnet =
-    isLagoonVault && vault.chainId === 1;
+  const isUpshiftVault = vault.provider === 'upshift';
+  const isLagoonMainnet = isLagoonVault && vault.chainId === 1;
+  const isUpshiftSupported = isUpshiftVault && vault.chainId === 1;
+  const isSupported = isLagoonMainnet || isUpshiftSupported;
 
   const {
     data: activity = [],
@@ -111,10 +113,10 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
     underlyingSymbol: vault.underlying.symbol,
     underlyingAddress: vault.underlying.address,
     underlyingDecimals: vault.underlying.decimals,
-    enabled: isLagoonMainnet,
+    enabled: isSupported,
   });
 
-  if (!isLagoonVault) {
+  if (!isLagoonVault && !isUpshiftVault) {
     return null;
   }
 
@@ -186,13 +188,13 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
         </div>
       </div>
 
-      {!isLagoonMainnet && (
+      {!isSupported && (
         <div className='text-white/60 font-dm-sans text-[14px]'>
-          Activity data is currently not available for Upshift vaults
+          Activity data is currently available for Lagoon vaults on Ethereum mainnet and Upshift vaults on Ethereum.
         </div>
       )}
 
-      {isLagoonMainnet && (
+      {isSupported && (
         <>
           {(isLoading || isRefetching) && !activity.length && <ActivitySkeleton />}
 
