@@ -159,14 +159,14 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
     : 0;
 
   return (
-    <div className='md:mt-10 mt-6 md:p-5 p-4 rounded-[20px] bg-[#FFFFFF0F] shadow-[0_0_0_0.8px_#ffffff26] backdrop-blur-lg'>
+    <div className='md:p-5 p-4 rounded-[20px] bg-[#FFFFFF0F] shadow-[0_0_0_0.8px_#ffffff26] backdrop-blur-lg'>
       <div className='flex flex-wrap gap-3 justify-between items-center mb-6'>
         <h2 className='text-white font-dm-sans md:text-[18px] text-[16px] font-bold leading-none tracking-[-0.4px]'>
           Activity
         </h2>
 
         <div className='flex flex-wrap gap-2'>
-          {FILTERS.map((filter) => {
+          {FILTERS.map(filter => {
             const isActive = activeFilter === filter.key;
             return (
               <button
@@ -190,7 +190,8 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
 
       {!isSupported && (
         <div className='text-white/60 font-dm-sans text-[14px]'>
-          Activity data is currently available for Lagoon vaults on Ethereum mainnet and Upshift vaults on Ethereum.
+          Activity data is currently available for Lagoon vaults on Ethereum mainnet and Upshift
+          vaults on Ethereum.
         </div>
       )}
 
@@ -199,13 +200,13 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
           {(isLoading || isRefetching) && !activity.length && <ActivitySkeleton />}
 
           {error && (
-            <div className='p-4 mt-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-sm'>
+            <div className='p-4 mt-4 text-sm text-red-200 rounded-xl border bg-red-500/10 border-red-500/30'>
               Failed to load activity: {error.message}
             </div>
           )}
 
           {!isLoading && !error && !filteredActivity.length && (
-            <div className='p-6 mt-4 rounded-xl bg-white/5 text-white/60 text-sm text-center'>
+            <div className='p-6 mt-4 text-sm text-center rounded-xl bg-white/5 text-white/60'>
               {isUpshiftVault ? (
                 <span className='font-medium'>Coming soon</span>
               ) : (
@@ -225,7 +226,7 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
                 </div>
 
                 <div className='divide-y divide-white/10 rounded-2xl bg-[#090909aa]'>
-                  {paginatedActivity.map((item) => {
+                  {paginatedActivity.map(item => {
                     const meta = TYPE_META[item.type];
                     const explorer = EXPLORERS[vault.chainId];
                     const txUrl = explorer ? `${explorer}/tx/${item.txHash}` : null;
@@ -250,9 +251,7 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
                           <span
                             className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-dm-sans text-[12px] font-medium ${meta.badgeBg} ${meta.badgeText}`}
                           >
-                            <span
-                              className={`w-2 h-2 rounded-full ${meta.dot}`}
-                            />
+                            <span className={`w-2 h-2 rounded-full ${meta.dot}`} />
                             {item.label}
                           </span>
                         </div>
@@ -303,17 +302,19 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
                   })}
                 </div>
 
-                <div className='flex flex-wrap items-center justify-between gap-3 px-2 py-3 rounded-xl bg-white/5'>
+                <div className='flex flex-wrap gap-3 justify-between items-center px-2 py-3 rounded-xl bg-white/5'>
                   <div className='flex items-center gap-2 text-white/60 font-dm-sans text-[12px]'>
                     <span>Rows per page:</span>
                     <select
                       value={pageSize}
-                      onChange={(event) =>
-                        setPageSize(Number(event.target.value) as typeof PAGE_SIZE_OPTIONS[number])
+                      onChange={event =>
+                        setPageSize(
+                          Number(event.target.value) as (typeof PAGE_SIZE_OPTIONS)[number]
+                        )
                       }
                       className='bg-[#0F0F0F] border border-white/10 text-white text-[12px] rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#A100FF]'
                     >
-                      {PAGE_SIZE_OPTIONS.map((option) => (
+                      {PAGE_SIZE_OPTIONS.map(option => (
                         <option key={option} value={option}>
                           {option}
                         </option>
@@ -325,10 +326,10 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
                     Showing {showingStart}-{showingEnd} of {filteredActivity.length}
                   </div>
 
-                  <div className='flex items-center gap-2'>
+                  <div className='flex gap-2 items-center'>
                     <button
                       type='button'
-                      onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                      onClick={() => setPage(prev => Math.max(prev - 1, 1))}
                       disabled={page <= 1}
                       className={`flex items-center gap-1 rounded-lg px-3 py-1 text-[12px] font-medium transition-colors ${
                         page <= 1
@@ -343,7 +344,7 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
                     </span>
                     <button
                       type='button'
-                      onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                      onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
                       disabled={page >= totalPages}
                       className={`flex items-center gap-1 rounded-lg px-3 py-1 text-[12px] font-medium transition-colors ${
                         page >= totalPages
