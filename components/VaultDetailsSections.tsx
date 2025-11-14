@@ -5,6 +5,7 @@ import { useHistoricalData } from '@/hooks/useHistoricalData';
 import PerformanceChart from './PerformanceChart';
 import { DepositFormVaultDetailProps } from './DepositFormVaultDetail';
 import VaultActionTabs from './VaultActionTabs';
+import Image from 'next/image';
 
 interface VaultDetailsSectionsProps {
   vault?: {
@@ -41,6 +42,8 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
   const [selectedMetric, setSelectedMetric] = useState<'apy' | 'tvl' | 'price'>('price');
   const [isMetricDropdownOpen, setIsMetricDropdownOpen] = useState(false);
   const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
+  const [isRiskDisclosureOpen, setIsRiskDisclosureOpen] = useState(false);
+  const [isLegalDisclosureOpen, setIsLegalDisclosureOpen] = useState(false);
 
   // Fetch historical data
   // Map period to API format: '7d' | '30d' | '365d' | 'all'
@@ -500,58 +503,119 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
         </div>
       </div>
 
-      <div className='rounded-[20.78px] border border-[#FF9C4680] bg-[#FF9C460F] md:py-[30px] md:px-[20px] py-5 px-5 space-y-3.5'>
-        <div className='text-white font-dm-sans md:text-[20px] text-[15.91px] font-bold flex items-end gap-1 leading-none'>
+      <div className='rounded-[20.78px] border border-[#FF9C4680] bg-[#FF9C460F] md:p-[20px] py-5 px-5'>
+        <button
+          onClick={() => setIsRiskDisclosureOpen(!isRiskDisclosureOpen)}
+          className='flex justify-between items-center w-full'
+        >
+          <div className='text-white font-dm-sans md:text-[20px] text-[15.91px] font-bold flex items-baseline gap-1 leading-none'>
+            <div>
+              <Image
+                src='/assets/svgs/danger-icon.svg'
+                width={17}
+                height={15}
+                alt='Icon'
+                className='sm:w-[17px] w-[14.5px]'
+              />
+            </div>
+
+            <span>Risk Disclosure</span>
+          </div>
+
           <svg
+            width='9'
+            height='14'
+            viewBox='0 0 9 14'
+            fill='none'
             xmlns='http://www.w3.org/2000/svg'
-            viewBox='0 0 64 64'
-            role='img'
-            aria-labelledby='warnTitle warnDesc'
-            className='w-4 h-4 md:w-5 md:h-5'
+            className={`transition-transform duration-300 ${!isRiskDisclosureOpen ? 'rotate-180' : ''}`}
           >
-            <title id='warnTitle'>Warning</title>
-            <desc id='warnDesc'>Rounded yellow triangular warning sign with exclamation mark.</desc>
-
             <path
-              d='M32 6
-           C33 6 34 6.6 34.5 7.5
-           L60 54
-           C60.5 55 60 56 59 56
-           H5
-           C4 56 3.5 55 4 54
-           L29.5 7.5
-           C30 6.6 31 6 32 6Z'
-              fill='#FFCC00'
+              d='M8.7912 10.583L4.4996 6.27251L0.208008 10.583V7.70934L4.4996 3.41775L8.7912 7.70934V10.583Z'
+              fill='white'
+              fillOpacity='0.5'
             />
-
-            <rect x='30' y='18' width='4' height='18' rx='2' ry='2' fill='#000000' />
-
-            <circle cx='32' cy='44.5' r='3.5' fill='#000000' />
           </svg>
-          <span>Risk Disclosure</span>
+        </button>
+
+        <div
+          className={`overflow-hidden transition-all duration-300 ${
+            isRiskDisclosureOpen ? 'mt-2 opacity-100 max-h-[500px]' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <ul className='md:pl-2 pl-3 space-y-0.5 list-disc list-inside'>
+            <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+              Smart contract risk across multiple DeFi protocols
+            </li>
+
+            <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+              Liquidation risk in leveraged positions
+            </li>
+
+            <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+              Impermanent loss in liquidity provision strategies
+            </li>
+
+            <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+              Oracle manipulation and price feed vulnerabilities
+            </li>
+
+            <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+              Regulatory uncertainty in DeFi markets
+            </li>
+          </ul>
         </div>
+      </div>
 
-        <ul className='md:pl-1.5 pl-3 space-y-0.5 list-disc list-inside'>
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Smart contract risk across multiple DeFi protocols
-          </li>
+      <div className='rounded-[20.78px] border border-white bg-[#FFFFFF0D] md:p-[20px] py-5 px-5'>
+        <button
+          onClick={() => setIsLegalDisclosureOpen(!isLegalDisclosureOpen)}
+          className='flex justify-between items-center w-full'
+        >
+          <div className='text-white font-dm-sans md:text-[20px] text-[15.91px] font-bold flex items-baseline gap-1 leading-none'>
+            <div>
+              <Image
+                src='/assets/svgs/scale-icon.svg'
+                width={17}
+                height={15}
+                alt='Icon'
+                className='sm:w-[17px] w-[14.5px]'
+              />
+            </div>
 
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Liquidation risk in leveraged positions
-          </li>
+            <span>Legal Disclaimer</span>
+          </div>
 
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Impermanent loss in liquidity provision strategies
-          </li>
+          <svg
+            width='9'
+            height='14'
+            viewBox='0 0 9 14'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+            className={`transition-transform duration-300 ${!isLegalDisclosureOpen ? 'rotate-180' : ''}`}
+          >
+            <path
+              d='M8.7912 10.583L4.4996 6.27251L0.208008 10.583V7.70934L4.4996 3.41775L8.7912 7.70934V10.583Z'
+              fill='white'
+              fillOpacity='0.5'
+            />
+          </svg>
+        </button>
 
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Oracle manipulation and price feed vulnerabilities
-          </li>
-
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Regulatory uncertainty in DeFi markets
-          </li>
-        </ul>
+        <div
+          className={`overflow-hidden transition-all duration-300 ${
+            isLegalDisclosureOpen ? 'mt-2 opacity-100 max-h-[500px]' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <ul className='md:pl-2 pl-3 space-y-0.5 list-disc list-inside'>
+            <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
+              This vault involves significant risks, including smart contract vulnerabilities,
+              regulatory uncertainty, and potential loss of funds. By using this vault, you
+              acknowledge and agree to accept these risks. Consult with a qualified financial
+              advisor before participating.
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div className='space-y-1 md:space-y-5'>

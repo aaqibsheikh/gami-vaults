@@ -571,7 +571,7 @@ export default function DepositFormVaultDetail({ vault }: DepositFormVaultDetail
           !balanceFormatted ||
           parseFloat(amount) > parseFloat(balanceFormatted)
         }
-        className='w-full px-[28.44px] md:h-[40px] h-[28.08px] rounded-[10px] bg-gradient-purple text-white md:text-[15px] text-sm font-medium font-dm-sans hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed'
+        className='w-full px-[28.44px] md:h-[40px] h-[28.08px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white md:text-[15px] text-sm font-medium font-dm-sans transition-opacity disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gradient-purple'
       >
         {isApproving || isDepositing || isTxPending
           ? needsApproval
