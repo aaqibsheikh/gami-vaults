@@ -29,7 +29,7 @@ export default function DeFiProtocols() {
       <div className='rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] sm:px-[27px] px-[15px] sm:py-[30px] py-[20px] bg-[#FFFFFF0F]'>
         <div className='flex flex-col items-center sm:gap-[30px] gap-4'>
           <div className='space-y-4 sm:space-y-7'>
-            <h2 className='font-modernist sm:text-[40px] text-xl font-normal leading-[100%] sm:tracking-[-0.8px] text-white text-center'>
+            <h2 className='font-modernist sm:text-[32px] text-xl font-normal leading-[100%] sm:tracking-[-0.8px] text-white text-center'>
               Powered by leading <br className='sm:hidden' /> DeFi Protocols
             </h2>
 

@@ -195,24 +195,24 @@ export default function InstitutionalFeatures() {
 
   return (
     <section className='pt-[35px] pb-[80px]'>
-      <div className='flex justify-between items-start xl:gap-[180px] gap-x-20 sm:gap-y-14 gap-y-[30px] lg:flex-row flex-col'>
-        <div className='flex-shrink-0 min-w-[329px]'>
+      <div className='flex justify-between items-start xl:gap-[208px] gap-x-20 sm:gap-y-14 gap-y-[30px] lg:flex-row flex-col'>
+        <div className='flex-shrink-0 min-w-[287px]'>
           <h2 className='font-modernist sm:text-[57px] text-[41px] font-normal leading-[100%] tracking-[-1.15px] gradient-text'>
             Institutional <br className='sm:hidden lg:block' /> DeFI,{' '}
             <br className='sm:hidden lg:block' /> Simplified
           </h2>
         </div>
 
-        <div className='grid flex-1 sm:grid-cols-2 gap-x-[70px] sm:gap-y-24 gap-y-9'>
+        <div className='grid flex-1 sm:grid-cols-2 gap-x-[96px] sm:gap-y-24 gap-y-9'>
           {features.map((feature, index) => (
             <div key={index} className='sm:space-y-[30px] space-y-4'>
               <div className='w-14 h-14'>{feature.icon}</div>
 
-              <h3 className='font-modernist sn:text-[33px] text-xl font-bold leading-[110%] tracking-[-0.656px] text-white'>
+              <h3 className='font-modernist sm:text-[32px] text-xl font-bold leading-[110%] tracking-[-0.656px] text-white'>
                 {feature.title}
               </h3>
 
-              <p className='font-dm-sans sm:text-[19px] font-medium leading-[128%] tracking-[-0.38px] text-gray-300'>
+              <p className='font-dm-sans sm:text-lg font-medium leading-[128%] tracking-[-0.38px] text-gray-300'>
                 {feature.description}
               </p>
             </div>

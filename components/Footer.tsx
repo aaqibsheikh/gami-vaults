@@ -18,7 +18,7 @@ export default function Footer() {
         />
       </div>
 
-      <div className='relative lg:pl-[57px] lg:pr-[108px] px-6 sm:pt-[47px] pt-[52px] mx-auto max-w-[1526px]'>
+      <div className='relative  xl:px-[84px] sm:px-4 px-6 sm:pt-[47px] pt-[52px] mx-auto max-w-[1280px]'>
         <div className='flex justify-between items-start'>
           <p className='text-white font-dm-sans text-base font-normal leading-[140%] md:block hidden'>
             Gami provides on-chain asset management <br /> infrastructure with active curation &
@@ -28,21 +28,21 @@ export default function Footer() {
           <div className='flex flex-col gap-2 sm:gap-4'>
             <Link
               href='/vaults'
-              className='text-white font-dm-sans sm:text-[16px] text-[8.14px] font-normal hover:opacity-80 transition-opacity'
+              className='text-white font-dm-sans sm:text-[15px] text-[10px] font-normal hover:opacity-80 transition-opacity'
             >
               Vaults
             </Link>
 
             <Link
               href='/portfolio'
-              className='text-white font-dm-sans sm:text-[16px] text-[8.14px] font-normal hover:opacity-80 transition-opacity'
+              className='text-white font-dm-sans sm:text-[15px] text-[10px] font-normal hover:opacity-80 transition-opacity'
             >
               Portfolio
             </Link>
 
             <Link
               href='/about'
-              className='text-white font-dm-sans sm:text-[16px] text-[8.14px] font-normal hover:opacity-80 transition-opacity'
+              className='text-white font-dm-sans sm:text-[15px] text-[10px] font-normal hover:opacity-80 transition-opacity'
             >
               About
             </Link>

@@ -47,9 +47,12 @@ const VaultCard = ({
           }}
         />
 
-        <div className='flex relative z-10 justify-between items-start gap-1.5'>
-          <div>
-            <div className='sm:font-bold sm:text-[17.9px] leading-none tracking-[-0.358px]'>
+        <div className='flex relative z-10 gap-1 justify-between items-start md:gap-2'>
+          <div className='flex-1 min-w-0'>
+            <div
+              className='sm:font-bold sm:text-[18px] text-[17px] leading-none tracking-[-0.358px] truncate'
+              title={name}
+            >
               {name}
             </div>
 
@@ -81,7 +84,9 @@ const VaultCard = ({
             <div className='text-[12px] leading-none absolute top-[11px] right-[9px]'>APY</div>
 
             <div className='text-center'>
-              <div className='font-modernist font-bold text-[30px] leading-none mb-1.5'>{apy}</div>
+              <div className='font-modernist font-bold sm:text-[30px] text-[28px] leading-none mb-1.5'>
+                {apy}
+              </div>
 
               <div className='text-[#FFFFFFB2] text-[12px] leading-none'>Target : {apy}</div>
             </div>
@@ -91,33 +96,35 @@ const VaultCard = ({
             <div className='text-[12px] leading-none absolute top-[11px] right-[9px]'>TVL</div>
 
             <div className='text-center'>
-              <div className='font-modernist font-bold text-[30px] leading-none mb-1.5'>{tvl}</div>
+              <div className='font-modernist font-bold sm:text-[30px] text-[28px] leading-none mb-1.5'>
+                {tvl}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className='flex items-center gap-[11.19px] relative mt-1.5'>
+        <div className='flex items-center gap-[11.19px] relative mt-2.5'>
           {assets.map((asset, index) => (
             <div
               key={index}
-              className='bg-[#2C2929] rounded-[5px] h-[21px] px-[4.74px] leading-none text-[13.41px] text-white flex items-center justify-center'
+              className='bg-[#2C2929] rounded-[100px] h-[18px] px-[5px] leading-none text-[12px] text-white flex items-center justify-center'
             >
               {asset}
             </div>
           ))}
         </div>
 
-        <div className='flex items-center gap-[17px] relative mt-5'>
+        <div className='flex items-center gap-2.5 relative mt-5'>
           <Link
             href={`/vaults/${chainId}/${vaultId}?tab=deposit`}
-            className='px-[28.44px] h-[40.89px] rounded-[10px] bg-gradient-purple text-white text-[14.22px] font-medium font-dm-sans hover:opacity-90 transition-opacity flex items-center justify-center w-full'
+            className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white font-medium font-dm-sans transition-all duration-300 flex items-center justify-center hover:bg-gradient-purple w-full'
           >
             Deposit
           </Link>
 
           <Link
             href={`/vaults/${chainId}/${vaultId}`}
-            className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[14px] font-medium font-dm-sans hover:bg-white/10 transition-colors w-full flex items-center justify-center'
+            className='px-[28.44px] h-[40.89px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white font-medium font-dm-sans transition-all duration-300 flex items-center justify-center hover:bg-gradient-purple w-full'
           >
             Details
           </Link>
