@@ -205,8 +205,12 @@ export default function VaultActivity({ vault }: VaultActivityProps) {
           )}
 
           {!isLoading && !error && !filteredActivity.length && (
-            <div className='p-6 mt-4 rounded-xl bg-white/5 text-white/60 text-sm'>
-              No activity found for this vault yet.
+            <div className='p-6 mt-4 rounded-xl bg-white/5 text-white/60 text-sm text-center'>
+              {isUpshiftVault ? (
+                <span className='font-medium'>Coming soon</span>
+              ) : (
+                'No activity found for this vault yet.'
+              )}
             </div>
           )}
 
