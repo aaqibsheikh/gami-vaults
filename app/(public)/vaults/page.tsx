@@ -124,15 +124,15 @@ export default function ExploreVaults() {
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className='flex flex-col gap-1 items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-4 bg-[#FFFFFF0F]'
+                className='flex flex-col gap-1 items-center justify-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 h-[66.32px] bg-[#FFFFFF0F]'
               >
                 <h3
-                  className={`font-modernist sm:text-[43.5px] text-[30px] font-bold leading-[110%] tracking-[-0.87px] text-white ${stat?.textColor}`}
+                  className={`font-modernist text-[30px] font-bold leading-[110%] tracking-[-0.87px] text-white ${stat?.textColor}`}
                 >
                   {stat.value}
                 </h3>
 
-                <p className='font-dm-sans sm:text-[12.2px] text-[10px] font-normal leading-[110%] tracking-[-0.245px] text-white uppercase'>
+                <p className='font-dm-sans text-[10px] font-normal leading-[110%] tracking-[-0.245px] text-white uppercase'>
                   {stat.label}
                 </p>
               </div>
@@ -140,9 +140,9 @@ export default function ExploreVaults() {
           </div>
         </div>
 
-        <div className='sm:bg-[#141414] bg-[#090909] rounded-[21.93px] sm:p-[20.37px] p-2 md:mt-10 mt-5'>
-          <div className='flex justify-end items-center'>
-            <div className='block relative sm:hidden'>
+        <div className='sm:bg-[#141414] rounded-[21.93px] sm:p-[20.37px] md:mt-10 mt-5'>
+          <div className='flex justify-end items-center sm:hidden'>
+            <div className='relative'>
               <input
                 type='text'
                 placeholder='Search by vault name...'
@@ -179,7 +179,7 @@ export default function ExploreVaults() {
             </div>
           </div>
 
-          <div className='mt-5'>
+          <div className='mt-5 sm:mt-0'>
             {isLoading ? (
               <div className='grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3'>
                 {[1, 2, 3].map(i => (
@@ -216,20 +216,20 @@ export default function ExploreVaults() {
           </div>
         </div>
 
-        <div className='bg-[#141414] rounded-[21.93px] p-[20.37px] mt-10 sm:block hidden'>
+        <div className='bg-[#141414] rounded-[22.44px] p-[30px] mt-10 sm:block hidden'>
           <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-[14.32px]'>
+            <div className='flex items-center gap-[14px]'>
               {tokenTabs.map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveToken(tab)}
-                  className={`flex h-10 px-3 justify-center items-center rounded-[20.78px] backdrop-blur-lg transition-colors ${
+                  className={`flex h-10 px-2.5 justify-center items-center rounded-[21.27px] backdrop-blur-lg transition-colors ${
                     tab === activeToken
                       ? 'shadow-[0_0_0_0.5px_#A100FF] bg-[#A100FF2E]'
                       : 'shadow-[0_0_0_0.5px_#ffffff47] bg-[#FFFFFF0F] hover:bg-white/10'
                   }`}
                 >
-                  <div className='whitespace-nowrap text-white font-dm-sans text-[13.58px] font-light leading-none'>
+                  <div className='whitespace-nowrap text-white font-dm-sans text-[13.89px] font-light leading-none'>
                     {tab}
                   </div>
                 </button>
@@ -352,14 +352,14 @@ export default function ExploreVaults() {
                     <div className='flex gap-3.5 justify-start items-center'>
                       <Link
                         href={`/vaults/${vault.chainId}/${vault.vaultId}?tab=deposit`}
-                        className='px-6 h-[33px] rounded-[10px] bg-gradient-purple text-white text-[13px] font-medium font-dm-sans hover:opacity-90 transition-opacity flex items-center justify-center'
+                        className='px-6 h-[33px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[13px] font-medium font-dm-sans transition-all flex items-center justify-center hover:bg-gradient-purple'
                       >
                         Deposit
                       </Link>
 
                       <Link
                         href={`/vaults/${vault.chainId}/${vault.vaultId}`}
-                        className='px-6 h-[33px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[13px] font-medium font-dm-sans hover:bg-white/10 transition-colors flex items-center justify-center'
+                        className='px-6 h-[33px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[13px] font-medium font-dm-sans transition-all flex items-center justify-center hover:bg-gradient-purple'
                       >
                         Details
                       </Link>
