@@ -417,9 +417,9 @@ export default function PortfolioPage() {
           </>
         ) : (
           <>
-            <div className='flex justify-between items-center w-full sm:flex-row flex-col sm:bg-[#FFFFFF0F] sm:py-[31px] sm:shadow-[0_0_0_0.4px_#ffffff47] sm:rounded-[33.43px] sm:px-[70px] sm:mt-10 mt-5 sm:backdrop-blur-lg gap-2.5'>
-              <div className='flex flex-col gap-1.5 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent w-full'>
-                <div className='text-white font-modernist sm:text-[43px] text-[30px] font-bold leading-[110%] tracking-[-0.866px]'>
+            <div className='flex justify-between items-center w-full sm:flex-row flex-col sm:bg-[#FFFFFF0F] sm:py-[28px] sm:shadow-[0_0_0_0.4px_#ffffff47] sm:rounded-[19.81px] sm:px-[70px] sm:mt-10 mt-5 sm:backdrop-blur-lg gap-2.5'>
+              <div className='flex flex-col gap-1 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent sm:w-fit w-full'>
+                <div className='text-white font-modernist sm:text-[32px] text-[30px] font-bold leading-[110%] tracking-[-0.866px]'>
                   {summaryStats.activeVaults}
                 </div>
 
@@ -428,8 +428,8 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              <div className='flex flex-col gap-1.5 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent w-full'>
-                <div className='text-white font-modernist sm:text-[43px] text-[30px] font-bold leading-[110%] tracking-[-0.866px]'>
+              <div className='flex flex-col gap-1 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent sm:w-fit w-full'>
+                <div className='text-white font-modernist sm:text-[32px] text-[30px] font-bold leading-[110%] tracking-[-0.866px]'>
                   {formatUsd(summaryStats.totalAssets.toString())}
                 </div>
 
@@ -438,9 +438,9 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              <div className='flex flex-col gap-1.5 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent w-full'>
+              <div className='flex flex-col gap-1 justify-center items-center rounded-[20px] shadow-[0_0_0_0.5px_#ffffff47] px-4 py-3 bg-[#FFFFFF0F] sm:px-0 sm:py-0 sm:rounded-none sm:shadow-none sm:bg-transparent sm:w-fit w-full'>
                 <div
-                  className={`font-modernist sm:text-[43px] text-[30px] font-bold leading-[110%] tracking-[-0.866px] ${
+                  className={`font-modernist sm:text-[32px] text-[30px] font-bold leading-[110%] tracking-[-0.866px] ${
                     summaryStats.totalPnl >= 0 ? 'text-[#00F792]' : 'text-red-400'
                   }`}
                 >
@@ -463,11 +463,11 @@ export default function PortfolioPage() {
 
         {isConnected && (
           <div className='mt-5 sm:mt-10'>
-            <h2 className='font-modernist sm:text-[30px] text-2xl leading-[100%] tracking-[-0.64px] text-white sm:mb-6 mb-4 sm:px-7'>
+            <h2 className='font-modernist sm:text-[30px] text-2xl leading-[100%] tracking-[-0.64px] text-white sm:mb-6 mb-4'>
               Active Positions
             </h2>
 
-            <div className='flex justify-between items-center mb-4 sm:mb-8 sm:px-7'>
+            <div className='flex justify-between items-center mb-4 sm:mb-8 sm:shadow-[0_0_0_0.2px_#FFFFFF47] sm:rounded-[20.78px] sm:px-5 sm:py-2.5'>
               <div className='flex gap-3 items-center'>
                 {(['All Chains', 'Token'] as FilterTab[]).map(tab => (
                   <button
@@ -605,7 +605,7 @@ export default function PortfolioPage() {
                           </Link>
                         </div>
 
-                        <div className='sm:text-[14.76px] text-[10.68px] font-medium leading-none text-white bg-[#2C2929] rounded-[10.44px] py-[4.74px] px-[5.49px]'>
+                        <div className='sm:text-[15.39px] text-[10.68px] font-medium leading-none text-white bg-[#2C2929] rounded-[15.39px] px-[5.49px] h-[22px] flex items-center justify-center'>
                           {getProviderBadge(position.vaultProvider)}
                         </div>
                       </div>
@@ -654,14 +654,14 @@ export default function PortfolioPage() {
                       <div className='flex gap-4 mt-3.5'>
                         <Link
                           href={`/vaults/${position.chainId}/${position.vault}?action=deposit`}
-                          className='flex-1 sm:h-[31.19px] h-[47px] px-6 rounded-[10px] bg-gradient-purple text-white font-dm-sans text-[16.04px] sm:text-[10.99px] font-bold hover:opacity-90 transition-opacity flex items-center justify-center'
+                          className='flex-1 sm:h-[31.19px] h-[47px] px-6 rounded-[10px] shadow-[0_0_0_0.5px_#ffffff47] bg-[#FFFFFF0D] text-white font-dm-sans text-[16.04px] sm:text-[10.99px] font-bold transition-all flex items-center justify-center hover:bg-gradient-purple'
                         >
                           Deposit
                         </Link>
 
                         <Link
                           href={`/vaults/${position.chainId}/${position.vault}?action=withdraw`}
-                          className='flex-1 sm:h-[31.19px] h-[47px] px-6 rounded-[10px] glass-border bg-[#FFFFFF0D] text-white font-dm-sans text-[16.04px] sm:text-[10.99px] font-normal hover:bg-white/10 transition-colors flex items-center justify-center'
+                          className='flex-1 sm:h-[31.19px] h-[47px] px-6 rounded-[10px] shadow-[0_0_0_0.5px_#ffffff47] bg-[#FFFFFF0D] text-white font-dm-sans text-[16.04px] sm:text-[10.99px] font-normal transition-all flex items-center justify-center hover:bg-gradient-purple'
                         >
                           Withdraw
                         </Link>
@@ -675,7 +675,7 @@ export default function PortfolioPage() {
         )}
 
         {isConnected && (
-          <div className='bg-[#FFFFFF0F] rounded-[20.34px] p-5 mt-10'>
+          <div className='bg-[#FFFFFF0F] rounded-[21.34px] p-5 mt-10 border border-white/10'>
             <div className='flex justify-between items-center mb-3 sm:mb-6'>
               <h2 className='text-sm sm:text-[17.54px] font-bold leading-[100%] tracking-[-0.64px] text-white'>
                 Transaction History
@@ -718,23 +718,23 @@ export default function PortfolioPage() {
                 <table className='w-full'>
                   <thead>
                     <tr className='border-b border-white/20'>
-                      <th className='py-3 pl-5 text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase text-left'>
+                      <th className='pb-[4.5px] pl-5 text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase text-left'>
                         Date
                       </th>
 
-                      <th className='py-3 px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
+                      <th className='pb-[4.5px] px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
                         Vault
                       </th>
 
-                      <th className='py-3 px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
+                      <th className='pb-[4.5px] px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
                         Action
                       </th>
 
-                      <th className='py-3 px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
+                      <th className='pb-[4.5px] px-3 text-center text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
                         Amount
                       </th>
 
-                      <th className='py-3 pl-3 text-right text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
+                      <th className='pb-[4.5px] pl-3 text-right text-white font-dm-sans text-[10px] sm:text-[13.24px] font-normal sm:font-bold uppercase'>
                         STATUS
                       </th>
                     </tr>

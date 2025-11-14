@@ -2,6 +2,7 @@
 
 import { formatUsd, formatPercentage } from '@/lib/normalize';
 import { VaultDTO } from '@/lib/dto';
+import Image from 'next/image';
 
 interface VaultDetailProps {
   vault?: VaultDTO;
@@ -28,9 +29,9 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
       case 'ipor':
         return { text: 'Advanced', bgColor: 'bg-[#2C2929]' };
       case 'lagoon':
-        return { text: 'Lagoon', bgColor: 'bg-[#2C2929]' };
-        case 'upshift':
-          return { text: 'Upshift', bgColor: 'bg-[#2C2929]' };
+        return { text: 'Lagoon', bgColor: 'bg-[#2C2929]', icon: '/assets/svgs/lagoon-icon.svg' };
+      case 'upshift':
+        return { text: 'Upshift', bgColor: 'bg-[#2C2929]' };
 
       default:
         return { text: '--', bgColor: 'bg-[#2C2929]' };
@@ -41,9 +42,9 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
 
   return (
     <div className='w-full sm:px-[18.76px] sm:py-[21px] py-[14.5px] px-[14.6px] sm:rounded-[21.2px] rounded-[14.6px] bg-[#FFFFFF0F] backdrop-blur-lg space-y-5'>
-      <div className='flex bg-[#141414] sm:rounded-[16.11px] rounded-[11.28px] w-full sm:!p-[14.97px] px-2.5 py-4 justify-between items-start'>
+      <div className='flex bg-[#141414] sm:rounded-[16.11px] rounded-[11.28px] w-full sm:!p-[12px] px-2.5 py-4 justify-between items-start'>
         <div>
-          <div className='text-white font-modernist sm:text-[40px] text-sm font-normal tracking-[-0.8px] leading-none'>
+          <div className='text-white font-modernist sm:text-[48px] text-sm font-normal tracking-[-0.8px] leading-none'>
             {vaultName}
           </div>
 
@@ -52,10 +53,25 @@ export default function VaultDetail({ vault }: VaultDetailProps) {
           </div>
         </div>
 
-        <div
-          className={`sm:rounded-[10px] rounded-[7px] text-white font-dm-sans sm:text-[15px] text-[10.78px] font-light leading-none ${badge.bgColor} px-[5.40px] md:h-[25px] h-[18px] flex items-center justify-center`}
-        >
-          {badge.text}
+        <div className='flex justify-center items-center'>
+          {badge.icon && (
+            <div
+              className={`sm:rounded-[10px] rounded-[7px] text-white font-dm-sans sm:text-[15px] text-[10.78px] font-light leading-none ${badge.bgColor} px-[5.40px] md:h-[25px] h-[18px] flex items-center justify-center`}
+            >
+              <Image
+                src='/assets/svgs/lagoon-icon.svg'
+                width={15}
+                height={15}
+                alt='Icon'
+                className='sm:w-[15px] w-[10.5px]'
+              />
+            </div>
+          )}
+          <div
+            className={`sm:rounded-[10px] rounded-[7px] text-white font-dm-sans sm:text-[15px] text-[10.78px] font-light leading-none ${badge.bgColor} px-[5.40px] md:h-[25px] h-[18px] flex items-center justify-center`}
+          >
+            {badge.text}
+          </div>
         </div>
       </div>
 

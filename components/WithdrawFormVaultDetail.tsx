@@ -352,7 +352,7 @@ export default function WithdrawFormVaultDetail({ vault }: WithdrawFormVaultDeta
           parseFloat(sharesAmount) <= 0 ||
           (position?.shares ? parseFloat(sharesAmount) > parseFloat(position.shares) : true)
         }
-        className='w-full px-[28.44px] h-[40px] rounded-[10px] bg-gradient-purple text-white text-[15px] font-medium font-dm-sans hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed'
+        className='w-full px-[28.44px] h-[40px] rounded-[10px] shadow-[0_0_0_1px_#ffffff47] bg-[#FFFFFF0F] text-white text-[15px] font-medium font-dm-sans transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gradient-purple'
       >
         {isWithdrawing || isTxPending
           ? 'Processing...'

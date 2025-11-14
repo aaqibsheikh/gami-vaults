@@ -5,6 +5,7 @@ import { useHistoricalData } from '@/hooks/useHistoricalData';
 import PerformanceChart from './PerformanceChart';
 import { DepositFormVaultDetailProps } from './DepositFormVaultDetail';
 import VaultActionTabs from './VaultActionTabs';
+import Image from 'next/image';
 
 interface VaultDetailsSectionsProps {
   vault?: {
@@ -41,6 +42,8 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
   const [selectedMetric, setSelectedMetric] = useState<'apy' | 'tvl' | 'price'>('price');
   const [isMetricDropdownOpen, setIsMetricDropdownOpen] = useState(false);
   const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
+  const [isRiskDisclosureOpen, setIsRiskDisclosureOpen] = useState(false);
+  const [isLegalDisclosureOpen, setIsLegalDisclosureOpen] = useState(false);
 
   // Fetch historical data
   // Map period to API format: '7d' | '30d' | '365d' | 'all'
@@ -497,81 +500,6 @@ export default function VaultDetailsSections({ vault }: VaultDetailsSectionsProp
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className='rounded-[20.78px] border border-[#FF9C4680] bg-[#FF9C460F] md:py-[30px] md:px-[20px] py-5 px-5 space-y-3.5'>
-        <div className='text-white font-dm-sans md:text-[20px] text-[15.91px] font-bold flex items-end gap-1 leading-none'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            viewBox='0 0 64 64'
-            role='img'
-            aria-labelledby='warnTitle warnDesc'
-            className='w-4 h-4 md:w-5 md:h-5'
-          >
-            <title id='warnTitle'>Warning</title>
-            <desc id='warnDesc'>Rounded yellow triangular warning sign with exclamation mark.</desc>
-
-            <path
-              d='M32 6
-           C33 6 34 6.6 34.5 7.5
-           L60 54
-           C60.5 55 60 56 59 56
-           H5
-           C4 56 3.5 55 4 54
-           L29.5 7.5
-           C30 6.6 31 6 32 6Z'
-              fill='#FFCC00'
-            />
-
-            <rect x='30' y='18' width='4' height='18' rx='2' ry='2' fill='#000000' />
-
-            <circle cx='32' cy='44.5' r='3.5' fill='#000000' />
-          </svg>
-          <span>Risk Disclosure</span>
-        </div>
-
-        <ul className='md:pl-1.5 pl-3 space-y-0.5 list-disc list-inside'>
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Smart contract risk across multiple DeFi protocols
-          </li>
-
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Liquidation risk in leveraged positions
-          </li>
-
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Impermanent loss in liquidity provision strategies
-          </li>
-
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Oracle manipulation and price feed vulnerabilities
-          </li>
-
-          <li className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px]'>
-            Regulatory uncertainty in DeFi markets
-          </li>
-        </ul>
-      </div>
-
-      <div className='space-y-1 md:space-y-5'>
-        <div className='text-white font-modernist md:text-xl font-bold leading-[162%] tracking-[-0.4px] md:px-3'>
-          Contract Information
-        </div>
-
-        <div className='rounded-[21px] shadow-[0_0_0_0.4px_#ffffff47] bg-[#FFFFFF0F] md:px-[9.5px] px-[14px] py-5 flex justify-between items-center gap-3'>
-          <div className='text-white font-dm-sans text-[16px] font-light leading-[128%] tracking-[-0.32px] break-all  '>
-            {contractAddress}
-          </div>
-
-          <button
-            onClick={handleCopyAddress}
-            className='rounded-[10px] border border-white/40 hover:bg-white/10 transition-colors h-[30px] px-2.5 flex-shrink-0'
-          >
-            <div className='text-[#FFFFFF80] font-dm-sans text-sm font-light leading-[128%] tracking-[-0.28px]'>
-              {copied ? 'Copied!' : 'Copy'}
-            </div>
-          </button>
         </div>
       </div>
     </div>

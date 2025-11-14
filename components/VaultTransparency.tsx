@@ -53,14 +53,14 @@ export default function VaultTransparency({ vault }: VaultTransparencyProps) {
   const totalTvl = '$200.75M';
 
   return (
-    <div className='md:mt-[30px] mt-[22px] md:px-[12px] md:py-[20px] px-2 py-4 md:rounded-[20px] rounded-[10.75px] shadow-[0_0_0_0.8px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg'>
-      <h2 className='text-white font-dm-sans md:text-[17px] font-bold leading-[128%] tracking-[-0.344px] md:mb-[30px] mb-2.5 md:px-3 px-1'>
+    <div className='md:px-[12px] md:!p-5 py-[13px] px-[14px] md:rounded-[17px] rounded-[14.73px] shadow-[0_0_0_0.8px_#ffffff47] bg-[#FFFFFF0F] backdrop-blur-lg'>
+      <h2 className='text-white font-dm-sans md:text-xl font-bold leading-[128%] tracking-[-0.344px] md:mb-5 mb-2.5'>
         Transparency
       </h2>
 
       <div className='grid md:grid-cols-2 grid-cols-1 md:gap-[15px] gap-2.5'>
-        <div className='bg-[#1D1D1D] p-3 rounded-[13.7px]'>
-          <div className='grid-cols-[1fr_1fr_1fr_1fr] grid mb-2 items-center'>
+        <div className='bg-[#1D1D1D] px-1.5 py-3 rounded-[13.7px]'>
+          <div className='grid-cols-[1fr_1fr_1fr_1fr] grid mb-2 items-center md:px-[8.73px] px-2'>
             <h3 className='text-white font-dm-sans md:text-[17px] font-normal tracking-[-0.256px] col-span-2'>
               Onchain Wallets
             </h3>
@@ -78,7 +78,7 @@ export default function VaultTransparency({ vault }: VaultTransparencyProps) {
             {onchainWallets.map((wallet, index) => (
               <div
                 key={index}
-                className='grid grid-cols-[1fr_1fr_1fr_1fr] items-center bg-[#090909] md:p-[8.73px] p-2 md:rounded-[13.7px] rounded-[8.83px]'
+                className='grid grid-cols-[1fr_1fr_1fr_1fr] items-center bg-[#0F0F0F] md:p-[8.73px] p-2 md:rounded-[13.7px] rounded-[8.83px]'
               >
                 <span className='text-white font-dm-sans md:text-[17px] text-[11px] font-normal leading-none tracking-[-0.256px]'>
                   {wallet.name}
@@ -106,8 +106,8 @@ export default function VaultTransparency({ vault }: VaultTransparencyProps) {
         </div>
 
         <div className='md:space-y-0 space-y-2.5'>
-          <div className='bg-[#1D1D1D] p-3 rounded-[13.7px]'>
-            <div className='grid-cols-[1fr_1fr_1fr_1fr] grid mb-2 items-center'>
+          <div className='bg-[#1D1D1D] px-1.5 py-3 rounded-[13.7px]'>
+            <div className='grid-cols-[1fr_1fr_1fr_1fr] grid mb-2 items-center md:px-[8.73px] px-2'>
               <h3 className='text-white font-dm-sans md:text-[17px] font-normal tracking-[-0.256px] col-span-2'>
                 Available Liquidity Buffer
               </h3>
@@ -125,7 +125,7 @@ export default function VaultTransparency({ vault }: VaultTransparencyProps) {
               {availableLiquidity.map((wallet, index) => (
                 <div
                   key={index}
-                  className='grid grid-cols-[1fr_1fr_1fr_1fr] items-center bg-[#090909] md:p-[8.73px] p-2 md:rounded-[13.7px] rounded-[8.83px]'
+                  className='grid grid-cols-[1fr_1fr_1fr_1fr] items-center bg-[#0F0F0F] md:p-[8.73px] p-2 md:rounded-[13.7px] rounded-[8.83px]'
                 >
                   <span className='text-white font-dm-sans md:text-[17px] text-[11px] font-normal leading-none tracking-[-0.256px]'>
                     {wallet.name}
@@ -152,8 +152,8 @@ export default function VaultTransparency({ vault }: VaultTransparencyProps) {
             </div>
           </div>
 
-          <div className='bg-[#1D1D1D] p-3 rounded-[13.7px]'>
-            <div className='grid-cols-[1fr_1fr_1fr_1fr] grid mb-2 items-center'>
+          <div className='bg-[#1D1D1D] px-1.5 py-3 rounded-[13.7px]'>
+            <div className='grid-cols-[1fr_1fr_1fr_1fr] grid mb-2 items-center md:px-[8.73px] px-2'>
               <h3 className='text-white font-dm-sans md:text-[17px] font-normal tracking-[-0.256px] col-span-2'>
                 To be Deployed Asset
               </h3>
@@ -171,7 +171,7 @@ export default function VaultTransparency({ vault }: VaultTransparencyProps) {
               {toBeDeployed.map((wallet, index) => (
                 <div
                   key={index}
-                  className='grid grid-cols-[1fr_1fr_1fr_1fr] items-center bg-[#090909] md:p-[8.73px] p-2 md:rounded-[13.7px] rounded-[8.83px]'
+                  className='grid grid-cols-[1fr_1fr_1fr_1fr] items-center bg-[#0F0F0F] md:p-[8.73px] p-2 md:rounded-[13.7px] rounded-[8.83px]'
                 >
                   <span className='text-white font-dm-sans md:text-[17px] text-[11px] font-normal leading-none tracking-[-0.256px]'>
                     {wallet.name}
@@ -200,18 +200,22 @@ export default function VaultTransparency({ vault }: VaultTransparencyProps) {
         </div>
       </div>
 
-      <div className='grid grid-cols-[1fr_auto_auto] gap-4 items-center md:mt-5 mt-2.5 md:px-0 px-3'>
+      <div className='grid grid-cols-2 md:gap-[15px] gap-2.5 md:mt-5 mt-2.5'>
         <span className='text-white font-dm-sans md:text-[17px] text-[11px] font-bold leading-none tracking-[-0.256px]'>
           TOTAL TVL
         </span>
 
-        <span className='text-white font-dm-sans md:text-[13.6px] text-[8.77px] font-bold leading-none tracking-[-0.256px] text-right'>
-          {totalTvl}
-        </span>
+        <div className='grid-cols-[1fr_1fr_1fr_1fr] grid mb-2 items-center md:px-3 px-2'>
+          <span className='col-span-2'></span>
 
-        <span className='text-white font-dm-sans md:text-[13.6px] text-[8.77px] font-bold leading-none tracking-[-0.256px] text-right min-w-[60px]'>
-          100.0%
-        </span>
+          <span className='text-white font-dm-sans md:text-[13.6px] text-[8.77px] font-medium leading-none tracking-[-0.256px] text-right'>
+            {totalTvl}
+          </span>
+
+          <span className='text-white font-dm-sans md:text-[13.6px] text-[8.77px] font-medium leading-none tracking-[-0.256px] text-right min-w-[60px]'>
+            100.0%
+          </span>
+        </div>
       </div>
 
       <div className='flex justify-end mt-4'>
