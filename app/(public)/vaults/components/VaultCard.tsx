@@ -47,9 +47,12 @@ const VaultCard = ({
           }}
         />
 
-        <div className='flex relative z-10 justify-between items-start gap-1.5'>
-          <div>
-            <div className='sm:font-bold sm:text-[17.9px] leading-none tracking-[-0.358px]'>
+        <div className='flex relative z-10 gap-1 justify-between items-start md:gap-2'>
+          <div className='flex-1 min-w-0'>
+            <div
+              className='sm:font-bold sm:text-[17.9px] leading-none tracking-[-0.358px] truncate'
+              title={name}
+            >
               {name}
             </div>
 
